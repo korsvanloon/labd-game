@@ -159,7 +159,7 @@ export const PlayerGame = ({
         style={{ borderColor: playerColor[controller.id] }}
         getOptionNode={(option, selected) => (
           <div
-            className={clsx(styles.payerOption, selected && styles.selected)}
+            className={clsx(styles.playerOption, selected && styles.selected)}
           >
             <img src={option.img} className={styles.playerOptionImg} />
             <div>{option.name}</div>

@@ -4,8 +4,7 @@
     "source.fixAll": true,
     "source.organizeImports": true
   },
-  "stylelint.config": null,
-  "stylelint.validate": ["css", "scss"],
+  "css.validate": false,
   "eslint.validate": ["typescript", "javascript"],
   "eslint.packageManager": "pnpm",
   "typescript.updateImportsOnFileMove.enabled": "always",
@@ -18,9 +17,9 @@
     "supergraph",
     "youtube"
   ],
-  // "emmet.includeLanguages": {
-  //   "postcss": "css"
-  // },
+  "emmet.includeLanguages": {
+    "postcss": "css"
+  },
   "search.exclude": {
     "**/node_modules": true,
     "**/.next": true

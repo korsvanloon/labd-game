@@ -12,7 +12,7 @@
   transform: translate(-4vw, 2vw);
 }
 
-.payerOption {
+.playerOption {
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
