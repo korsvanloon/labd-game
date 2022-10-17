@@ -1,0 +1,16 @@
+.dialog {
+  padding: 0;
+}
+.dialog::backdrop {
+  background-color: transparent;
+}
+.option {
+  position: relative;
+  display: block;
+}
+.option input {
+  opacity: 0;
+  width: 0;
+  padding: 0;
+  position: absolute;
+}

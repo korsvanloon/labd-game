@@ -1,0 +1,96 @@
+@font-face {
+  font-display: swap;
+  font-family: TT Commons Pro Exp;
+  font-style: normal;
+  font-weight: 400;
+  src: url('/static/labdigital/fonts/TTCommonsProExp-Rg.9c68738f9340.woff2')
+      format('woff2'),
+    url('/static/labdigital/fonts/TTCommonsProExp-Rg.0b9913b13674.woff')
+      format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: TT Commons Pro Exp;
+  font-style: italic;
+  font-weight: 400;
+  src: url('/static/labdigital/fonts/TTCommonsProExp-It.7cd6e85d2aa7.woff2')
+      format('woff2'),
+    url('/static/labdigital/fonts/TTCommonsProExp-It.689dc8b0d0bb.woff')
+      format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: TT Commons Pro Exp;
+  font-style: normal;
+  font-weight: 700;
+  src: url('/static/labdigital/fonts/TTCommonsProExp-Bd.b7e4d250b458.woff2')
+      format('woff2'),
+    url('/static/labdigital/fonts/TTCommonsProExp-Bd.4536687fca1e.woff')
+      format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: TT Commons Pro Exp;
+  font-style: italic;
+  font-weight: 700;
+  src: url('/static/labdigital/fonts/TTCommonsProExp-BdIt.dd9da90057eb.woff2')
+      format('woff2'),
+    url('/static/labdigital/fonts/TTCommonsProExp-BdIt.05fc067fc1d2.woff')
+      format('woff');
+}
+.overhang-container,
+.overhang-container > *,
+.overhang-text {
+  position: relative;
+}
+.overhang-text {
+  top: calc(var(--font-size) * 0.2);
+}
+
+.app {
+  --purlpe: hsl(318 100% 67% / 90%);
+  --yellow: #ffd500;
+  background-image: url('/images/background-purple.png');
+  background-position: bottom;
+  background-size: cover;
+
+  height: 100vh;
+  font-size: 1.25rem;
+  font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
+}
+
+.app > header {
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem;
+  align-items: center;
+}
+
+.connect {
+  height: 3.5rem;
+  border-radius: 2rem;
+  background-color: black;
+  color: white;
+  border: none;
+  display: inline-flex;
+  /* justify-content: space-around; */
+  padding: 0.5rem 2rem;
+  align-items: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.level {
+}
+
+.playerContainer {
+  /* display: flex; */
+  /* position: relative; */
+  /* height: calc(100vh - 100px); */
+}
+
+.playerContainer > * {
+  /* flex: 1;
+  position: absolute; */
+}

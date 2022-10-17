@@ -1,0 +1,30 @@
+{
+  "React component": {
+    "scope": "typescriptreact",
+    "prefix": "comp",
+    "body": [
+      "import { HTMLAttributes } from 'react'",
+      "import styles from './${TM_FILENAME/(\\..*)//}.module.css'",
+      "import clsx from 'clsx'",
+      "",
+      "type Props = {",
+      "// test",
+      "} & HTMLAttributes<HTMLDivElement>",
+      "",
+      "export const ${TM_FILENAME/(\\..*)//}${1} = ({...attributes}: Props) => {",
+      "  return (",
+      "      <div {...attributes} className={clsx(styles.${TM_FILENAME/(\\..*)//})}>",
+      "        test",
+      "      </div>",
+      "  )",
+      "}",
+      ""
+    ],
+    "description": "Component Scaffold"
+  },
+  "console log": {
+    "scope": "typescriptreact",
+    "prefix": "log",
+    "body": ["// eslint-disable-next-line no-console", "console.log(${1})"]
+  }
+}

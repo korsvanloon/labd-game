@@ -1,0 +1,61 @@
+url: https://www.agradi.nl/
+styles:
+  - https://www.agradi.nl/static/main.css?v=2.9.2
+  - https://www.agradi.nl/_next/static/css/50f0e508cf125f62.css
+  - https://www.agradi.nl/_next/static/css/e77549beac641528.css
+  - https://fonts.googleapis.com/css2?family=Heebo:wght@400;600&family=Markazi+Text:wght@600&display=swap
+rootComponent:
+  type: page
+  selector: '#__next'
+  children:
+    - type: uspBar
+      selector: .n-header__section--topbar
+      children:
+        - type: link
+          selector: .n-header__link--topbar
+        - type: flag-select
+          selector: .n-header__link--flag
+      content:
+        - selector: .n-header__usps .row:nth-child(1)
+        - selector: .n-header__usps .row:nth-child(2)
+        - selector: .n-header__usps .row:nth-child(3)
+    - type: navBar
+      selector: .n-header--sticky
+    - type: menu
+      selector: .n-header__section--loading
+    - type: promoBanner
+      selector: .promobanner
+    - type: main
+      selector: main
+      children:
+        - type: hero
+          selector: '>:nth-child(1)'
+        - type: categoryList
+          selector: '>:nth-child(2)'
+        - type: bannerList
+          selector: '>:nth-child(3)'
+        - type: productList
+          selector: '>:nth-child(4)'
+        - type: productList
+          selector: '>:nth-child(5)'
+        - type: brandList
+          selector: '>:nth-child(6)'
+        - type: bannerList
+          selector: '>:nth-child(7)'
+        - type: setList
+          selector: '>:nth-child(8)'
+        - type: latestUserPhotos
+          selector: '>:nth-child(9)'
+        - type: latestReviews
+          selector: '>:nth-child(10)'
+        - type: instagramPosts
+          selector: '>:nth-child(11)'
+        - type: richText
+          selector: '>:nth-child(12)'
+    - type: footer
+      selector: '>footer'
+      children:
+        - type: uspBar
+          selector: '>:nth-child(1)'
+        - type: menu
+          selector: '>:nth-child(2)'

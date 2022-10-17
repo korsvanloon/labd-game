@@ -1,0 +1,48 @@
+.player {
+  position: fixed;
+  z-index: 9001;
+  top: 0;
+  left: 0;
+  width: 8vw;
+  height: 8vw;
+  border: 5px solid currentcolor;
+  background-color: currentcolor;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: translate(-4vw, 2vw);
+}
+
+.payerOption {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+}
+
+.playerOptionImg {
+  width: 3rem;
+  border-radius: 3rem;
+  height: 3rem;
+  object-position: top;
+  object-fit: cover;
+}
+
+.selected {
+  background-color: hsla(0deg 0% 50% / 50%);
+}
+
+.currentComponent {
+  position: relative;
+  z-index: 9002;
+  width: max-content;
+  border: 5px solid currentcolor;
+  margin-left: -50%;
+  background-color: hsla(0deg 0% 100%);
+  transform: scale(0.3) rotate(10deg);
+  opacity: 0.8;
+  transform-origin: top left;
+}
+
+.currentComponent > * {
+  color: black;
+}
