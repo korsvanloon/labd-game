@@ -1,10 +1,11 @@
 .Browser {
   position: fixed;
-  right: 4vw;
+  top: -2vh;
+  right: 2vh;
   display: flex;
   flex-direction: column;
-  width: min(100vh, 100vw);
-  height: min(100vh, 100vw);
+  width: min(160rem, 100vw);
+  height: min(100rem, 75vw);
   border: 2.5px solid hsla(0deg 0% 90%);
   background-color: white;
   transform: scale(0.5) ;

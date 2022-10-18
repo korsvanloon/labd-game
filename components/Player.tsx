@@ -34,7 +34,7 @@ type PlayerState = {
   zone?: ActionZone
 }
 
-export const PlayerGame = ({
+export const Player = ({
   controller,
   level,
   levelProgress,

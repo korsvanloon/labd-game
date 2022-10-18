@@ -97,6 +97,9 @@ const enhanceComponent = (
       if (lastDropZoneIndent === -1 && line.includes('drop-zone')) {
         lastDropZoneIndent = indent
       }
+      if (lastDropZoneIndent === -1 && line.startsWith('noscript')) {
+        lastDropZoneIndent = indent + 1
+      }
       return lastDropZoneIndent === -1 || indent <= lastDropZoneIndent
     })
   component.html = getSanitizedHtml(componentDom)

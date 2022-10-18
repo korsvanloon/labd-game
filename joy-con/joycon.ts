@@ -24,8 +24,19 @@ const concatTypedArrays = (a: Uint8Array, b: Uint8Array): Uint8Array => {
   return c
 }
 
-const subCommandHeader = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-const vibrationHeader = [0x00, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40]
+const SUB_COMMAND_HEADER = [
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+]
+const SUB_COMMAND = {
+  REPORT_ID: 0x01,
+  HEADER: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+}
+const RUMBLE_HEADER = [0x00, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40]
+
+const outputReportId = {
+  BASE: 0x01,
+  RUMBLE: 0x10,
+}
 
 export class JoyCon {
   ledstate: number = 0
@@ -59,112 +70,75 @@ export class JoyCon {
     this.device.addEventListener('inputreport', this._onInputReport.bind(this))
   }
 
+  private sendSubCommand(subCommand: number[]) {
+    return this.device.sendReport(
+      SUB_COMMAND.REPORT_ID,
+      new Uint8Array([...SUB_COMMAND.HEADER, ...subCommand]),
+    )
+  }
+
   /**
    * Requests information about the device.
    */
-  async requestDeviceInfo() {
-    const outputReportID = 0x01
-    const subcommand = [0x02]
-    const data = [...subCommandHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  requestDeviceInfo() {
+    return this.sendSubCommand([0x02])
   }
 
   /**
    * Requests information about the battery.
    */
-  async requestBatteryLevel() {
-    const outputReportID = 0x01
-    const subCommand = [0x50]
-    const data = [...subCommandHeader, ...subCommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  requestBatteryLevel() {
+    return this.sendSubCommand([0x50])
   }
 
   /**
    * Enables simple HID mode.
    */
-  async enableSimpleHIDMode() {
-    const outputReportID = 0x01
-    const subcommand = [0x03, 0x3f]
-    const data = [...subCommandHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  enableSimpleHIDMode() {
+    return this.sendSubCommand([0x03, 0x3f])
   }
 
   /**
    * Enables standard full mode.
    */
-  async enableStandardFullMode() {
-    const outputReportID = 0x01
-    const subcommand = [0x03, 0x30]
-    const data = [...subCommandHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  enableStandardFullMode() {
+    return this.sendSubCommand([0x03, 0x30])
   }
 
   /**
    * Enables EMU mode.
    */
-  async enableIMUMode() {
-    const outputReportID = 0x01
-    const subcommand = [0x40, 0x01]
-    const data = [...subCommandHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  enableIMUMode() {
+    return this.sendSubCommand([0x40, 0x01])
   }
 
   /**
    * Disables IMU mode.
    */
-  async disableIMUMode() {
-    const outputReportID = 0x01
-    const subcommand = [0x40, 0x00]
-    const data = [...subCommandHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  disableIMUMode() {
+    return this.sendSubCommand([0x40, 0x00])
   }
 
   /**
    * Enables vibration.
    */
-  async enableVibration() {
-    const outputReportID = 0x01
-    const subcommand = [0x48, 0x01]
-    const data = [...vibrationHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  enableVibration() {
+    return this.sendSubCommand([0x48, 0x01])
   }
 
   /**
    * Disables vibration.
    */
-  async disableVibration() {
-    const outputReportID = 0x01
-    const subcommand = [0x48, 0x00]
-    const data = [...vibrationHeader, ...subcommand]
-    await this.device.sendReport(outputReportID, new Uint8Array(data))
+  disableVibration() {
+    return this.sendSubCommand([0x48, 0x00])
   }
 
   /**
    * Enables RingCon.
    * @seeAlso https://github.com/mascii/demo-of-ring-con-with-web-hid
    */
-  async enableRingCon() {
-    /*
-    const cmds = [
-      [0x22, 0x01], // enabling_MCU_data_22_1
-      [0x21, 0x21, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF3
-      ], // enabling_MCU_data_21_21_1_1
-      [0x59], // get_ext_data_59
-      [0x5C, 0x06, 0x03, 0x25, 0x06, 0x00, 0x00, 0x00, 0x00, 0x1C, 0x16, 0xED, 0x34, 0x36,
-        0x00, 0x00, 0x00, 0x0A, 0x64, 0x0B, 0xE6, 0xA9, 0x22, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x90, 0xA8, 0xE1, 0x34, 0x36
-      ], // get_ext_dev_in_format_config_5C
-      [0x5A, 0x04, 0x01, 0x01, 0x02], // start_external_polling_5A
-    ];
-    for (const subcommand of cmds) {
-      await this.device.sendReport(0x01, new Uint8Array([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, ...subcommand
-      ]));
-    }
-    */
-    await connectRingCon(this.device)
+  enableRingCon() {
+    return connectRingCon(this.device)
   }
 
   /**
@@ -240,47 +214,47 @@ export class JoyCon {
   }
 
   /**
-   * set LED state.
+   * Set LED state in bit format.
    *
-   * @param {int} n position(0-3)
+   * E.g. an int `state` of 9 translates to 1001 in binary,
+   * meaning the first and the last of the four LEDs are on,
+   * and the middle 2 are off
+   *
+   * @param {int} state 0...15
    */
-  async setLEDState(n: number) {
-    const NO_RUMBLE = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-    const subcommand = [0x30, n]
-    await this.device.sendReport(
-      0x01,
-      new Uint8Array([...NO_RUMBLE, 0, ...subcommand]),
-    )
+  setLEDState(state: number) {
+    this.ledstate = state
+    return this.sendSubCommand([0x30, state])
   }
 
   /**
    * set LED.
    *
-   * @param n position(0-3)
+   * @param position 0...3
    */
-  async setLED(n: number) {
-    this.ledstate |= 1 << n
-    await this.setLEDState(this.ledstate)
+  setLED(position: number) {
+    return this.setLEDState(this.ledstate | (1 << position))
   }
 
   /**
    * reset LED.
    *
-   * @param n position(0-3)
+   * @param position 0...3
    */
-  async resetLED(n: number) {
-    this.ledstate &= ~((1 << n) | (1 << (4 + n)))
-    await this.setLEDState(this.ledstate)
+  resetLED(position: number) {
+    return this.setLEDState(
+      this.ledstate & ~((1 << position) | (1 << (4 + position))),
+    )
   }
 
   /**
    * blink LED.
    *
-   * @param n position(0-3)
+   * @param position 0..3
    */
-  async blinkLED(n: number) {
-    this.ledstate &= ~(1 << n)
-    this.ledstate |= 1 << (4 + n)
+  async blinkLED(position: number) {
+    this.ledstate &= ~(1 << position)
+    this.ledstate |= 1 << (4 + position)
     await this.setLEDState(this.ledstate)
   }
 

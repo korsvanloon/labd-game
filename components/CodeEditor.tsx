@@ -19,7 +19,7 @@ export const CodeEditor = ({
   ...attributes
 }: Props) => {
   const ref = useRef<HTMLPreElement>(null)
-  const ticket = componentsProgress.find((p) => p.progress === 'ticket')
+  const ticket = componentsProgress.find((p) => p.progress === 'specified')
   const lines = ticket?.component.structure ?? []
 
   useEffect(() => {

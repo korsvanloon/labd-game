@@ -3,12 +3,19 @@ import { Component, Level } from './level'
 export type LevelProgress = {
   componentsProgress: ComponentProgress[]
   codingProgress: CodingProgress
-  mistakes: number
+  bugs: number
 }
 
 export type ComponentProgress = {
   component: Component
-  progress: 'ticket' | 'coded' | 'grabbed' | 'deployed'
+  progress:
+    | 'specified'
+    | 'coded'
+    | 'grabbed'
+    | 'cms-filled'
+    | 'api-filled'
+    | 'ready'
+    | 'deployed'
 }
 
 export type CodingProgress = {
@@ -20,8 +27,8 @@ export type CodingProgress = {
 export const initialLevelProgress = (level: Level): LevelProgress => ({
   componentsProgress: level.allComponents.map((component, i) => ({
     component,
-    progress: i === 0 ? 'deployed' : 'ticket',
+    progress: i === 0 ? 'deployed' : 'specified',
   })),
   codingProgress: { current: 0, indents: [0], errors: [] },
-  mistakes: 0,
+  bugs: 0,
 })

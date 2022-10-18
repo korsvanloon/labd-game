@@ -4,7 +4,7 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { Browser } from '../components/Browser'
 import { CodeEditor } from '../components/CodeEditor'
-import { PlayerGame } from '../components/Player'
+import { Player } from '../components/Player'
 import { Profile, profiles } from '../data/profiles'
 import { useControllers } from '../hooks/useControllers'
 import { clamp } from '../joy-con/joycon'
@@ -29,9 +29,50 @@ export default function LevelView({ level }: Props) {
       finishCoding: () =>
         setLevelProgress((p) => {
           const componentProgress = p.componentsProgress.find(
-            (p) => p.progress === 'ticket',
+            (p) => p.progress === 'specified',
           )
           if (componentProgress) componentProgress.progress = 'coded'
+          return { ...p }
+        }),
+      ready: () =>
+        setLevelProgress((p) => {
+          const componentProgress = p.componentsProgress.find(
+            (p) => p.progress === 'coded',
+          )
+          if (componentProgress) componentProgress.progress = 'ready'
+          return { ...p }
+        }),
+      deploy: () =>
+        setLevelProgress((p) => {
+          const componentProgress = p.componentsProgress.find(
+            (p) => p.progress === 'coded',
+          )
+          if (componentProgress) {
+            const dropZone = document.querySelector(
+              `[component-id='${componentProgress.component.id}']`,
+            )!
+            dropZone.classList.remove('drop-zone')
+            dropZone.outerHTML = componentProgress.component.html
+            componentProgress.progress = 'deployed'
+            console.log(componentProgress.component)
+          }
+          return { ...p }
+        }),
+      skip: (amount: number) =>
+        setLevelProgress((p) => {
+          const progresses = p.componentsProgress
+            .filter((p) => p.progress === 'specified')
+            .slice(0, amount)
+
+          progresses.forEach((componentProgress) => {
+            const dropZone = document.querySelector(
+              `[component-id='${componentProgress.component.id}']`,
+            )!
+            dropZone.classList.remove('drop-zone')
+            dropZone.outerHTML = componentProgress.component.html
+            componentProgress.progress = 'deployed'
+          })
+          console.log(progresses.slice(-1)[0])
           return { ...p }
         }),
     })
@@ -56,10 +97,12 @@ export default function LevelView({ level }: Props) {
         <div>
           {controllers.map((controller) => (
             <div key={controller.id}>
-              {`[${controller.id}] ${
-                controllerProfiles[controller.id]?.name ??
-                profiles[controller.id]?.name
-              } on ${controller.device.productName}`}
+              {`Player ${controller.id} `}
+              <strong>
+                {controllerProfiles[controller.id]?.name ??
+                  profiles[controller.id]?.name}
+              </strong>
+              {` on ${controller.device.productName}`}
             </div>
           ))}
         </div>
@@ -73,7 +116,7 @@ export default function LevelView({ level }: Props) {
             }{' '}
             / {levelProgress.componentsProgress.length}
           </div>
-          <div>Mistakes: {levelProgress.mistakes}</div>
+          <div>Bugs: {levelProgress.bugs}</div>
         </div>
       </header>
 
@@ -87,7 +130,7 @@ export default function LevelView({ level }: Props) {
 
       <div className={styles.playerContainer}>
         {controllers.map((controller) => (
-          <PlayerGame
+          <Player
             key={controller.id}
             profile={controllerProfiles[controller.id]}
             onChangeProfile={(p) => {
@@ -98,9 +141,7 @@ export default function LevelView({ level }: Props) {
             onChangeComponentProgress={(componentProgress, progress) => {
               setLevelProgress((p) => {
                 componentProgress.progress = progress
-                return {
-                  ...p,
-                }
+                return { ...p }
               })
             }}
             onDropComponent={(componentProgress, dropZone) =>
@@ -116,13 +157,11 @@ export default function LevelView({ level }: Props) {
                   dropZone.classList.remove('drop-zone')
                   dropZone.outerHTML = componentProgress.component.html
                 } else {
-                  p.mistakes++
+                  p.bugs++
                   controller.rumble(0, 0, 0.9)
                   componentProgress.progress = 'coded'
                 }
-                return {
-                  ...p,
-                }
+                return { ...p }
               })
             }
             onChangeCode={(action) => {
@@ -169,7 +208,7 @@ export default function LevelView({ level }: Props) {
                 case 'line-down': {
                   setLevelProgress((state) => {
                     const ticket = state.componentsProgress.find(
-                      (c) => c.progress === 'ticket',
+                      (c) => c.progress === 'specified',
                     )
                     if (!ticket) return state
 
@@ -189,10 +228,17 @@ export default function LevelView({ level }: Props) {
                         state.codingProgress.indents = [0]
                         state.codingProgress.current = 0
                         state.codingProgress.errors = []
+                        levelProgress.componentsProgress
+                          .filter(
+                            (p) =>
+                              p.component.type === ticket.component.type &&
+                              p.progress === 'specified',
+                          )
+                          .forEach((p) => (p.progress = 'coded'))
                       } else {
                         controller.rumble(0, 0, 0.9)
                         state.codingProgress.errors = errors
-                        state.mistakes++
+                        state.bugs++
                       }
                       return { ...state }
                     }

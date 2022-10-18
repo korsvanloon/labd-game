@@ -6,18 +6,50 @@ rootComponent:
     - type: uspBar
       selector: .n-header__section--topbar
       children:
-        - type: link
+        - type: headerUsp
+          selector: .n-header__usps .row > *:nth-child(1)
+        - type: headerUsp
+          selector: .n-header__usps .row > *:nth-child(2)
+        - type: headerUsp
+          selector: .n-header__usps .row > *:nth-child(3)
+        - type: headerLink
           selector: .n-header__link--topbar
-        - type: flag-select
+        - type: countrySwitch
           selector: .n-header__link--flag
-      content:
-        - selector: .n-header__usps .row:nth-child(1)
-        - selector: .n-header__usps .row:nth-child(2)
-        - selector: .n-header__usps .row:nth-child(3)
     - type: navBar
       selector: .n-header--sticky
+      children:
+        - type: searchBar
+          selector: .flex-fill.order-2.order-md-0.px-0.px-md-2 > *
+        - type: headerProfile
+          selector: nav > *:nth-child(1)
+        - type: headerWishlist
+          selector: nav > *:nth-child(2)
+        - type: headerCart
+          selector: nav > *:nth-child(3)
     - type: menu
       selector: .n-header__section--loading
+      children:
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(1)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(2)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(3)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(4)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(5)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(6)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(7)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(8)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(9)
+        - type: menuItem
+          selector: .n-main-menu__item:nth-child(10)
     - type: promoBanner
       selector: .promobanner
     - type: main
@@ -25,32 +57,182 @@ rootComponent:
       children:
         - type: hero
           selector: '>:nth-child(1)'
+          children:
+            - type: bannerBlock
+              selector: a
         - type: categoryList
           selector: '>:nth-child(2)'
+          children:
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(1) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(2) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(3) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(4) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(5) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(6) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(7) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(8) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(9) > a
+            - type: categoryBlock
+              selector: .horizontal-list__item:nth-child(10) > a
         - type: bannerList
           selector: '>:nth-child(3)'
+          children:
+            - type: bannerBlock
+              selector: .row>div:nth-child(1) a
+            - type: bannerBlock
+              selector: .row>div:nth-child(2) a
         - type: productList
           selector: '>:nth-child(4)'
+          children:
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(1) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(2) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(3) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(4) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(5) > *
         - type: productList
           selector: '>:nth-child(5)'
+          children:
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(1) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(2) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(3) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(4) > *
+            - type: productBlock
+              selector: .horizontal-list__item:nth-child(5) > *
         - type: brandList
           selector: '>:nth-child(6)'
+          children:
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(1) > * > *
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(2) > * > *
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(3) > * > *
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(4) > * > *
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(5) > * > *
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(6) > * > *
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(1) > * > *:nth-child(2)
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(2) > * > *:nth-child(2)
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(3) > * > *:nth-child(2)
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(4) > * > *:nth-child(2)
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(5) > * > *:nth-child(2)
+            - type: brandBlock
+              selector: .horizontal-list__item:nth-child(6) > * > *:nth-child(2)
         - type: bannerList
           selector: '>:nth-child(7)'
+          children:
+            - type: bannerBlock
+              selector: .row>div:nth-child(1) a
+            - type: bannerBlock
+              selector: .row>div:nth-child(2) a
         - type: setList
           selector: '>:nth-child(8)'
+          children:
+            - type: setListBlock
+              selector: .horizontal-list__item:nth-child(1) > *
+            - type: setListBlock
+              selector: .horizontal-list__item:nth-child(2) > *
+            - type: setListBlock
+              selector: .horizontal-list__item:nth-child(3) > *
         - type: latestUserPhotos
           selector: '>:nth-child(9)'
+          children:
+            - type: userPhotoBlock
+              selector: .horizontal-list__item:nth-child(1) > *
+            - type: userPhotoBlock
+              selector: .horizontal-list__item:nth-child(2) > *
+            - type: userPhotoBlock
+              selector: .horizontal-list__item:nth-child(3) > *
         - type: latestReviews
           selector: '>:nth-child(10)'
+          children:
+            - type: reviewBlock
+              selector: .horizontal-list__item:nth-child(1) > *
+            - type: reviewBlock
+              selector: .horizontal-list__item:nth-child(2) > *
         - type: instagramPosts
           selector: '>:nth-child(11)'
+          children:
+            - type: instagramPost
+              selector: '[data-testid="instagram-post"]:nth-child(1) > *'
+            - type: instagramPost
+              selector: '[data-testid="instagram-post"]:nth-child(2) > *'
+            - type: instagramPost
+              selector: '[data-testid="instagram-post"]:nth-child(3) > *'
+            - type: instagramPost
+              selector: '[data-testid="instagram-post"]:nth-child(4) > *'
         - type: richText
           selector: '>:nth-child(12)'
     - type: footer
       selector: '>footer'
       children:
-        - type: uspBar
+        - type: footerUspBar
           selector: '>:nth-child(1)'
-        - type: menu
+          children:
+            - type: footerUsp
+              selector: .n-list .n-list__item:nth-child(1)
+            - type: footerUsp
+              selector: .n-list .n-list__item:nth-child(2)
+            - type: footerUsp
+              selector: .n-list.col.d-none.d-md-block > li
+        - type: footerMenu
           selector: '>:nth-child(2)'
+          children:
+            - type: thrustedShops
+              selector: .row > *:nth-child(1)
+            - type: linkBlock
+              selector: .row > *:nth-child(2)
+            - type: linkBlock
+              selector: .row > *:nth-child(3)
+            - type: newsLetter
+              selector: .row > *:nth-child(4)
+            - type: footerBottom
+              selector: .footer__bottom.flex-lg-row
+              children:
+                - type: footerPageLink
+                  selector: .footer-links > *:nth-child(2)
+                - type: footerPageLink
+                  selector: .footer-links > *:nth-child(3)
+                - type: footerPageLink
+                  selector: .footer-links > *:nth-child(4)
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
+                - type: footerThrustLink
+                  selector: .link
