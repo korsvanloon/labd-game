@@ -1,9 +1,4 @@
 url: https://www.agradi.nl/
-styles:
-  - https://www.agradi.nl/static/main.css?v=2.9.2
-  - https://www.agradi.nl/_next/static/css/50f0e508cf125f62.css
-  - https://www.agradi.nl/_next/static/css/e77549beac641528.css
-  - https://fonts.googleapis.com/css2?family=Heebo:wght@400;600&family=Markazi+Text:wght@600&display=swap
 rootComponent:
   type: page
   selector: '#__next'

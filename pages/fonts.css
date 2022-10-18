@@ -1,0 +1,40 @@
+@font-face {
+  font-display: swap;
+  font-family: "TT Commons Pro Exp";
+  font-style: normal;
+  font-weight: 400;
+  src: url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-Rg.woff2')
+    format('woff2'),
+    url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-Rg.woff')
+    format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: "TT Commons Pro Exp";
+  font-style: italic;
+  font-weight: 400;
+  src: url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-It.woff2')
+    format('woff2'),
+    url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-It.woff')
+    format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: "TT Commons Pro Exp";
+  font-style: normal;
+  font-weight: 700;
+  src: url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-Bd.woff2')
+    format('woff2'),
+    url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-Bd.woff')
+    format('woff');
+}
+@font-face {
+  font-display: swap;
+  font-family: "TT Commons Pro Exp";
+  font-style: italic;
+  font-weight: 700;
+  src: url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-BdIt.woff2')
+    format('woff2'),
+    url('https://www.labdigital.nl/static/labdigital/fonts/TTCommonsProExp-BdIt.woff')
+    format('woff');
+}

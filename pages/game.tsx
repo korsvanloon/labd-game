@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Browser } from '../components/Browser'
 import { CodeEditor } from '../components/CodeEditor'
 import { PlayerGame } from '../components/Player'
@@ -9,25 +9,33 @@ import { Profile, profiles } from '../data/profiles'
 import { useControllers } from '../hooks/useControllers'
 import { clamp } from '../joy-con/joycon'
 import { Level, readLevelFile } from '../lib/level'
-import { LevelProgress } from '../lib/level-progress'
+import { initialLevelProgress, LevelProgress } from '../lib/level-progress'
 import styles from './game.module.css'
 
 type Props = {
   level: Level
 }
 
-export default function Web({ level }: Props) {
+export default function LevelView({ level }: Props) {
   const [controllers, requestNewJoyCon] = useControllers()
-  const [levelProgress, setLevelProgress] = useState<LevelProgress>({
-    componentsProgress: level.allComponents.map((component, i) => ({
-      component,
-      progress: i === 0 ? 'deployed' : 'ticket',
-    })),
-    codingProgress: { current: 0, indents: [0], errors: [] },
-  })
+  const [levelProgress, setLevelProgress] = useState<LevelProgress>(
+    initialLevelProgress(level),
+  )
   const [controllerProfiles, setProfiles] = useState<Profile[]>([])
 
-  const baseFreq = 40.875885
+  // For debugging
+  useEffect(() => {
+    Object.assign(window, {
+      finishCoding: () =>
+        setLevelProgress((p) => {
+          const componentProgress = p.componentsProgress.find(
+            (p) => p.progress === 'ticket',
+          )
+          if (componentProgress) componentProgress.progress = 'coded'
+          return { ...p }
+        }),
+    })
+  }, [])
 
   return (
     <div className={styles.app}>
@@ -55,23 +63,19 @@ export default function Web({ level }: Props) {
             </div>
           ))}
         </div>
+        <div>
+          <div>
+            Done:{' '}
+            {
+              levelProgress.componentsProgress.filter(
+                (c) => c.progress === 'deployed',
+              ).length
+            }{' '}
+            / {levelProgress.componentsProgress.length}
+          </div>
+          <div>Mistakes: {levelProgress.mistakes}</div>
+        </div>
       </header>
-
-      {levelProgress.componentsProgress
-        .filter((p) => p.progress === 'coded')
-        .map(({ component }, i, a) => (
-          <div
-            className={clsx(
-              styles.codedComponent,
-              'action-zone',
-              'object',
-              'coded-component',
-            )}
-            style={{ left: `${50 - (a.length - i) * 5}vw` }}
-            key={component.id}
-            dangerouslySetInnerHTML={{ __html: component.html }}
-          />
-        ))}
 
       <Browser
         level={level}
@@ -104,11 +108,16 @@ export default function Web({ level }: Props) {
                 const dropZoneComponentId =
                   dropZone.getAttribute('component-id')!
 
-                if (dropZoneComponentId === componentProgress.component.id) {
+                const isValid =
+                  dropZoneComponentId === componentProgress.component.id
+
+                if (isValid) {
                   componentProgress.progress = 'deployed'
                   dropZone.classList.remove('drop-zone')
                   dropZone.outerHTML = componentProgress.component.html
                 } else {
+                  p.mistakes++
+                  controller.rumble(0, 0, 0.9)
                   componentProgress.progress = 'coded'
                 }
                 return {
@@ -167,10 +176,11 @@ export default function Web({ level }: Props) {
                     const { current, indents } = state.codingProgress
                     const isCommit =
                       current === ticket.component.structure.length
+
                     if (isCommit) {
-                      const errors = state.codingProgress.indents.map(
-                        (indent, i) =>
-                          indent !== ticket.component.structure[i].indent,
+                      const errors = ticket.component.structure.map(
+                        ({ indent }, i) =>
+                          indent !== state.codingProgress.indents[i],
                       )
                       const isValid = errors.every((error) => !error)
 
@@ -180,7 +190,9 @@ export default function Web({ level }: Props) {
                         state.codingProgress.current = 0
                         state.codingProgress.errors = []
                       } else {
+                        controller.rumble(0, 0, 0.9)
                         state.codingProgress.errors = errors
+                        state.mistakes++
                       }
                       return { ...state }
                     }

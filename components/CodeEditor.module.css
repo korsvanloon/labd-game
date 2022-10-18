@@ -1,7 +1,9 @@
 .CodeEditor {
   position: absolute;
-  bottom: 0;
-  width: 50%;
+  bottom: 1vw;
+  left: 1vw;
+  width: min(48vw, 48rem);
+  height: min(48vw, 48vh);
   background-color: black;
   color: white;
   font-size: 1rem;
@@ -78,6 +80,33 @@
 
 .error :first-child {
   text-decoration: underline wavy red;
+}
 
-  /* border-bottom: 2px solid red; */
+.codedComponents {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  color: black;
+}
+
+.codedComponent {
+  position: absolute;
+  left: calc(100% - (var(--index) + 1)  * min(8vw, 8vh));
+  width: max-content;
+  padding: 6rem;
+  transform: scale(0.3) rotate(-80deg);
+  transform-box: fill-box;
+  transform-origin: top left;
+  transition: left 0.1s ease, bottom 0.3s ease;
+  background-color: hsl(0deg 0% 100% / 80%);
+  border-radius: 100px;
+}
+
+.codedComponent > * {
+  overflow: hidden;
+  max-height: 400px;
+  box-shadow: 0 0 10rem 2rem var(--player-color, black);
 }

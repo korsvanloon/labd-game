@@ -30,12 +30,12 @@ export const CodeEditor = ({
   }, [ref.current, codingProgress.current])
 
   return (
-    <div
-      {...attributes}
-      className={clsx(styles.CodeEditor, 'action-zone', 'code-editor')}
-    >
+    <div {...attributes} className={clsx(styles.CodeEditor)}>
       <div className={styles.header}>{ticket?.component.type}</div>
-      <pre className="scrollable" ref={ref}>
+      <pre
+        className={clsx('scrollable', 'action-zone', 'code-editor')}
+        ref={ref}
+      >
         {lines.slice(0, codingProgress.indents.length).map((line, i) => (
           <code
             key={i}
@@ -62,6 +62,24 @@ export const CodeEditor = ({
       >
         Commit
       </button>
+
+      <div className={styles.codedComponents}>
+        {componentsProgress
+          .filter((p) => p.progress === 'coded')
+          .map(({ component }, i, a) => (
+            <div
+              className={clsx(
+                styles.codedComponent,
+                'action-zone',
+                'object',
+                'coded-component',
+              )}
+              style={{ ['--index' as any]: i }}
+              key={component.id}
+              dangerouslySetInnerHTML={{ __html: component.html }}
+            />
+          ))}
+      </div>
     </div>
   )
 }

@@ -197,13 +197,15 @@ export const PlayerGame = ({
       if (zone && actionZone) {
         switch (zone) {
           case 'browser': {
-            const dropZone = hoverElements.find((e) =>
-              e.classList.contains('drop-zone'),
-            )
+            if (state.componentProgress) {
+              const dropZone = hoverElements.find((e) =>
+                e.classList.contains('drop-zone'),
+              )
 
-            if (dropZone) {
-              dropZone.classList.add('hover', color)
-              dropZone.style.setProperty('--player-color', color)
+              if (dropZone) {
+                dropZone.classList.add('hover', color)
+                dropZone.style.setProperty('--player-color', color)
+              }
             }
             break
           }

@@ -1,8 +1,9 @@
-import { Component } from './level'
+import { Component, Level } from './level'
 
 export type LevelProgress = {
   componentsProgress: ComponentProgress[]
   codingProgress: CodingProgress
+  mistakes: number
 }
 
 export type ComponentProgress = {
@@ -15,3 +16,12 @@ export type CodingProgress = {
   current: number
   indents: number[]
 }
+
+export const initialLevelProgress = (level: Level): LevelProgress => ({
+  componentsProgress: level.allComponents.map((component, i) => ({
+    component,
+    progress: i === 0 ? 'deployed' : 'ticket',
+  })),
+  codingProgress: { current: 0, indents: [0], errors: [] },
+  mistakes: 0,
+})

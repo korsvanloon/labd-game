@@ -1,6 +1,7 @@
 import { JoyCon } from './joycon'
 
 let initialized = false
+export const baseFreq = 40.875885
 
 const connectedJoyCons = new Map<number, JoyCon>()
 const devices: HIDDevice[] = []

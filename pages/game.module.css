@@ -1,43 +1,4 @@
-@font-face {
-  font-display: swap;
-  font-family: "TT Commons Pro Exp";
-  font-style: normal;
-  font-weight: 400;
-  src: url('/static/labdigital/fonts/TTCommonsProExp-Rg.9c68738f9340.woff2')
-    format('woff2'),
-    url('/static/labdigital/fonts/TTCommonsProExp-Rg.0b9913b13674.woff')
-    format('woff');
-}
-@font-face {
-  font-display: swap;
-  font-family: "TT Commons Pro Exp";
-  font-style: italic;
-  font-weight: 400;
-  src: url('/static/labdigital/fonts/TTCommonsProExp-It.7cd6e85d2aa7.woff2')
-    format('woff2'),
-    url('/static/labdigital/fonts/TTCommonsProExp-It.689dc8b0d0bb.woff')
-    format('woff');
-}
-@font-face {
-  font-display: swap;
-  font-family: "TT Commons Pro Exp";
-  font-style: normal;
-  font-weight: 700;
-  src: url('/static/labdigital/fonts/TTCommonsProExp-Bd.b7e4d250b458.woff2')
-    format('woff2'),
-    url('/static/labdigital/fonts/TTCommonsProExp-Bd.4536687fca1e.woff')
-    format('woff');
-}
-@font-face {
-  font-display: swap;
-  font-family: "TT Commons Pro Exp";
-  font-style: italic;
-  font-weight: 700;
-  src: url('/static/labdigital/fonts/TTCommonsProExp-BdIt.dd9da90057eb.woff2')
-    format('woff2'),
-    url('/static/labdigital/fonts/TTCommonsProExp-BdIt.05fc067fc1d2.woff')
-    format('woff');
-}
+@import url('./fonts.css');
 
 .app {
   --purlpe: hsl(318deg 100% 67% / 90%);
@@ -56,6 +17,11 @@
   justify-content: space-around;
   align-items: center;
   padding: 1rem;
+  background-color: hsl(0deg 0% 100% / 90%);
+}
+
+.app > header button {
+  font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
 }
 
 .connect {
@@ -72,18 +38,18 @@
   cursor: pointer;
 }
 
-.codedComponent {
-  position: absolute;
-  bottom: calc(38vh );
-  left: 0;
-  width: max-content;
-  padding: 6rem;
-  transform: scale(0.3) rotate(-80deg);
-  transform-box: fill-box;
-  transform-origin: top left;
-  transition: left 0.1s ease, bottom 0.3s ease
+.app :global(.scrollable) {
+  overflow-y: scroll;
 }
 
-.codedComponent > * {
-  box-shadow: 0 0 10rem 2rem var(--player-color, black);
+.app :global(.drop-zone) {
+  flex: 1;
+  min-width: 2rem;
+  min-height: 1rem;
+  border: 2px dashed hsla(0deg 0% 50% / 50%) !important;
+  color: transparent;
+}
+
+.app :global(.drop-zone) > * {
+  visibility: hidden !important;
 }
