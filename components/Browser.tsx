@@ -1,16 +1,25 @@
 import clsx from 'clsx'
 import React from 'react'
-import { Level, LevelProgress } from '../lib/level'
-import styles from './GameLevel.module.css'
+import { Level } from '../lib/level'
+import { LevelProgress } from '../lib/level-progress'
+import styles from './Browser.module.css'
 
 type Props = {
   level: Level
   progress: LevelProgress
 } & React.HTMLAttributes<HTMLDivElement>
 
-export const GameLevel = ({ level, progress, ...attributes }: Props) => {
+export const Browser = ({ level, progress, ...attributes }: Props) => {
   return (
-    <div {...attributes} className={clsx(styles.website, attributes.className)}>
+    <div
+      {...attributes}
+      className={clsx(
+        styles.Browser,
+        attributes.className,
+        'action-zone',
+        'browser',
+      )}
+    >
       <div className={styles.header}>{level.url}</div>
       <div
         className={clsx('scrollable')}

@@ -2,10 +2,6 @@ import { readFileSync } from 'fs'
 import domParser, { HTMLElement } from 'node-html-parser'
 import { parse } from 'yaml'
 
-export type LevelProgress = {
-  componentsDone: { [id: string]: string }
-}
-
 export interface Level {
   url: string
   fonts: string[]
@@ -21,7 +17,12 @@ export interface Component {
   html: string
   children?: Component[]
   copyContent?: CopyContent[]
-  structure: string
+  structure: StructureLine[]
+}
+
+export type StructureLine = {
+  indent: number
+  line: string
 }
 
 export type CopyContent = {
@@ -71,9 +72,13 @@ const enhanceComponent = (
     childDom?.classList.add('drop-zone')
   })
 
-  component.structure = componentDom.structure
+  component.structure = componentDom.structure.split('\n').map((line) => ({
+    line: sanitizeClasses(line.trim()),
+    indent: line.search(/\S/) / 2,
+  }))
   component.html = getSanitizedHtml(componentDom)
 }
+const sanitizeClasses = (value: string) => value.replace(/[\w-]+(--|__)/g, '')
 
 export const getSanitizedHtml = (dom: HTMLElement) =>
   dom?.outerHTML

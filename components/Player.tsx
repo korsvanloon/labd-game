@@ -4,7 +4,9 @@ import { Profile, profiles } from '../data/profiles'
 import { accelerationDebounced } from '../joy-con/events'
 import { clamp, JoyCon } from '../joy-con/joycon'
 import { Point2 } from '../joy-con/madgwick'
-import { Component, Level, LevelProgress } from '../lib/level'
+import { Level } from '../lib/level'
+import { ComponentProgress, LevelProgress } from '../lib/level-progress'
+import { CodeAction } from './CodeEditor'
 import { DialogSelect } from './DialogSelect'
 import styles from './Player.module.css'
 
@@ -12,26 +14,42 @@ type Props = {
   controller: JoyCon
   level: Level
   levelProgress: LevelProgress
-  onDropComponent: (component: Component, dropZoneComponentId: string) => void
+  onDropComponent: (component: ComponentProgress, dropZone: Element) => void
+  onChangeComponentProgress: (
+    component: ComponentProgress,
+    progress: ComponentProgress['progress'],
+  ) => void
   profile: Profile
   onChangeProfile: (profile: Profile) => void
+  onChangeCode: (action: CodeAction) => void
 } & React.HTMLAttributes<HTMLDivElement>
 
 const scrollStep = 200
+
+type ActionZone = 'code-editor' | 'object' | 'cms' | 'browser'
+
+type PlayerState = {
+  position: Point2
+  componentProgress?: ComponentProgress
+  zone?: ActionZone
+}
 
 export const PlayerGame = ({
   controller,
   level,
   levelProgress,
   onDropComponent,
+  onChangeComponentProgress,
   profile = profiles[controller.id],
   onChangeProfile,
+  onChangeCode,
   ...attributes
 }: Props) => {
-  const [currentComponent, setCurrentComponent] = useState<Component>()
-  const [playerPosition, setPlayerPosition] = useState<Point2>({
-    x: 100 + 100 * controller.id,
-    y: 0,
+  const [state, setState] = useState<PlayerState>({
+    position: {
+      x: 100 + 100 * controller.id,
+      y: 0,
+    },
   })
   const [openDialog, setOpenDialog] = useState(false)
 
@@ -39,6 +57,8 @@ export const PlayerGame = ({
     if (openDialog) return
 
     controller.onButton = ({ soloValue, changed, sameButtonCount }) => {
+      if (accelerationDebounced(sameButtonCount)) return
+
       switch (soloValue) {
         case 'special': {
           if (!changed) return
@@ -46,51 +66,95 @@ export const PlayerGame = ({
           break
         }
         case 'up': {
-          if (accelerationDebounced(sameButtonCount)) return
-
-          const scrollable = document
-            .elementsFromPoint(playerPosition.x, playerPosition.y)
-            .find((e) => e.classList.contains('scrollable'))
-          scrollable?.scrollBy({ top: -scrollStep })
+          switch (state.zone) {
+            case 'browser': {
+              const scrollable = document
+                .elementsFromPoint(state.position.x, state.position.y)
+                .find((e) => e.classList.contains('scrollable'))
+              scrollable?.scrollBy({ top: -scrollStep })
+              break
+            }
+            case 'code-editor': {
+              onChangeCode('line-up')
+              break
+            }
+          }
           break
         }
         case 'down': {
-          if (accelerationDebounced(sameButtonCount)) return
-          const scrollable = document
-            .elementsFromPoint(playerPosition.x, playerPosition.y)
-            .find((e) => e.classList.contains('scrollable'))
-          scrollable?.scrollBy({ top: scrollStep })
+          switch (state.zone) {
+            case 'browser': {
+              const scrollable = document
+                .elementsFromPoint(state.position.x, state.position.y)
+                .find((e) => e.classList.contains('scrollable'))
+              scrollable?.scrollBy({ top: scrollStep })
+              break
+            }
+            case 'code-editor': {
+              onChangeCode('line-down')
+              break
+            }
+          }
           break
         }
         case 'left': {
-          if (!changed) return
+          switch (state.zone) {
+            case 'object': {
+              if (!changed) return
 
-          if (!currentComponent) {
-            const doneComponents = levelProgress.componentsDone
-            const newComponent = level.allComponents.find(
-              (c) => !Object.values(doneComponents).includes(c.id),
-            )
-            if (newComponent) {
-              setCurrentComponent(newComponent)
+              if (!state.componentProgress) {
+                const { actionZone } = getActionZoneElement(state.position)
+                const componentId =
+                  actionZone?.firstElementChild?.getAttribute('component-id')
+                if (!componentId) return
+
+                const componentProgress = levelProgress.componentsProgress.find(
+                  (p) => p.component.id === componentId,
+                )
+
+                if (componentProgress) {
+                  onChangeComponentProgress(componentProgress, 'grabbed')
+                  setState((s) => ({ ...s, componentProgress }))
+                }
+              } else {
+                onChangeComponentProgress(state.componentProgress, 'coded')
+                setState((s) => ({ ...s, componentProgress: undefined }))
+              }
+              break
             }
-          } else {
-            setCurrentComponent(undefined)
+            case 'code-editor': {
+              onChangeCode('indent-left')
+              break
+            }
+            default: {
+              if (!changed) return
+              if (state.componentProgress) {
+                onChangeComponentProgress(state.componentProgress, 'coded')
+                setState((s) => ({ ...s, componentProgress: undefined }))
+              }
+              break
+            }
           }
           break
         }
         case 'right': {
-          if (!changed) return
+          switch (state.zone) {
+            case 'browser': {
+              if (!changed) return
+              const dropZone = document
+                .elementsFromPoint(state.position.x, state.position.y)
+                .find((e) => e.classList.contains('drop-zone'))
 
-          const dropZone = document
-            .elementsFromPoint(playerPosition.x, playerPosition.y)
-            .find((e) => e.classList.contains('drop-zone'))
-
-          if (currentComponent && dropZone) {
-            dropZone.classList.remove('drop-zone')
-            dropZone.outerHTML = currentComponent.html
-            const dropZoneComponentId = dropZone.getAttribute('component-id')!
-            onDropComponent(currentComponent, dropZoneComponentId)
-            setCurrentComponent(undefined)
+              if (state.componentProgress && dropZone) {
+                onDropComponent(state.componentProgress, dropZone)
+                setState((s) => ({ ...s, componentProgress: undefined }))
+              }
+              break
+            }
+            case 'code-editor': {
+              onChangeCode('indent-right')
+              break
+            }
           }
           break
         }
@@ -101,37 +165,59 @@ export const PlayerGame = ({
       const vw = window.innerWidth * 0.01
 
       const position = {
-        x: clamp(playerPosition.x + value.x * speed, 4 * vw, 96 * vw),
+        x: clamp(state.position.x + value.x * speed, 4 * vw, 96 * vw),
         y: clamp(
-          playerPosition.y + value.y * speed,
+          state.position.y + value.y * speed,
           0,
           window.innerHeight - 10 * vw,
         ),
       }
 
-      setPlayerPosition(position)
       const color = playerColor[controller.id]
 
-      document
-        .querySelector(`.hover.${color}`)
-        ?.classList.remove('hover', color)
+      const { actionZone, hoverElements } = getActionZoneElement(position)
 
-      const dropZone = document
-        .elementsFromPoint(position.x, position.y)
-        .find((e) => e.classList.contains('drop-zone'))
+      const classList = actionZone?.classList
+      const zone: ActionZone | undefined = classList?.contains('code-editor')
+        ? 'code-editor'
+        : classList?.contains('browser')
+        ? 'browser'
+        : classList?.contains('object')
+        ? 'object'
+        : undefined
 
-      if (dropZone) {
-        dropZone.classList.add('hover', color)
+      const existingHover = document.querySelector<HTMLElement>(
+        `.hover.${color}`,
+      )
+      if (existingHover) {
+        existingHover.classList.remove('hover', color)
+        existingHover.style.removeProperty('--player-color')
       }
+
+      if (zone && actionZone) {
+        switch (zone) {
+          case 'browser': {
+            const dropZone = hoverElements.find((e) =>
+              e.classList.contains('drop-zone'),
+            )
+
+            if (dropZone) {
+              dropZone.classList.add('hover', color)
+              dropZone.style.setProperty('--player-color', color)
+            }
+            break
+          }
+          case 'object': {
+            actionZone.classList.add('hover', color)
+            actionZone.style.setProperty('--player-color', color)
+            break
+          }
+        }
+      }
+
+      setState((s) => ({ ...s, zone, position }))
     }
-  }, [
-    controller,
-    openDialog,
-    playerPosition,
-    currentComponent,
-    level,
-    levelProgress,
-  ])
+  }, [controller, openDialog, state, level, levelProgress])
 
   return (
     <div {...attributes}>
@@ -139,15 +225,17 @@ export const PlayerGame = ({
         className={styles.player}
         style={{
           color: playerColor[controller.id],
-          top: `${playerPosition.y}px`,
-          left: `${playerPosition.x}px`,
+          top: `${state.position.y}px`,
+          left: `${state.position.x}px`,
           backgroundImage: `url(${profile.img}`,
         }}
       >
-        {currentComponent && (
+        {state.componentProgress && (
           <div
             className={styles.currentComponent}
-            dangerouslySetInnerHTML={{ __html: currentComponent.html }}
+            dangerouslySetInnerHTML={{
+              __html: state.componentProgress.component.html,
+            }}
           />
         )}
       </div>
@@ -176,3 +264,15 @@ export const PlayerGame = ({
 }
 
 export const playerColor = ['red', 'blue', 'green', 'yellow']
+
+const getActionZoneElement = (position: Point2) => {
+  const hoverElements = document.elementsFromPoint(
+    position.x,
+    position.y,
+  ) as HTMLElement[]
+
+  return {
+    actionZone: hoverElements.find((e) => e.classList.contains('action-zone')),
+    hoverElements,
+  }
+}

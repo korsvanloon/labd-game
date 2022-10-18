@@ -1,0 +1,83 @@
+.CodeEditor {
+  position: absolute;
+  bottom: 0;
+  width: 50%;
+  background-color: black;
+  color: white;
+  font-size: 1rem;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.CodeEditor pre {
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: calc(50vh - 3.5rem);
+  padding: 1rem;
+  color: var(--purple);
+}
+
+.CodeEditor pre > code {
+  display: block;
+}
+
+.header {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: hsl(0deg 0% 10%);
+  font-size: 1rem;
+  text-align: center;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.selected {
+  background-color: hsla(0deg 0% 50% / 20%);
+}
+
+.element {
+  color: var(--yellow);
+  font-weight: bold;
+}
+
+.class::before {
+  content: '.';
+}
+
+.submit {
+  position: absolute;
+  top: 3rem;
+  right: 1rem;
+  min-width: 200px;
+  padding: 0.5rem;
+  border: none;
+  background-color:  hsl(200deg 100% 35%);
+  color: white;
+  border-radius: 0.25rem;
+}
+
+.submit:disabled {
+  background-color: hsl(200deg 100% 20%);
+}
+
+.submit:not(:disabled)::after {
+  content: '\25BC';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid white;
+  margin: 0.75rem;
+  font-size: 0.625rem;
+  line-height: 1rem;
+  border-radius: 1rem;
+}
+
+.error :first-child {
+  text-decoration: underline wavy red;
+
+  /* border-bottom: 2px solid red; */
+}
