@@ -6,6 +6,7 @@ import { clamp, JoyCon } from '../joy-con/joycon'
 import { Point2 } from '../joy-con/madgwick'
 import { Level } from '../lib/level'
 import { ComponentProgress, LevelProgress } from '../lib/level-progress'
+import { CodedComponent } from './CodedComponent'
 import { CodeAction } from './CodeEditor'
 import { DialogSelect } from './DialogSelect'
 import styles from './Player.module.css'
@@ -102,21 +103,7 @@ export const Player = ({
             case 'object': {
               if (!changed) return
 
-              if (!state.componentProgress) {
-                const { actionZone } = getActionZoneElement(state.position)
-                const componentId =
-                  actionZone?.firstElementChild?.getAttribute('component-id')
-                if (!componentId) return
-
-                const componentProgress = levelProgress.componentsProgress.find(
-                  (p) => p.component.id === componentId,
-                )
-
-                if (componentProgress) {
-                  onChangeComponentProgress(componentProgress, 'grabbed')
-                  setState((s) => ({ ...s, componentProgress }))
-                }
-              } else {
+              if (state.componentProgress) {
                 onChangeComponentProgress(state.componentProgress, 'coded')
                 setState((s) => ({ ...s, componentProgress: undefined }))
               }
@@ -124,6 +111,25 @@ export const Player = ({
             }
             case 'code-editor': {
               onChangeCode('indent-left')
+              break
+            }
+            case 'browser': {
+              const scrollable = (
+                document.elementsFromPoint(
+                  state.position.x,
+                  state.position.y,
+                ) as HTMLElement[]
+              ).find((e) => e.classList.contains('horizontal-scrollable'))
+              if (scrollable) {
+                if (getComputedStyle(scrollable).overflowX !== 'visible') {
+                  scrollable?.scrollBy({ left: -scrollStep })
+                } else {
+                  scrollable.style.marginLeft = `${Math.max(
+                    0,
+                    parseInt(scrollable.style.marginLeft || '0') - scrollStep,
+                  )}px`
+                }
+              }
               break
             }
             default: {
@@ -139,6 +145,24 @@ export const Player = ({
         }
         case 'right': {
           switch (state.zone) {
+            case 'object': {
+              if (!state.componentProgress) {
+                const { actionZone } = getActionZoneElement(state.position)
+                const componentId =
+                  actionZone?.firstElementChild?.getAttribute('component-id')
+                if (!componentId) return
+
+                const componentProgress = levelProgress.componentsProgress.find(
+                  (p) => p.component.id === componentId,
+                )
+
+                if (componentProgress) {
+                  onChangeComponentProgress(componentProgress, 'grabbed')
+                  setState((s) => ({ ...s, componentProgress }))
+                }
+              }
+              break
+            }
             case 'browser': {
               if (!changed) return
               const dropZone = document
@@ -148,6 +172,23 @@ export const Player = ({
               if (state.componentProgress && dropZone) {
                 onDropComponent(state.componentProgress, dropZone)
                 setState((s) => ({ ...s, componentProgress: undefined }))
+              } else {
+                const scrollable = (
+                  document.elementsFromPoint(
+                    state.position.x,
+                    state.position.y,
+                  ) as HTMLElement[]
+                ).find((e) => e.classList.contains('horizontal-scrollable'))
+                if (scrollable) {
+                  if (getComputedStyle(scrollable).overflowX !== 'visible') {
+                    scrollable?.scrollBy({ left: +scrollStep })
+                  } else {
+                    scrollable.style.marginLeft = `${Math.max(
+                      -1016,
+                      parseInt(scrollable.style.marginLeft || '0') - scrollStep,
+                    )}px`
+                  }
+                }
               }
               break
             }
@@ -233,11 +274,10 @@ export const Player = ({
         }}
       >
         {state.componentProgress && (
-          <div
+          <CodedComponent
+            component={state.componentProgress.component}
+            rotation={-0.4}
             className={styles.currentComponent}
-            dangerouslySetInnerHTML={{
-              __html: state.componentProgress.component.html,
-            }}
           />
         )}
       </div>

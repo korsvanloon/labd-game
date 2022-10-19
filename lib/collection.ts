@@ -113,6 +113,20 @@ export const hasDifferentValues = <T extends Record<string, unknown>>(
 ) => keys.some((k) => a[k] !== b[k])
 
 /**
+ * Compares two arrays.
+ *
+ * @example
+ * ```ts
+ * arrayEquals([1, 2], [1, 2])
+ *
+ * // results in
+ * true
+ * ```
+ */
+export const arrayEquals = <T>(a: T[], b: T[]) =>
+  a.length === b.length && a.every((item, i) => item === b[i])
+
+/**
  * Utility for lists to ensure there are no empty values.
  *
  * @example

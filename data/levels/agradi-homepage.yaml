@@ -31,25 +31,25 @@ rootComponent:
       selector: .n-header__section--loading
       children:
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(1)
+          selector: .n-main-menu__item:nth-child(1) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(2)
+          selector: .n-main-menu__item:nth-child(2) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(3)
+          selector: .n-main-menu__item:nth-child(3) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(4)
+          selector: .n-main-menu__item:nth-child(4) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(5)
+          selector: .n-main-menu__item:nth-child(5) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(6)
+          selector: .n-main-menu__item:nth-child(6) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(7)
+          selector: .n-main-menu__item:nth-child(7) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(8)
+          selector: .n-main-menu__item:nth-child(8) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(9)
+          selector: .n-main-menu__item:nth-child(9) > *
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(10)
+          selector: .n-main-menu__item:nth-child(10) > *
     - type: promoBanner
       selector: .promobanner
     - type: main
@@ -62,6 +62,7 @@ rootComponent:
               selector: a
         - type: categoryList
           selector: '>:nth-child(2)'
+          horizontalScrollSelector: .horizontal-list__container
           children:
             - type: categoryBlock
               selector: .horizontal-list__item:nth-child(1) > a
@@ -221,18 +222,16 @@ rootComponent:
                 - type: footerPageLink
                   selector: .footer-links > *:nth-child(4)
                 - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(1)
                 - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(2)
                 - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(3)
                 - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(4)
                 - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(5)
                 - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(6)
                 - type: footerThrustLink
-                  selector: .link
-                - type: footerThrustLink
-                  selector: .link
+                  selector: .link:nth-child(7)

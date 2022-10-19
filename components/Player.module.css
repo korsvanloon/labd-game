@@ -10,6 +10,17 @@
   background-size: cover;
   background-repeat: no-repeat;
   transform: translate(-4vw, 2vw);
+
+}
+
+.player::before {
+  content: '\25BB';
+  position: absolute;
+  top: -4vw;
+  left: 2vw;
+  color: currentcolor;
+  font-size: 4vw;
+  transform: rotate(-110deg);
 }
 
 .playerOption {
@@ -32,17 +43,14 @@
 }
 
 .currentComponent {
-  position: relative;
-  z-index: 9002;
-  width: max-content;
-  border: 5px solid currentcolor;
-  margin-left: -50%;
-  background-color: hsla(0deg 0% 100%);
-  transform: scale(0.3) rotate(10deg);
-  opacity: 0.8;
+  z-index: -1;
+  top: 1vw;
+  left: 4vw;
+  color: black;
   transform-origin: top left;
 }
 
 .currentComponent > * {
-  color: black;
+  transform: translate(-50%, -50%) scale(var(--scale));
+  transform-origin: center;
 }

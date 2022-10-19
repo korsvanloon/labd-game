@@ -8,6 +8,7 @@ import { Player } from '../components/Player'
 import { Profile, profiles } from '../data/profiles'
 import { useControllers } from '../hooks/useControllers'
 import { clamp } from '../joy-con/joycon'
+import { arrayEquals } from '../lib/collection'
 import { Level, readLevelFile } from '../lib/level'
 import { initialLevelProgress, LevelProgress } from '../lib/level-progress'
 import styles from './game.module.css'
@@ -54,7 +55,6 @@ export default function LevelView({ level }: Props) {
             dropZone.classList.remove('drop-zone')
             dropZone.outerHTML = componentProgress.component.html
             componentProgress.progress = 'deployed'
-            console.log(componentProgress.component)
           }
           return { ...p }
         }),
@@ -72,7 +72,7 @@ export default function LevelView({ level }: Props) {
             dropZone.outerHTML = componentProgress.component.html
             componentProgress.progress = 'deployed'
           })
-          console.log(progresses.slice(-1)[0])
+          console.info(progresses.slice(-1)[0])
           return { ...p }
         }),
     })
@@ -97,7 +97,7 @@ export default function LevelView({ level }: Props) {
         <div>
           {controllers.map((controller) => (
             <div key={controller.id}>
-              {`Player ${controller.id} `}
+              {`Player ${controller.id + 1} `}
               <strong>
                 {controllerProfiles[controller.id]?.name ??
                   profiles[controller.id]?.name}
@@ -108,7 +108,7 @@ export default function LevelView({ level }: Props) {
         </div>
         <div>
           <div>
-            Done:{' '}
+            Features:{' '}
             {
               levelProgress.componentsProgress.filter(
                 (c) => c.progress === 'deployed',
@@ -170,8 +170,16 @@ export default function LevelView({ level }: Props) {
                   setLevelProgress((state) => {
                     const { indents, errors, current } = state.codingProgress
 
-                    indents[current] = Math.max(0, indents[current] - 1)
-                    errors[current] = false
+                    const ticket = state.componentsProgress.find(
+                      (c) => c.progress === 'specified',
+                    )
+                    if (
+                      ticket &&
+                      current < ticket?.component.structure.length
+                    ) {
+                      indents[current] = Math.max(0, indents[current] - 1)
+                      errors[current] = false
+                    }
 
                     return { ...state }
                   })
@@ -180,9 +188,16 @@ export default function LevelView({ level }: Props) {
                 case 'indent-right': {
                   setLevelProgress((state) => {
                     const { indents, errors, current } = state.codingProgress
-
-                    indents[current] = Math.min(10, indents[current] + 1)
-                    errors[current] = false
+                    const ticket = state.componentsProgress.find(
+                      (c) => c.progress === 'specified',
+                    )
+                    if (
+                      ticket &&
+                      current < ticket?.component.structure.length
+                    ) {
+                      indents[current] = Math.min(10, indents[current] + 1)
+                      errors[current] = false
+                    }
 
                     return {
                       ...state,
@@ -235,7 +250,9 @@ export default function LevelView({ level }: Props) {
                               p.progress === 'specified',
                           )
                           .forEach((p) => (p.progress = 'coded'))
-                      } else {
+                      } else if (
+                        !arrayEquals(state.codingProgress.errors, errors)
+                      ) {
                         controller.rumble(0, 0, 0.9)
                         state.codingProgress.errors = errors
                         state.bugs++

@@ -17,7 +17,7 @@ const getDeviceID = (device: HIDDevice) => {
 
 const addDevice = async (device: HIDDevice) => {
   const id = getDeviceID(device)
-  console.log(
+  console.info(
     `HID connected: ${id} ${device.productId.toString(16)} ${
       device.productName
     }`,
@@ -30,7 +30,7 @@ const addDevice = async (device: HIDDevice) => {
 
 const removeDevice = async (device: HIDDevice) => {
   const id = getDeviceID(device)
-  console.log(
+  console.info(
     `HID disconnected: ${id} ${device.productId.toString(16)} ${
       device.productName
     }`,

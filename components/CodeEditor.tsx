@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 import { LevelProgress } from '../lib/level-progress'
+import { CodedComponent } from './CodedComponent'
 import styles from './CodeEditor.module.css'
 
 type Props = {
@@ -66,17 +67,19 @@ export const CodeEditor = ({
       <div className={styles.codedComponents}>
         {componentsProgress
           .filter((p) => p.progress === 'coded')
-          .map(({ component }, i, a) => (
-            <div
-              className={clsx(
-                styles.codedComponent,
+          .map(({ component }, i) => (
+            <CodedComponent
+              component={component}
+              key={component.id}
+              rotation={-1.4}
+              style={{
+                left: `calc(100% - ${i + 1}   * min(8vw, 8vh))`,
+              }}
+              componentClassName={clsx(
                 'action-zone',
                 'object',
                 'coded-component',
               )}
-              style={{ ['--index' as any]: i }}
-              key={component.id}
-              dangerouslySetInnerHTML={{ __html: component.html }}
             />
           ))}
       </div>

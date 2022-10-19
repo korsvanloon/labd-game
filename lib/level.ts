@@ -14,6 +14,7 @@ export interface Component {
   id: string
   type: string
   selector: string
+  horizontalScrollSelector?: string
   html: string
   children?: Component[]
   copyContent?: CopyContent[]
@@ -77,6 +78,12 @@ const enhanceComponent = (
   component.id = id
   componentDom?.setAttribute('component-id', id)
 
+  if (component.horizontalScrollSelector) {
+    componentDom
+      .querySelector(component.horizontalScrollSelector)
+      ?.classList.add('horizontal-scrollable')
+  }
+
   component.children?.forEach((child, i) => {
     enhanceComponent(child, componentDom, level, `${id}.${i}`)
     const childDom = componentDom.querySelector(child.selector)
@@ -97,8 +104,11 @@ const enhanceComponent = (
       if (lastDropZoneIndent === -1 && line.includes('drop-zone')) {
         lastDropZoneIndent = indent
       }
-      if (lastDropZoneIndent === -1 && line.startsWith('noscript')) {
-        lastDropZoneIndent = indent + 1
+      if (
+        lastDropZoneIndent === -1 &&
+        (line.startsWith('noscript') || line.startsWith('meta'))
+      ) {
+        lastDropZoneIndent = indent - 1
       }
       return lastDropZoneIndent === -1 || indent <= lastDropZoneIndent
     })
@@ -106,9 +116,11 @@ const enhanceComponent = (
 }
 const sanitizeClasses = (value: string) => value.replace(/[\w-]+(--|__)/g, '')
 
-export const getSanitizedHtml = (dom: HTMLElement) =>
-  dom?.outerHTML
-    .replace(/<(a|button|input|select) /g, '<span ')
+export const getSanitizedHtml = (dom: HTMLElement) => {
+  dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
+  return dom?.outerHTML
+    .replace(/<(a|button|select) /g, '<span ')
     .replace(/<\/(a|button|input|select)>/g, '</span>')
     .replace(/<noscript>/g, '')
     .replace(/<\/noscript>/g, '')
+}

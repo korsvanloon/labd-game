@@ -11,19 +11,6 @@
   border-top-right-radius: 1rem;
 }
 
-.CodeEditor pre {
-  position: relative;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  height: calc(50vh - 3.5rem);
-  padding: 1rem;
-  color: var(--purple);
-}
-
-.CodeEditor pre > code {
-  display: block;
-}
-
 .header {
   display: block;
   width: 100%;
@@ -34,6 +21,20 @@
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
 }
+
+.CodeEditor pre {
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  height: calc(min(48vw, 48vh) - 3.5rem);
+  padding: 1rem;
+  color: var(--purple);
+}
+
+.CodeEditor pre > code {
+  display: block;
+}
+
 
 .selected {
   background-color: hsla(0deg 0% 50% / 20%);
@@ -84,29 +85,10 @@
 
 .codedComponents {
   position: absolute;
-  top: -1rem;
+  top: -15rem;
   left: 0;
   display: flex;
   flex-direction: row-reverse;
   width: 100%;
   color: black;
-}
-
-.codedComponent {
-  position: absolute;
-  left: calc(100% - (var(--index) + 1)  * min(8vw, 8vh));
-  width: max-content;
-  padding: 6rem;
-  transform: scale(0.3) rotate(-80deg);
-  transform-box: fill-box;
-  transform-origin: top left;
-  transition: left 0.1s ease, bottom 0.3s ease;
-  background-color: hsl(0deg 0% 100% / 80%);
-  border-radius: 100px;
-}
-
-.codedComponent > * {
-  overflow: hidden;
-  max-height: 400px;
-  box-shadow: 0 0 10rem 2rem var(--player-color, black);
 }
