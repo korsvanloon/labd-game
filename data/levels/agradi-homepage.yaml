@@ -12,8 +12,6 @@ rootComponent:
           selector: .n-header__usps .row > *:nth-child(2)
         - type: headerUsp
           selector: .n-header__usps .row > *:nth-child(3)
-        - type: headerLink
-          selector: .n-header__link--topbar
         - type: countrySwitch
           selector: .n-header__link--flag
     - type: navBar

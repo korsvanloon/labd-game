@@ -42,15 +42,10 @@
   background-color: hsla(0deg 0% 50% / 50%);
 }
 
-.currentComponent {
+.ticket {
   z-index: -1;
   top: 1vw;
   left: 4vw;
   color: black;
   transform-origin: top left;
-}
-
-.currentComponent > * {
-  transform: translate(-50%, -50%) scale(var(--scale));
-  transform-origin: center;
 }

@@ -169,12 +169,12 @@ export const range = ({
 /**
  * Shuffles the items of an array in a random order.
  */
-export const shuffle = <T>(array: T[]) => {
+export const shuffle = <T>(array: T[], random: () => number) => {
   let currentIndex = array.length
 
   // While there remain elements to shuffle...
   while (currentIndex !== 0) {
-    const randomIndex = Math.floor(Math.random() * currentIndex)
+    const randomIndex = Math.floor(random() * currentIndex)
     currentIndex--
 
     // And swap it with the current element.

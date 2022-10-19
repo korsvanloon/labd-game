@@ -1,13 +1,18 @@
 import { readFileSync } from 'fs'
 import domParser, { HTMLElement } from 'node-html-parser'
+
 import { parse } from 'yaml'
 import { isValue } from './collection'
+
+export type LevelFile = {
+  url: string
+  rootComponent: Component
+}
 
 export interface Level {
   url: string
   styles: string[]
   rootComponent: Component
-  allComponents: Component[]
 }
 
 export interface Component {
@@ -30,16 +35,28 @@ export type CopyContent = {
   selector: string
 }
 
-export const readLevelFile = async (name: string) => {
-  const file = readFileSync(`./data/levels/${name}.yaml`, 'utf-8')
+export const readLevelFile = (name: string): LevelFile =>
+  parse(readFileSync(`./data/levels/${name}.yaml`, 'utf-8')) as LevelFile
 
-  const level = parse(file) as Level
-  const origin = new URL(level.url).origin
+export const createLevel = (
+  pageHtmlString: string,
+  levelFile: LevelFile,
+): Level => {
+  const origin = new URL(levelFile.url).origin
 
-  const htmlString = await fetch(level.url).then((r) => r.text())
-  const dom = domParser.parse(htmlString, {})
+  const dom = domParser.parse(pageHtmlString, {})
 
-  level.styles = [
+  enhanceComponent(levelFile.rootComponent, dom, '0')
+
+  return {
+    url: levelFile.url,
+    styles: getStyles(dom, origin),
+    rootComponent: levelFile.rootComponent,
+  }
+}
+
+export const getStyles = (dom: HTMLElement, origin: string) =>
+  [
     ...dom
       .querySelectorAll('link[rel=stylesheet]')
       .map((link) => link.getAttribute('href'))
@@ -49,26 +66,9 @@ export const readLevelFile = async (name: string) => {
       .map((link) => link.getAttribute('data-href')),
   ].filter(isValue)
 
-  enhanceComponent(level.rootComponent, dom, level, '0')
-
-  level.allComponents = [...getAllComponents(level.rootComponent)]
-
-  return level
-}
-
-function* getAllComponents(component: Component): Iterable<Component> {
-  yield component
-  if (!component.children) return
-
-  for (const child of component.children) {
-    yield* getAllComponents(child)
-  }
-}
-
 const enhanceComponent = (
   component: Component,
   dom: HTMLElement,
-  level: Level,
   id: string,
 ) => {
   const componentDom = dom.querySelector(component.selector)
@@ -85,13 +85,20 @@ const enhanceComponent = (
   }
 
   component.children?.forEach((child, i) => {
-    enhanceComponent(child, componentDom, level, `${id}.${i}`)
+    enhanceComponent(child, componentDom, `${id}.${i}`)
     const childDom = componentDom.querySelector(child.selector)
     childDom?.classList.add('drop-zone')
   })
 
-  let lastDropZoneIndent = -1
-  component.structure = componentDom.structure
+  component.structure = getStructure(componentDom)
+
+  component.html = getSanitizedHtml(componentDom)
+}
+export const sanitizeClasses = (value: string) =>
+  value.replace(/[\w-]+(--|__)/g, '')
+
+export const getStructure = (dom: HTMLElement, lastDropZoneIndent = -1) =>
+  dom.structure
     .split('\n')
     .map((line) => ({
       line: sanitizeClasses(line.trim()),
@@ -106,15 +113,12 @@ const enhanceComponent = (
       }
       if (
         lastDropZoneIndent === -1 &&
-        (line.startsWith('noscript') || line.startsWith('meta'))
+        /^noscript|^meta|^div\.component-id/.test(line)
       ) {
         lastDropZoneIndent = indent - 1
       }
       return lastDropZoneIndent === -1 || indent <= lastDropZoneIndent
     })
-  component.html = getSanitizedHtml(componentDom)
-}
-const sanitizeClasses = (value: string) => value.replace(/[\w-]+(--|__)/g, '')
 
 export const getSanitizedHtml = (dom: HTMLElement) => {
   dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))

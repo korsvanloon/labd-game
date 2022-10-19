@@ -8,14 +8,23 @@ import { Player } from '../components/Player'
 import { Profile, profiles } from '../data/profiles'
 import { useControllers } from '../hooks/useControllers'
 import { clamp } from '../joy-con/joycon'
-import { arrayEquals } from '../lib/collection'
-import { Level, readLevelFile } from '../lib/level'
-import { initialLevelProgress, LevelProgress } from '../lib/level-progress'
+import { arrayEquals, shuffle } from '../lib/collection'
+import { Component, createLevel, Level, readLevelFile } from '../lib/level'
+import {
+  ComponentProgress,
+  getNextComponents,
+  initialLevelProgress,
+  LevelProgress,
+} from '../lib/level-progress'
+import { randomSeed } from '../lib/random'
 import styles from './game.module.css'
 
 type Props = {
   level: Level
 }
+
+const seed = 0
+const random = randomSeed(seed)
 
 export default function LevelView({ level }: Props) {
   const [controllers, requestNewJoyCon] = useControllers()
@@ -27,55 +36,64 @@ export default function LevelView({ level }: Props) {
   // For debugging
   useEffect(() => {
     Object.assign(window, {
-      finishCoding: () =>
-        setLevelProgress((p) => {
-          const componentProgress = p.componentsProgress.find(
-            (p) => p.progress === 'specified',
-          )
-          if (componentProgress) componentProgress.progress = 'coded'
-          return { ...p }
-        }),
-      ready: () =>
-        setLevelProgress((p) => {
-          const componentProgress = p.componentsProgress.find(
-            (p) => p.progress === 'coded',
-          )
-          if (componentProgress) componentProgress.progress = 'ready'
-          return { ...p }
-        }),
-      deploy: () =>
-        setLevelProgress((p) => {
-          const componentProgress = p.componentsProgress.find(
-            (p) => p.progress === 'coded',
-          )
-          if (componentProgress) {
-            const dropZone = document.querySelector(
-              `[component-id='${componentProgress.component.id}']`,
-            )!
-            dropZone.classList.remove('drop-zone')
-            dropZone.outerHTML = componentProgress.component.html
-            componentProgress.progress = 'deployed'
-          }
-          return { ...p }
-        }),
-      skip: (amount: number) =>
+      finishCoding: (amount: number = 1) =>
         setLevelProgress((p) => {
           const progresses = p.componentsProgress
             .filter((p) => p.progress === 'specified')
             .slice(0, amount)
 
           progresses.forEach((componentProgress) => {
-            const dropZone = document.querySelector(
-              `[component-id='${componentProgress.component.id}']`,
-            )!
-            dropZone.classList.remove('drop-zone')
-            dropZone.outerHTML = componentProgress.component.html
-            componentProgress.progress = 'deployed'
+            commit(componentProgress, p)
+          })
+          console.info(progresses.slice(-1)[0])
+          return { ...p }
+        }),
+      deploy: (amount: number = 1) =>
+        setLevelProgress((p) => {
+          const progresses = p.componentsProgress
+            .filter((p) => p.progress === 'coded')
+            .slice(0, amount)
+
+          progresses.forEach((componentProgress) => {
+            const dropZone = findDropZone(componentProgress.component)
+            deploy(componentProgress, p, level, dropZone)
+          })
+          console.info(progresses.slice(-1)[0])
+          return { ...p }
+        }),
+      skip: (amount: number = 1) =>
+        setLevelProgress((p) => {
+          const progresses = p.componentsProgress
+            .filter((p) => p.progress === 'specified')
+            .slice(0, amount)
+
+          progresses.forEach((componentProgress) => {
+            const dropZone = findDropZone(componentProgress.component)
+            deploy(componentProgress, p, level, dropZone)
           })
           console.info(progresses.slice(-1)[0])
           return { ...p }
         }),
     })
+    setLevelProgress((p) => ({
+      ...p,
+      componentsProgress: [
+        ...p.componentsProgress.slice(0, 5),
+        ...shuffle(
+          [
+            ...p.componentsProgress.slice(5),
+            ...getNextComponents(
+              level.rootComponent,
+              p.componentsProgress,
+            ).map<ComponentProgress>((component) => ({
+              component,
+              progress: 'specified',
+            })),
+          ],
+          random,
+        ),
+      ],
+    }))
   }, [])
 
   return (
@@ -153,9 +171,7 @@ export default function LevelView({ level }: Props) {
                   dropZoneComponentId === componentProgress.component.id
 
                 if (isValid) {
-                  componentProgress.progress = 'deployed'
-                  dropZone.classList.remove('drop-zone')
-                  dropZone.outerHTML = componentProgress.component.html
+                  deploy(componentProgress, p, level, dropZone)
                 } else {
                   p.bugs++
                   controller.rumble(0, 0, 0.9)
@@ -239,17 +255,7 @@ export default function LevelView({ level }: Props) {
                       const isValid = errors.every((error) => !error)
 
                       if (isValid) {
-                        ticket.progress = 'coded'
-                        state.codingProgress.indents = [0]
-                        state.codingProgress.current = 0
-                        state.codingProgress.errors = []
-                        levelProgress.componentsProgress
-                          .filter(
-                            (p) =>
-                              p.component.type === ticket.component.type &&
-                              p.progress === 'specified',
-                          )
-                          .forEach((p) => (p.progress = 'coded'))
+                        commit(ticket, state)
                       } else if (
                         !arrayEquals(state.codingProgress.errors, errors)
                       ) {
@@ -289,9 +295,56 @@ export default function LevelView({ level }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({}) => {
-  const level = await readLevelFile('agradi-homepage')
+export function deploy(
+  ticket: ComponentProgress,
+  state: LevelProgress,
+  level: Level,
+  dropZone: Element,
+) {
+  ticket.progress = 'deployed'
+  dropZone.classList.remove('drop-zone')
+  dropZone.lastElementChild?.remove()
+  dropZone.outerHTML = ticket.component.html
+  state.componentsProgress = [
+    ...state.componentsProgress.slice(0, 5),
+    ...shuffle(
+      [
+        ...state.componentsProgress.slice(5),
+        ...getNextComponents(
+          level.rootComponent,
+          state.componentsProgress,
+        ).map<ComponentProgress>((component) => ({
+          component,
+          progress: 'specified',
+        })),
+      ],
+      random,
+    ),
+  ]
+}
 
+export function commit(ticket: ComponentProgress, state: LevelProgress) {
+  ticket.progress = 'coded'
+  state.codingProgress.indents = [0]
+  state.codingProgress.current = 0
+  state.codingProgress.errors = []
+  state.componentsProgress
+    .filter(
+      (p) =>
+        p.component.type === ticket.component.type &&
+        p.progress === 'specified',
+    )
+    .forEach((p) => (p.progress = 'coded'))
+}
+
+const findDropZone = (component: Component) =>
+  document.querySelector(`[component-id='${component.id}']`)!
+
+export const getServerSideProps: GetServerSideProps<Props> = async ({}) => {
+  const levelFile = readLevelFile('agradi-homepage')
+
+  const htmlString = await fetch(levelFile.url).then((r) => r.text())
+  const level = createLevel(htmlString, levelFile)
   return {
     props: {
       level,

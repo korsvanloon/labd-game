@@ -1,12 +1,11 @@
 import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 import { LevelProgress } from '../lib/level-progress'
-import { CodedComponent } from './CodedComponent'
 import styles from './CodeEditor.module.css'
+import { Ticket } from './Ticket'
 
 type Props = {
   levelProgress: LevelProgress
-  // onComponent: (component: Component) => void
 } & HTMLAttributes<HTMLDivElement>
 
 export type CodeAction =
@@ -64,18 +63,21 @@ export const CodeEditor = ({
         Commit
       </button>
 
-      <div className={styles.codedComponents}>
+      <div className={styles.tickets}>
         {componentsProgress
           .filter((p) => p.progress === 'coded')
-          .map(({ component }, i) => (
-            <CodedComponent
+          .map(({ component }, i, a) => (
+            <Ticket
               component={component}
               key={component.id}
               rotation={-1.4}
               style={{
-                left: `calc(100% - ${i + 1}   * min(8vw, 8vh))`,
+                zIndex: a.length - i,
+                left: `calc(80% - ${i + 1}   * min(8vw, 8vh))`,
               }}
+              className={styles.ticket}
               componentClassName={clsx(
+                styles.ticketComponent,
                 'action-zone',
                 'object',
                 'coded-component',

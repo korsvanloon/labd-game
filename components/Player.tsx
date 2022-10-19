@@ -6,10 +6,10 @@ import { clamp, JoyCon } from '../joy-con/joycon'
 import { Point2 } from '../joy-con/madgwick'
 import { Level } from '../lib/level'
 import { ComponentProgress, LevelProgress } from '../lib/level-progress'
-import { CodedComponent } from './CodedComponent'
 import { CodeAction } from './CodeEditor'
 import { DialogSelect } from './DialogSelect'
 import styles from './Player.module.css'
+import { Ticket } from './Ticket'
 
 type Props = {
   controller: JoyCon
@@ -184,7 +184,7 @@ export const Player = ({
                     scrollable?.scrollBy({ left: +scrollStep })
                   } else {
                     scrollable.style.marginLeft = `${Math.max(
-                      -1016,
+                      -1200,
                       parseInt(scrollable.style.marginLeft || '0') - scrollStep,
                     )}px`
                   }
@@ -274,10 +274,11 @@ export const Player = ({
         }}
       >
         {state.componentProgress && (
-          <CodedComponent
+          <Ticket
             component={state.componentProgress.component}
             rotation={-0.4}
-            className={styles.currentComponent}
+            className={styles.ticket}
+            componentClassName={styles.component}
           />
         )}
       </div>

@@ -5,19 +5,30 @@
   --yellow: #ffd500;
 
   height: 100vh;
-  background-image: url('/images/background-purple.png');
-  background-position: bottom;
-  background-size: cover;
   font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
   font-size: 1.25rem;
 }
 
+.app::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left:0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/background-purple.png');
+  background-position: bottom;
+  background-size: cover;
+  opacity: 0.2;
+}
+
 .app > header {
+  position: relative;
   display: flex;
   justify-content: space-around;
   align-items: center;
   padding: 1rem;
-  background-color: hsl(0deg 0% 100% / 90%);
+  background-color: hsl(0deg 0% 100% / 70%);
 }
 
 .app > header button {
@@ -43,13 +54,25 @@
 }
 
 .app :global(.drop-zone) {
+  position: relative;
   flex: 1;
   min-width: 2rem;
   min-height: 1rem;
   border: 2px dashed hsla(0deg 0% 50% / 50%) !important;
-  color: transparent;
 }
 
-.app :global(.drop-zone) > * {
+.app :global(.drop-zone) > *:not(:global(.component-id)) {
   visibility: hidden !important;
+}
+
+.app :global(.drop-zone .component-id) {
+  display: block;
+}
+
+.app :global(.component-id) {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: none;
+  display: block;
 }

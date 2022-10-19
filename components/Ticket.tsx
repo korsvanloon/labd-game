@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react'
 import { Component } from '../lib/level'
-import styles from './CodedComponent.module.css'
+import styles from './Ticket.module.css'
 
 type Props = {
   component: Component
@@ -16,21 +16,23 @@ type Props = {
   componentClassName?: string
 } & HTMLAttributes<HTMLDivElement>
 
-export const CodedComponent = ({
+export const Ticket = ({
   component,
   rotation,
   componentClassName,
   ...attributes
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
+  const [scale, setScale] = useState(0.1)
 
   useEffect(() => {
     if (!ref.current) return
 
+    const boundX = window.innerWidth * 0.2
+    const boundY = window.innerWidth * 0.1
     const size = Math.min(
-      300 / ref.current.clientWidth,
-      75 / ref.current.clientHeight,
+      boundX / ref.current.clientWidth,
+      boundY / ref.current.clientHeight,
     )
     setScale(size)
   }, [ref.current])
@@ -38,7 +40,7 @@ export const CodedComponent = ({
   return (
     <div
       {...attributes}
-      className={clsx(styles.codedComponent, attributes.className)}
+      className={clsx(styles.Ticket, attributes.className)}
       style={
         {
           ...attributes.style,
@@ -47,9 +49,13 @@ export const CodedComponent = ({
         } as CSSProperties
       }
     >
+      <div className={styles.info}>
+        <div className={styles.name}>{component.type}</div>
+        <div className={styles.id}>{component.id}</div>
+      </div>
       <div
         ref={ref}
-        className={componentClassName}
+        className={clsx(styles.component, componentClassName)}
         dangerouslySetInnerHTML={{ __html: component.html }}
       />
     </div>

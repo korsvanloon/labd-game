@@ -17,7 +17,7 @@
     "preserveWatchOutput": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
-    "types": ["node"],
+    "types": ["node", "jest"],
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
