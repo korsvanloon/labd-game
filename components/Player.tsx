@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import React, { useEffect, useState } from 'react'
+import { Controller } from '../controller/interface'
 import { Profile, profiles } from '../data/profiles'
 import { Level } from '../game/level'
 import { ComponentProgress, LevelState } from '../game/level-progress'
@@ -13,7 +14,7 @@ import styles from './Player.module.css'
 import { Ticket } from './Ticket'
 
 type Props = {
-  controller: JoyCon
+  controller: Controller
   level: Level
   levelProgress: LevelState
   onDropComponent: (component: ComponentProgress, dropZone: Element) => void
@@ -58,9 +59,7 @@ export const Player = ({
   useEffect(() => {
     if (openDialog) return
 
-    controller.onButton = ({ soloValue, changed, sameButtonCount }) => {
-      if (accelerationDebounced(sameButtonCount)) return
-
+    controller.onButton = ({ soloValue, changed }) => {
       switch (soloValue) {
         case 'special': {
           if (!changed) return
@@ -203,7 +202,7 @@ export const Player = ({
       }
     }
     controller.onJoystick = ({ value }) => {
-      const speed = 8
+      const speed = controller instanceof JoyCon ? 8 : 1
       const vw = window.innerWidth * 0.01
 
       const position = {

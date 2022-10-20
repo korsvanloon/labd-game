@@ -1,6 +1,8 @@
+import { Controller } from '../controller/interface'
 import { clamp } from '../util/math'
 import { connectRingCon } from './connectRingCon'
 import {
+  accelerationDebounced,
   AccelerationEvent,
   BatteryEvent,
   ButtonEvent,
@@ -27,7 +29,7 @@ const SUB_COMMAND = {
 }
 const RUMBLE_HEADER = [0x00, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40]
 
-export class JoyCon {
+export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
   ledstate: number = 0
 
   onButton?: (event: ButtonEvent) => void
@@ -36,6 +38,12 @@ export class JoyCon {
   onOrientationChange?: (event: OrientationEvent) => void
   onDeviceInfo?: (event: DeviceInfoEvent) => void
   onBatteryChange?: (event: BatteryEvent) => void
+  get deviceName(): string {
+    return this.device.productName
+  }
+  buzz(): void {
+    this.rumble(0, 0, 0.9)
+  }
 
   private lastPacket?: ReturnType<typeof createPacket>
   private lastEulerAngles: Angles = {
@@ -307,14 +315,16 @@ export class JoyCon {
         const changed = buttonValue !== lastButtonValue
         this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
 
-        this.onButton?.({
-          controller: this,
-          type: 'button',
-          value: buttonValue,
-          soloValue: toSoloValue(buttonValue),
-          changed,
-          sameButtonCount: this.sameButtonCount,
-        })
+        if (!accelerationDebounced(this.sameButtonCount)) {
+          this.onButton?.({
+            controller: this,
+            type: 'button',
+            value: buttonValue,
+            soloValue: toSoloValue(buttonValue),
+            changed,
+            sameButtonCount: this.sameButtonCount,
+          })
+        }
       }
 
       const stickValue = packet.analogStickLeft

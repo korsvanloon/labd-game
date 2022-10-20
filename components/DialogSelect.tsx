@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Controller } from '../controller/interface'
 import { accelerationDebounced } from '../joy-con/events'
-import { JoyCon } from '../joy-con/joycon'
 import styles from './DialogSelect.module.css'
 
 type Props<T> = {
@@ -9,7 +9,7 @@ type Props<T> = {
   options: T[]
   getOptionValue: (o: T) => string
   getOptionNode: (o: T, selected: boolean) => React.ReactNode
-  controller: JoyCon
+  controller: Controller
   open?: boolean
   onSubmit: (profile: T) => void
 }

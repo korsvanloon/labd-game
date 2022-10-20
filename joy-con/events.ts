@@ -12,7 +12,6 @@ export type JoyConEvent =
   | DeviceInfoEvent
 
 export type ButtonEvent = BaseJoyConEvent & {
-  controller: JoyCon
   type: 'button'
   soloValue?:
     | 'down' // left, a

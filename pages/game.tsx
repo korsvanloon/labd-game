@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react'
 import { Browser } from '../components/Browser'
 import { CodeAction, CodeEditor } from '../components/CodeEditor'
 import { Player } from '../components/Player'
+import { Controller } from '../controller/interface'
+import { MouseKeyboard } from '../controller/mouse-keyboard'
 import { Profile, profiles } from '../data/profiles'
 import { Component, createLevel, Level, readLevelFile } from '../game/level'
 import {
@@ -22,6 +24,7 @@ import {
 import { useControllers } from '../hooks/useControllers'
 import { JoyCon } from '../joy-con/joycon'
 import IconJoyCon from '../public/icon-joycon.svg'
+import IconKeyboard from '../public/icon-keyboard.svg'
 import { arrayEquals, shuffle } from '../util/collection'
 import { randomSeed } from '../util/random'
 import styles from './game.module.css'
@@ -34,7 +37,7 @@ const seed = 0
 const random = randomSeed(seed)
 
 export default function LevelView({ level }: Props) {
-  const [controllers, requestNewJoyCon] = useControllers()
+  const [controllers, requestNewJoyCon, addMouseKeyboard] = useControllers()
   const [levelState, setLevelState] = useState<LevelState>(
     initialLevelProgress(level),
   )
@@ -121,9 +124,19 @@ export default function LevelView({ level }: Props) {
           className={clsx(styles.connect)}
           type="button"
           onClick={requestNewJoyCon}
+          disabled={controllers.filter((c) => c instanceof JoyCon).length === 2}
         >
           <span>Connect Joy-Con</span>
           <IconJoyCon />
+        </button>
+        <button
+          className={clsx(styles.connect)}
+          type="button"
+          disabled={controllers.some((c) => c instanceof MouseKeyboard)}
+          onClick={addMouseKeyboard}
+        >
+          <span>Connect Mouse-Keyboard</span>
+          <IconKeyboard />
         </button>
         <div>
           {controllers.map((controller) => (
@@ -133,7 +146,7 @@ export default function LevelView({ level }: Props) {
                 {controllerProfiles[controller.id]?.name ??
                   profiles[controller.id]?.name}
               </strong>
-              {` on ${controller.device.productName}`}
+              {` on ${controller.deviceName}`}
             </div>
           ))}
         </div>
@@ -183,7 +196,7 @@ export default function LevelView({ level }: Props) {
                   state.bugs += Math.ceil(
                     componentProgress.component.structure.length * 0.5,
                   )
-                  controller.rumble(0, 0, 0.9)
+                  controller.buzz()
                   componentProgress.progress = 'coded'
                 }
                 return { ...state }
@@ -217,7 +230,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({}) => {
 
 export const handleChangeCode = (
   setLevelState: (setter: (state: LevelState) => LevelState) => void,
-  controller: JoyCon,
+  controller: Controller,
 ) =>
   function (action: CodeAction) {
     switch (action) {
@@ -253,6 +266,7 @@ export const handleChangeCode = (
           const { current, indents } = state.codingProgress
 
           const isCommit = current === ticket.component.structure.length
+          console.log(isCommit)
 
           if (isCommit) {
             const { isValid, errors } = ticketValidation(state, ticket)
@@ -260,7 +274,7 @@ export const handleChangeCode = (
             if (isValid) {
               commit(state, ticket)
             } else if (!arrayEquals(state.codingProgress.errors, errors)) {
-              controller.rumble(0, 0, 0.9)
+              controller.buzz()
               state.codingProgress.errors = errors
               state.bugs += errors.filter(Boolean).length
             }

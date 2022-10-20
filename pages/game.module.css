@@ -53,13 +53,18 @@
   transition: all 0.3s ease;
 }
 
-.connect:hover {
+.connect:disabled {
+  opacity: 0.75;
+}
+
+.connect:not(:disabled):hover {
   background-color:  hsl(0deg 0% 20%);
 }
 
 .connect svg {
   width: 2.5rem;
   height: 2.5rem;
+  color: white;
 }
 
 .app :global(.scrollable) {
