@@ -63,7 +63,7 @@ export const CodeEditor = ({
         Commit
       </button>
 
-      <div className={styles.tickets}>
+      <div className={styles.finishedTickets}>
         {componentsProgress
           .filter((p) => p.progress === 'coded')
           .map(({ component }, i, a) => (
@@ -75,7 +75,7 @@ export const CodeEditor = ({
                 zIndex: a.length - i,
                 left: `calc(80% - ${i + 1}   * min(8vw, 8vh))`,
               }}
-              className={styles.ticket}
+              className={clsx(styles.ticket)}
               componentClassName={clsx(
                 styles.ticketComponent,
                 'action-zone',
@@ -84,6 +84,31 @@ export const CodeEditor = ({
               )}
             />
           ))}
+      </div>
+      <div className={styles.openTickets}>
+        <header>Current Sprint</header>
+        <div>
+          {componentsProgress
+            .filter((p) => p.progress === 'specified')
+            .map(({ component }, i, a) => (
+              <Ticket
+                component={component}
+                key={component.id}
+                rotation={-0.5 * Math.PI}
+                style={{
+                  zIndex: i,
+                  position: 'relative',
+                }}
+                className={styles.openTicket}
+                componentClassName={clsx(
+                  styles.openTicketComponent,
+                  // 'action-zone',
+                  // 'object',
+                  // 'coded-component',
+                )}
+              />
+            ))}
+        </div>
       </div>
     </div>
   )

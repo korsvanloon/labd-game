@@ -52,7 +52,7 @@ export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
   }
 
   buzz(): void {
-    console.log('error')
+    console.error('bug!')
   }
 
   constructor(public id: number, public window: Window) {}
@@ -71,7 +71,6 @@ export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
     this.window.addEventListener('keypress', (event) => {
       const changed = this.lastValues.key !== event.key
       this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
-      console.log(this.lastValues.key, event.key, changed)
       this.lastValues.key = event.key
       this.onButton?.({
         event,

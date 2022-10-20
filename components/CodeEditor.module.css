@@ -84,7 +84,7 @@
   text-decoration: underline wavy red;
 }
 
-.tickets {
+.finishedTickets {
   position: absolute;
   top: -15rem;
   left: 0;
@@ -96,4 +96,39 @@
 
 .ticketComponent {
   filter: grayscale();
+}
+
+.openTickets {
+  position: absolute;
+  bottom: 0;
+  left: calc(min(48vw, 48rem) + 1vw);
+  overflow: hidden;
+  width: 14vw;
+  height: 18vw;
+  color: black;
+}
+
+.openTickets > header {
+  /* padding: 0.5vw 0; */
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.openTickets > div {
+  position: relative;
+  top: 20px;
+  top: 30%;
+  left: 1.5rem;
+  display: flex;
+  gap: 2vw;
+  transform: scale(0.6);
+  transform-origin: top left;
+}
+
+.openTicket {
+  /* margin-bottom: -50%; */
+}
+
+.openTicketComponent {
+  display: none;
 }

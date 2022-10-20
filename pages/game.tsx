@@ -1,10 +1,11 @@
 import clsx from 'clsx'
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { CSSProperties, useEffect, useState } from 'react'
 import { Browser } from '../components/Browser'
 import { CodeAction, CodeEditor } from '../components/CodeEditor'
 import { Player } from '../components/Player'
+import { ScoreNumber } from '../components/ScoreNumber'
 import { Controller } from '../controller/interface'
 import { MouseKeyboard } from '../controller/mouse-keyboard'
 import { Profile, profiles } from '../data/profiles'
@@ -22,6 +23,7 @@ import {
   ticketValidation,
 } from '../game/level-progress'
 import { useControllers } from '../hooks/useControllers'
+import { usePrevious } from '../hooks/usePrevious'
 import { JoyCon } from '../joy-con/joycon'
 import IconJoyCon from '../public/icon-joycon.svg'
 import IconKeyboard from '../public/icon-keyboard.svg'
@@ -42,6 +44,17 @@ export default function LevelView({ level }: Props) {
     initialLevelProgress(level),
   )
   const [controllerProfiles, setProfiles] = useState<Profile[]>([])
+
+  const score = calculateScore(levelState)
+  const previousScore = usePrevious(score)
+  const [scoreChange, setScoreChanged] = useState(false)
+
+  useEffect(() => {
+    setScoreChanged(true)
+    window.setTimeout(() => {
+      setScoreChanged(false)
+    }, 1000)
+  }, [score])
 
   // For debugging
   useEffect(() => {
@@ -153,13 +166,32 @@ export default function LevelView({ level }: Props) {
         <div className={styles.stats}>
           <div>
             <span>Features</span>
+
             <strong>{`${totalDeployed} / ${level.totalComponents}`}</strong>
           </div>
           <div>
             <span>Score</span>
-            <strong>{calculateScore(levelState)}</strong>
+            <ScoreNumber
+              changed={scoreChange}
+              style={
+                {
+                  '--color':
+                    score >= (previousScore ?? score)
+                      ? 'var(--yellow)'
+                      : 'var(--red)',
+                } as CSSProperties
+              }
+            >
+              {score}
+            </ScoreNumber>
           </div>
         </div>
+        <ScoreNumber
+          changed={totalDeployed === level.totalComponents}
+          className={styles.winMessage}
+        >
+          {totalDeployed === level.totalComponents ? 'Completed!' : ''}
+        </ScoreNumber>
       </header>
 
       <Browser level={level} progress={levelState} className={styles.level} />
@@ -266,7 +298,6 @@ export const handleChangeCode = (
           const { current, indents } = state.codingProgress
 
           const isCommit = current === ticket.component.structure.length
-          console.log(isCommit)
 
           if (isCommit) {
             const { isValid, errors } = ticketValidation(state, ticket)

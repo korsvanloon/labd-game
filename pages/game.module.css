@@ -2,7 +2,11 @@
 
 .app {
   --purlpe: hsl(318deg 100% 67% / 90%);
-  --yellow: #ffd500;
+  --yellow: hsl(50deg 100% 50%);
+  --green: hsl(142deg 100% 50% / 90%);
+  --pink: hsl(318deg 100% 67% / 90%);
+  --turqoise: hsl(181deg 93% 47% / 90%);
+  --red: hsl(354deg 70% 54%);
 
   height: 100vh;
   font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
@@ -93,4 +97,16 @@
   left: 50%;
   display: none;
   display: block;
+}
+
+.winMessage {
+  --color: var(--green);
+
+  position: fixed;
+  z-index: 100;
+  top: 40%;
+  left: 45%;
+  font-size: 3rem;
+  font-weight: 800;
+  text-shadow: 0 0 10px black;
 }

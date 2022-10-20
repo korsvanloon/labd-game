@@ -88,11 +88,15 @@ export function deploy(
   dropZone.lastElementChild?.remove()
   dropZone.outerHTML = ticket.component.html
 
+  const queueSize = 4
+
   const existingSpecified = state.componentsProgress
     .filter((p) => p.progress === 'specified')
-    .slice(1)
+    .slice(queueSize)
+
   state.componentsProgress = [
     ...state.componentsProgress.filter((p) => !existingSpecified.includes(p)),
+    // All new items after the queue size get shuffled to create some randomness and replayability.
     ...shuffle(
       [
         ...existingSpecified,
