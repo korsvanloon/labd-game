@@ -5,7 +5,7 @@ import { accelerationDebounced } from '../joy-con/events'
 import { JoyCon } from '../joy-con/joycon'
 import { Point2 } from '../joy-con/madgwick'
 import { Level } from '../lib/level'
-import { ComponentProgress, LevelProgress } from '../lib/level-progress'
+import { ComponentProgress, LevelState } from '../lib/level-progress'
 import { clamp } from '../lib/math'
 import { CodeAction } from './CodeEditor'
 import { DialogSelect } from './DialogSelect'
@@ -15,7 +15,7 @@ import { Ticket } from './Ticket'
 type Props = {
   controller: JoyCon
   level: Level
-  levelProgress: LevelProgress
+  levelProgress: LevelState
   onDropComponent: (component: ComponentProgress, dropZone: Element) => void
   onChangeComponentProgress: (
     component: ComponentProgress,

@@ -43,13 +43,18 @@
   align-items: center;
   padding: 0.75rem 2rem;
   border: none;
-  background-color: black;
+  background-color: hsl(0deg 0% 0%);
   color: white;
   font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   border-radius: 2rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.connect:hover {
+  background-color:  hsl(0deg 0% 20%);
 }
 
 .connect svg {

@@ -3,20 +3,25 @@ import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { Browser } from '../components/Browser'
-import { CodeEditor } from '../components/CodeEditor'
+import { CodeAction, CodeEditor } from '../components/CodeEditor'
 import { Player } from '../components/Player'
 import { Profile, profiles } from '../data/profiles'
 import { useControllers } from '../hooks/useControllers'
+import { JoyCon } from '../joy-con/joycon'
 import { arrayEquals, shuffle } from '../lib/collection'
 import { Component, createLevel, Level, readLevelFile } from '../lib/level'
 import {
+  addIndent,
   calculateScore,
+  changeIndent,
+  commit,
   ComponentProgress,
+  deploy,
   getNextComponents,
   initialLevelProgress,
-  LevelProgress,
+  LevelState,
+  ticketValidation,
 } from '../lib/level-progress'
-import { clamp } from '../lib/math'
 import { randomSeed } from '../lib/random'
 import IconJoyCon from '../public/icon-joycon.svg'
 import styles from './game.module.css'
@@ -30,7 +35,7 @@ const random = randomSeed(seed)
 
 export default function LevelView({ level }: Props) {
   const [controllers, requestNewJoyCon] = useControllers()
-  const [levelProgress, setLevelProgress] = useState<LevelProgress>(
+  const [levelState, setLevelState] = useState<LevelState>(
     initialLevelProgress(level),
   )
   const [controllerProfiles, setProfiles] = useState<Profile[]>([])
@@ -39,55 +44,55 @@ export default function LevelView({ level }: Props) {
   useEffect(() => {
     Object.assign(window, {
       finishCoding: (amount: number = 1) =>
-        setLevelProgress((p) => {
-          const progresses = p.componentsProgress
+        setLevelState((state) => {
+          const progresses = state.componentsProgress
             .filter((p) => p.progress === 'specified')
             .slice(0, amount)
 
           progresses.forEach((componentProgress) => {
-            commit(componentProgress, p)
+            commit(state, componentProgress)
           })
           console.info(progresses.slice(-1)[0])
-          return { ...p }
+          return { ...state }
         }),
       deploy: (amount: number = 1) =>
-        setLevelProgress((p) => {
-          const progresses = p.componentsProgress
+        setLevelState((state) => {
+          const progresses = state.componentsProgress
             .filter((p) => p.progress === 'coded')
             .slice(0, amount)
 
           progresses.forEach((componentProgress) => {
             const dropZone = findDropZone(componentProgress.component)
-            deploy(componentProgress, p, level, dropZone)
+            deploy(state, level, componentProgress, dropZone)
           })
           console.info(progresses.slice(-1)[0])
-          return { ...p }
+          return { ...state }
         }),
       skip: (amount: number = 1) =>
-        setLevelProgress((p) => {
-          const progresses = p.componentsProgress
+        setLevelState((state) => {
+          const progresses = state.componentsProgress
             .filter((p) => p.progress === 'specified')
             .slice(0, amount)
 
           progresses.forEach((componentProgress) => {
             const dropZone = findDropZone(componentProgress.component)
-            deploy(componentProgress, p, level, dropZone)
+            deploy(state, level, componentProgress, dropZone)
           })
           console.info(progresses.slice(-1)[0])
-          return { ...p }
+          return { ...state }
         }),
     })
     // set initial progress
-    setLevelProgress((p) => ({
-      ...p,
+    setLevelState((state) => ({
+      ...state,
       componentsProgress: [
-        ...p.componentsProgress.slice(0, 5),
+        ...state.componentsProgress.slice(0, 5),
         ...shuffle(
           [
-            ...p.componentsProgress.slice(5),
+            ...state.componentsProgress.slice(5),
             ...getNextComponents(
               level.rootComponent,
-              p.componentsProgress,
+              state.componentsProgress,
             ).map<ComponentProgress>((component) => ({
               component,
               progress: 'specified',
@@ -99,7 +104,7 @@ export default function LevelView({ level }: Props) {
     }))
   }, [])
 
-  const totalDeployed = levelProgress.componentsProgress.filter(
+  const totalDeployed = levelState.componentsProgress.filter(
     (c) => c.progress === 'deployed',
   ).length
 
@@ -139,18 +144,14 @@ export default function LevelView({ level }: Props) {
           </div>
           <div>
             <span>Score</span>
-            <strong>{calculateScore(levelProgress)}</strong>
+            <strong>{calculateScore(levelState)}</strong>
           </div>
         </div>
       </header>
 
-      <Browser
-        level={level}
-        progress={levelProgress}
-        className={styles.level}
-      />
+      <Browser level={level} progress={levelState} className={styles.level} />
 
-      <CodeEditor levelProgress={levelProgress} />
+      <CodeEditor levelProgress={levelState} />
 
       <div className={styles.playerContainer}>
         {controllers.map((controller) => (
@@ -163,13 +164,13 @@ export default function LevelView({ level }: Props) {
             }}
             controller={controller}
             onChangeComponentProgress={(componentProgress, progress) => {
-              setLevelProgress((p) => {
+              setLevelState((p) => {
                 componentProgress.progress = progress
                 return { ...p }
               })
             }}
             onDropComponent={(componentProgress, dropZone) =>
-              setLevelProgress((p) => {
+              setLevelState((state) => {
                 const dropZoneComponentId =
                   dropZone.getAttribute('component-id')!
 
@@ -177,166 +178,25 @@ export default function LevelView({ level }: Props) {
                   dropZoneComponentId === componentProgress.component.id
 
                 if (isValid) {
-                  deploy(componentProgress, p, level, dropZone)
+                  deploy(state, level, componentProgress, dropZone)
                 } else {
-                  p.bugs += Math.ceil(
+                  state.bugs += Math.ceil(
                     componentProgress.component.structure.length * 0.5,
                   )
                   controller.rumble(0, 0, 0.9)
                   componentProgress.progress = 'coded'
                 }
-                return { ...p }
+                return { ...state }
               })
             }
-            onChangeCode={(action) => {
-              switch (action) {
-                case 'indent-left': {
-                  setLevelProgress((state) => {
-                    const { indents, errors, current } = state.codingProgress
-
-                    const ticket = state.componentsProgress.find(
-                      (c) => c.progress === 'specified',
-                    )
-                    if (
-                      ticket &&
-                      current < ticket?.component.structure.length
-                    ) {
-                      indents[current] = Math.max(0, indents[current] - 1)
-                      errors[current] = false
-                    }
-
-                    return { ...state }
-                  })
-                  break
-                }
-                case 'indent-right': {
-                  setLevelProgress((state) => {
-                    const { indents, errors, current } = state.codingProgress
-                    const ticket = state.componentsProgress.find(
-                      (c) => c.progress === 'specified',
-                    )
-                    if (
-                      ticket &&
-                      current < ticket?.component.structure.length
-                    ) {
-                      indents[current] = Math.min(10, indents[current] + 1)
-                      errors[current] = false
-                    }
-
-                    return {
-                      ...state,
-                      codingProgress: {
-                        indents: [...indents],
-                        current,
-                        errors: [...errors],
-                      },
-                    }
-                  })
-                  break
-                }
-                case 'line-up': {
-                  setLevelProgress((state) => ({
-                    ...state,
-                    codingProgress: {
-                      ...state.codingProgress,
-                      current: Math.max(0, state.codingProgress.current - 1),
-                    },
-                  }))
-                  break
-                }
-                case 'line-down': {
-                  setLevelProgress((state) => {
-                    const ticket = state.componentsProgress.find(
-                      (c) => c.progress === 'specified',
-                    )
-                    if (!ticket) return state
-
-                    const { current, indents } = state.codingProgress
-                    const isCommit =
-                      current === ticket.component.structure.length
-
-                    if (isCommit) {
-                      const errors = ticket.component.structure.map(
-                        ({ indent }, i) =>
-                          indent !== state.codingProgress.indents[i],
-                      )
-                      const isValid = errors.every((error) => !error)
-
-                      if (isValid) {
-                        commit(ticket, state)
-                      } else if (
-                        !arrayEquals(state.codingProgress.errors, errors)
-                      ) {
-                        controller.rumble(0, 0, 0.9)
-                        state.codingProgress.errors = errors
-                        state.bugs += errors.filter((e) => e).length
-                      }
-                      return { ...state }
-                    }
-                    return {
-                      ...state,
-                      codingProgress: {
-                        ...state.codingProgress,
-                        indents:
-                          current === indents.length - 1 &&
-                          indents.length < ticket.component.structure.length
-                            ? [...indents, indents[indents.length - 1]]
-                            : indents,
-                        current: clamp(
-                          0,
-                          current + 1,
-                          ticket.component.structure.length,
-                        ),
-                      },
-                    }
-                  })
-                  break
-                }
-              }
-            }}
-            levelProgress={levelProgress}
+            onChangeCode={handleChangeCode(setLevelState, controller)}
+            levelProgress={levelState}
             level={level}
           />
         ))}
       </div>
     </div>
   )
-}
-
-export function deploy(
-  ticket: ComponentProgress,
-  state: LevelProgress,
-  level: Level,
-  dropZone: Element,
-) {
-  ticket.progress = 'deployed'
-  dropZone.classList.remove('drop-zone')
-  dropZone.lastElementChild?.remove()
-  dropZone.outerHTML = ticket.component.html
-  state.componentsProgress = [
-    ...state.componentsProgress,
-    ...getNextComponents(
-      level.rootComponent,
-      state.componentsProgress,
-    ).map<ComponentProgress>((component) => ({
-      component,
-      progress: 'specified',
-    })),
-  ]
-}
-
-export function commit(ticket: ComponentProgress, state: LevelProgress) {
-  ticket.progress = 'coded'
-  state.codingProgress.indents = [0]
-  state.codingProgress.current = 0
-  state.codingProgress.errors = []
-  state.componentsProgress
-    .filter(
-      (p) =>
-        p.component.type === ticket.component.type &&
-        p.progress === 'specified',
-    )
-    .forEach((p) => (p.progress = 'coded'))
 }
 
 const findDropZone = (component: Component) =>
@@ -347,9 +207,80 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({}) => {
 
   const htmlString = await fetch(levelFile.url).then((r) => r.text())
   const level = createLevel(htmlString, levelFile)
+
   return {
     props: {
       level,
     },
   }
 }
+
+export const handleChangeCode = (
+  setLevelState: (setter: (state: LevelState) => LevelState) => void,
+  controller: JoyCon,
+) =>
+  function (action: CodeAction) {
+    switch (action) {
+      case 'indent-left': {
+        setLevelState((state) => {
+          changeIndent(state, -1)
+          return { ...state }
+        })
+        break
+      }
+      case 'indent-right': {
+        setLevelState((state) => {
+          changeIndent(state, +1)
+          return { ...state }
+        })
+        break
+      }
+      case 'line-up': {
+        setLevelState((state) => {
+          const { current } = state.codingProgress
+          state.codingProgress.current = Math.max(0, current - 1)
+          return { ...state }
+        })
+        break
+      }
+      case 'line-down': {
+        setLevelState((state) => {
+          const ticket = state.componentsProgress.find(
+            (c) => c.progress === 'specified',
+          )
+          if (!ticket) return state
+
+          const { current, indents } = state.codingProgress
+
+          const isCommit = current === ticket.component.structure.length
+
+          if (isCommit) {
+            const { isValid, errors } = ticketValidation(state, ticket)
+
+            if (isValid) {
+              commit(state, ticket)
+            } else if (!arrayEquals(state.codingProgress.errors, errors)) {
+              controller.rumble(0, 0, 0.9)
+              state.codingProgress.errors = errors
+              state.bugs += errors.filter(Boolean).length
+            }
+          } else {
+            if (
+              // current is at last coded line
+              current === indents.length - 1 &&
+              // but there is more to code
+              indents.length < ticket.component.structure.length
+            ) {
+              addIndent(state)
+            }
+            state.codingProgress.current = Math.min(
+              current + 1,
+              ticket.component.structure.length,
+            )
+          }
+          return { ...state }
+        })
+        break
+      }
+    }
+  }

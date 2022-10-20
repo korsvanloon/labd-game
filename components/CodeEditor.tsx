@@ -1,11 +1,11 @@
 import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
-import { LevelProgress } from '../lib/level-progress'
+import { LevelState } from '../lib/level-progress'
 import styles from './CodeEditor.module.css'
 import { Ticket } from './Ticket'
 
 type Props = {
-  levelProgress: LevelProgress
+  levelProgress: LevelState
 } & HTMLAttributes<HTMLDivElement>
 
 export type CodeAction =

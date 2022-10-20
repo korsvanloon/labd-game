@@ -1,12 +1,12 @@
 import clsx from 'clsx'
 import React from 'react'
 import { Level } from '../lib/level'
-import { LevelProgress } from '../lib/level-progress'
+import { LevelState } from '../lib/level-progress'
 import styles from './Browser.module.css'
 
 type Props = {
   level: Level
-  progress: LevelProgress
+  progress: LevelState
 } & React.HTMLAttributes<HTMLDivElement>
 
 export const Browser = ({ level, progress, ...attributes }: Props) => {
