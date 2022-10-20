@@ -3,6 +3,7 @@ import domParser, { HTMLElement } from 'node-html-parser'
 
 import { parse } from 'yaml'
 import { isValue } from './collection'
+import { findNodes } from './tree'
 
 export type LevelFile = {
   url: string
@@ -13,6 +14,7 @@ export interface Level {
   url: string
   styles: string[]
   rootComponent: Component
+  totalComponents: number
 }
 
 export interface Component {
@@ -48,10 +50,14 @@ export const createLevel = (
 
   enhanceComponent(levelFile.rootComponent, dom, '0')
 
+  const totalComponents = [...findNodes(levelFile.rootComponent, () => true)]
+    .length
+
   return {
     url: levelFile.url,
     styles: getStyles(dom, origin),
     rootComponent: levelFile.rootComponent,
+    totalComponents,
   }
 }
 

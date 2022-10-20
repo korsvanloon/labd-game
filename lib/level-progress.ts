@@ -1,4 +1,6 @@
 import { Component, Level } from './level'
+import { sum } from './math'
+import { findNodes } from './tree'
 
 export type LevelProgress = {
   componentsProgress: ComponentProgress[]
@@ -24,6 +26,12 @@ export type CodingProgress = {
   indents: number[]
 }
 
+export const calculateScore = (levelProgress: LevelProgress) =>
+  sum(
+    levelProgress.componentsProgress.filter((f) => f.progress === 'deployed'),
+    (p) => p.component.structure.length,
+  ) - levelProgress.bugs
+
 export const initialLevelProgress = (level: Level): LevelProgress => ({
   componentsProgress: [
     {
@@ -39,7 +47,7 @@ export const getNextComponents = (
   component: Component,
   componentsProgress: ComponentProgress[],
 ) => [
-  ...findComponents(
+  ...findNodes(
     component,
     (c) =>
       componentsProgress.some(
@@ -47,17 +55,3 @@ export const getNextComponents = (
       ) && !componentsProgress.some((p) => p.component === c),
   ),
 ]
-
-export function* findComponents(
-  component: Component,
-  predicate: (i: Component) => boolean,
-): Iterable<Component> {
-  if (component.children) {
-    for (const child of component.children) {
-      yield* findComponents(child, predicate)
-    }
-  }
-  if (predicate(component)) {
-    yield component
-  }
-}

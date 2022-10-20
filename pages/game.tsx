@@ -7,16 +7,18 @@ import { CodeEditor } from '../components/CodeEditor'
 import { Player } from '../components/Player'
 import { Profile, profiles } from '../data/profiles'
 import { useControllers } from '../hooks/useControllers'
-import { clamp } from '../joy-con/joycon'
 import { arrayEquals, shuffle } from '../lib/collection'
 import { Component, createLevel, Level, readLevelFile } from '../lib/level'
 import {
+  calculateScore,
   ComponentProgress,
   getNextComponents,
   initialLevelProgress,
   LevelProgress,
 } from '../lib/level-progress'
+import { clamp } from '../lib/math'
 import { randomSeed } from '../lib/random'
+import IconJoyCon from '../public/icon-joycon.svg'
 import styles from './game.module.css'
 
 type Props = {
@@ -75,6 +77,7 @@ export default function LevelView({ level }: Props) {
           return { ...p }
         }),
     })
+    // set initial progress
     setLevelProgress((p) => ({
       ...p,
       componentsProgress: [
@@ -96,6 +99,10 @@ export default function LevelView({ level }: Props) {
     }))
   }, [])
 
+  const totalDeployed = levelProgress.componentsProgress.filter(
+    (c) => c.progress === 'deployed',
+  ).length
+
   return (
     <div className={styles.app}>
       <Head>
@@ -110,7 +117,8 @@ export default function LevelView({ level }: Props) {
           type="button"
           onClick={requestNewJoyCon}
         >
-          Connect Joy-Con
+          <span>Connect Joy-Con</span>
+          <IconJoyCon />
         </button>
         <div>
           {controllers.map((controller) => (
@@ -124,17 +132,15 @@ export default function LevelView({ level }: Props) {
             </div>
           ))}
         </div>
-        <div>
+        <div className={styles.stats}>
           <div>
-            Features:{' '}
-            {
-              levelProgress.componentsProgress.filter(
-                (c) => c.progress === 'deployed',
-              ).length
-            }{' '}
-            / {levelProgress.componentsProgress.length}
+            <span>Features</span>
+            <strong>{`${totalDeployed} / ${level.totalComponents}`}</strong>
           </div>
-          <div>Bugs: {levelProgress.bugs}</div>
+          <div>
+            <span>Score</span>
+            <strong>{calculateScore(levelProgress)}</strong>
+          </div>
         </div>
       </header>
 
@@ -173,7 +179,9 @@ export default function LevelView({ level }: Props) {
                 if (isValid) {
                   deploy(componentProgress, p, level, dropZone)
                 } else {
-                  p.bugs++
+                  p.bugs += Math.ceil(
+                    componentProgress.component.structure.length * 0.5,
+                  )
                   controller.rumble(0, 0, 0.9)
                   componentProgress.progress = 'coded'
                 }
@@ -261,7 +269,7 @@ export default function LevelView({ level }: Props) {
                       ) {
                         controller.rumble(0, 0, 0.9)
                         state.codingProgress.errors = errors
-                        state.bugs++
+                        state.bugs += errors.filter((e) => e).length
                       }
                       return { ...state }
                     }
@@ -306,20 +314,14 @@ export function deploy(
   dropZone.lastElementChild?.remove()
   dropZone.outerHTML = ticket.component.html
   state.componentsProgress = [
-    ...state.componentsProgress.slice(0, 5),
-    ...shuffle(
-      [
-        ...state.componentsProgress.slice(5),
-        ...getNextComponents(
-          level.rootComponent,
-          state.componentsProgress,
-        ).map<ComponentProgress>((component) => ({
-          component,
-          progress: 'specified',
-        })),
-      ],
-      random,
-    ),
+    ...state.componentsProgress,
+    ...getNextComponents(
+      level.rootComponent,
+      state.componentsProgress,
+    ).map<ComponentProgress>((component) => ({
+      component,
+      progress: 'specified',
+    })),
   ]
 }
 

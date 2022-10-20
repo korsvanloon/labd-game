@@ -1,4 +1,5 @@
-import { clamp, JoyCon } from './joycon'
+import { clamp } from '../lib/math'
+import { JoyCon } from './joycon'
 import { Angles, Point2 } from './madgwick'
 
 type BaseJoyConEvent = { controller: JoyCon }

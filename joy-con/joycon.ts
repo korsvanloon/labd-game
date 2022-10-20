@@ -1,3 +1,4 @@
+import { clamp } from '../lib/math'
 import { connectRingCon } from './connectRingCon'
 import {
   AccelerationEvent,
@@ -10,10 +11,6 @@ import {
 import { Angles, Point2 } from './madgwick'
 import { createPacket } from './packet'
 
-export const clamp = (value: number, min: number, max: number) => {
-  return Math.min(Math.max(value, min), max)
-}
-
 /**
  * Concatenates two typed arrays.
  */
@@ -24,19 +21,11 @@ const concatTypedArrays = (a: Uint8Array, b: Uint8Array): Uint8Array => {
   return c
 }
 
-const SUB_COMMAND_HEADER = [
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-]
 const SUB_COMMAND = {
   REPORT_ID: 0x01,
   HEADER: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
 }
 const RUMBLE_HEADER = [0x00, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40]
-
-const outputReportId = {
-  BASE: 0x01,
-  RUMBLE: 0x10,
-}
 
 export class JoyCon {
   ledstate: number = 0
@@ -216,11 +205,11 @@ export class JoyCon {
   /**
    * Set LED state in bit format.
    *
-   * E.g. an int `state` of 9 translates to 1001 in binary,
+   * E.g. an int `state` of 9 translates to `0b1001` in binary,
    * meaning the first and the last of the four LEDs are on,
-   * and the middle 2 are off
+   * and the middle 2 are off.
    *
-   * @param {int} state 0...15
+   * @param {int} state 0...15 (or 0b0000...0b1111 )
    */
   setLEDState(state: number) {
     this.ledstate = state
