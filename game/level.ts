@@ -2,8 +2,8 @@ import { readFileSync } from 'fs'
 import domParser, { HTMLElement } from 'node-html-parser'
 
 import { parse } from 'yaml'
-import { isValue } from './collection'
-import { findNodes } from './tree'
+import { isValue } from '../util/collection'
+import { findNodes } from '../util/tree'
 
 export type LevelFile = {
   url: string

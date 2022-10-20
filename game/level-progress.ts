@@ -1,8 +1,8 @@
-import { shuffle } from './collection'
+import { shuffle } from '../util/collection'
+import { clamp, sum } from '../util/math'
+import { randomSeed } from '../util/random'
+import { findNodes } from '../util/tree'
 import { Component, Level } from './level'
-import { clamp, sum } from './math'
-import { randomSeed } from './random'
-import { findNodes } from './tree'
 
 const seed = 0
 const random = randomSeed(seed)

@@ -1,4 +1,4 @@
-import { clamp } from '../lib/math'
+import { clamp } from '../util/math'
 import { connectRingCon } from './connectRingCon'
 import {
   AccelerationEvent,

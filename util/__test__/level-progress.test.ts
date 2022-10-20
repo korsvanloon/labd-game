@@ -1,6 +1,6 @@
 import fs from 'fs'
-import { createLevel, readLevelFile } from '../level'
-import { getNextComponents } from '../level-progress'
+import { createLevel, readLevelFile } from '../../game/level'
+import { getNextComponents } from '../../game/level-progress'
 
 const levelFile = readLevelFile('agradi-homepage')
 const htmlString = fs.readFileSync('./data/sites/agradi-homepage.html', 'utf-8')

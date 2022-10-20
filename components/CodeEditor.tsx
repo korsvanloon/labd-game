@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
-import { LevelState } from '../lib/level-progress'
+import { LevelState } from '../game/level-progress'
 import styles from './CodeEditor.module.css'
 import { Ticket } from './Ticket'
 

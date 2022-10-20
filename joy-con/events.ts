@@ -1,4 +1,4 @@
-import { clamp } from '../lib/math'
+import { clamp } from '../util/math'
 import { JoyCon } from './joycon'
 import { Angles, Point2 } from './madgwick'
 

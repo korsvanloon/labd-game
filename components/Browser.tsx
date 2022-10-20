@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React from 'react'
-import { Level } from '../lib/level'
-import { LevelState } from '../lib/level-progress'
+import { Level } from '../game/level'
+import { LevelState } from '../game/level-progress'
 import styles from './Browser.module.css'
 
 type Props = {

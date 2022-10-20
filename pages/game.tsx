@@ -6,10 +6,7 @@ import { Browser } from '../components/Browser'
 import { CodeAction, CodeEditor } from '../components/CodeEditor'
 import { Player } from '../components/Player'
 import { Profile, profiles } from '../data/profiles'
-import { useControllers } from '../hooks/useControllers'
-import { JoyCon } from '../joy-con/joycon'
-import { arrayEquals, shuffle } from '../lib/collection'
-import { Component, createLevel, Level, readLevelFile } from '../lib/level'
+import { Component, createLevel, Level, readLevelFile } from '../game/level'
 import {
   addIndent,
   calculateScore,
@@ -21,9 +18,12 @@ import {
   initialLevelProgress,
   LevelState,
   ticketValidation,
-} from '../lib/level-progress'
-import { randomSeed } from '../lib/random'
+} from '../game/level-progress'
+import { useControllers } from '../hooks/useControllers'
+import { JoyCon } from '../joy-con/joycon'
 import IconJoyCon from '../public/icon-joycon.svg'
+import { arrayEquals, shuffle } from '../util/collection'
+import { randomSeed } from '../util/random'
 import styles from './game.module.css'
 
 type Props = {

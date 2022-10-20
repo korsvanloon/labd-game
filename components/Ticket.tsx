@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Component } from '../lib/level'
+import { Component } from '../game/level'
 import styles from './Ticket.module.css'
 
 type Props = {
