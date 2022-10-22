@@ -1,0 +1,52 @@
+
+.Apis {
+  position: absolute;
+  padding: 1vw;
+  font-size: 2rem;
+}
+
+.Apis > header {
+  background-color: hsl(0deg 0% 95% / 90%);
+  font-weight: bold;
+  text-align: center;
+}
+
+.api {
+  padding: 1vw;
+  background-color: hsl(0deg 0% 100% / 90%);
+
+}
+
+.Apis > div{
+  display: flex;
+  gap: 1vw;
+}
+
+.api > div {
+  padding-left: 0.5vw;
+}
+
+.api > div > div {
+  position: relative;
+  padding-left: 1.5vw;
+}
+
+.api > div>div::before {
+  content: '/';
+
+}
+
+.api > div>div::after {
+  content: 'get';
+  position: absolute;
+  left: 0;
+  font-size: 50%;
+  font-weight: bold;
+  line-height: 3rem;
+
+}
+
+.api :global(.hover) {
+  color: var(--player-color);
+  text-shadow: 0 0 0.5rem var(--player-color);
+}

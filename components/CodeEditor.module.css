@@ -29,7 +29,6 @@
   overflow-y: scroll;
   height: calc(min(48vw, 48vh) - 3.5rem);
   padding: 1rem;
-  color: var(--pink);
 }
 
 .CodeEditor pre > code {
@@ -42,12 +41,53 @@
 }
 
 .element {
+  color: var(--purple);
+  font-weight: bold;
+}
+
+.element::before {
+  content: '<';
+  color: hsla(0deg 0% 50% / 60%);
+}
+
+.text {
+  color: var(--green);
+}
+
+.text::before, .text::after {
+  content: '"';
+}
+
+.class {
   color: var(--yellow);
   font-weight: bold;
 }
 
 .class::before {
-  content: '.';
+  content: '.';color: hsla(0deg 0% 50% / 60%);
+}
+
+.forEach {
+  color: var(--turqoise);
+}
+
+.foreEachValue {
+  color: var(--pink);
+}
+
+.componentSlot {
+  color: var(--pink);
+  text-transform: capitalize;
+}
+
+.componentSlot::before {
+  content: '<';
+  color: hsla(0deg 0% 50% / 60%);
+}
+
+.componentSlot::after {
+  content: ' />';
+  color: hsla(0deg 0% 50% / 60%);
 }
 
 .commitButton {
@@ -91,21 +131,6 @@
   text-decoration: underline wavy red;
 }
 
-.finishedTickets {
-  position: absolute;
-  top: -22vw;
-  right: 0;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  width: 100%;
-  height: 20vw;
-  color: black;
-}
-
-.ticketComponent {
-  /* filter: grayscale(); */
-}
 
 .openTickets {
   position: absolute;
@@ -133,7 +158,12 @@
 }
 
 .openTicket {
-  /* margin-bottom: -50%; */
+  position: relative;
+  height: 4vw !important;
+}
+
+.openTicket > footer {
+  display: none;
 }
 
 .openTicketComponent {

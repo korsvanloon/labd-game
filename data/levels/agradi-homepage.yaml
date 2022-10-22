@@ -1,4 +1,56 @@
 url: https://www.agradi.nl/
+apis:
+  - name: wagtail
+    type: cms
+    contentTypes:
+      - name: usp
+        fields:
+          - name: text
+            type: text
+      - name: menu
+      - name: banner
+      - name: linkBlock
+      - name: thrustedShop
+  - name: oskar
+    type: commerce
+    contentTypes:
+      - name: category
+      - name: product
+        fields:
+          - name: title
+            type: text
+            selector: .title
+          - name: banner
+            type: text
+            selector: .product-banner
+          - name: image
+            type: image
+            selector: img
+          - name: price
+            type: number
+            selector: .after
+          - name: availability
+            type: string
+            selector: .availability
+          - name: stock-status
+            type: string
+            selector: .availability-header
+      - name: set
+        fields:
+          - name: title
+            type: text
+            selector: .title
+          - name: products
+            type: referenceList
+            selector: .title
+      - name: customerImage
+      - name: brand
+      - name: review
+  - name: instagram
+    type: social
+    contentTypes:
+      - name: instagramPost
+
 rootComponent:
   type: page
   selector: '#__next'
@@ -7,11 +59,10 @@ rootComponent:
       selector: .n-header__section--topbar
       children:
         - type: headerUsp
-          selector: .n-header__usps .row > *:nth-child(1)
-        - type: headerUsp
-          selector: .n-header__usps .row > *:nth-child(2)
-        - type: headerUsp
-          selector: .n-header__usps .row > *:nth-child(3)
+          forEach:
+            length: 3
+            api: wagtail.usp
+          selector: .n-header__usps .row > *:nth-child(index)
         - type: countrySwitch
           selector: .n-header__link--flag
     - type: navBar
@@ -29,25 +80,11 @@ rootComponent:
       selector: .n-header__section--loading
       children:
         - type: menuItem
-          selector: .n-main-menu__item:nth-child(1) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(2) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(3) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(4) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(5) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(6) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(7) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(8) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(9) > *
-        - type: menuItem
-          selector: .n-main-menu__item:nth-child(10) > *
+          forEach:
+            length: 10
+            api: wagtail.menu
+            subSelector: '> *'
+          selector: .n-main-menu__item:nth-child(index)
     - type: promoBanner
       selector: .promobanner
     - type: main
@@ -63,25 +100,11 @@ rootComponent:
           horizontalScrollSelector: .horizontal-list__container
           children:
             - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(1) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(2) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(3) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(4) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(5) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(6) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(7) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(8) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(9) > a
-            - type: categoryBlock
-              selector: .horizontal-list__item:nth-child(10) > a
+              forEach:
+                length: 10
+                api: oskar.category
+                subSelector: '> a'
+              selector: .horizontal-list__item:nth-child(index)
         - type: bannerList
           selector: '>:nth-child(3)'
           children:
@@ -93,98 +116,79 @@ rootComponent:
           selector: '>:nth-child(4)'
           children:
             - type: productBlock
-              selector: .horizontal-list__item:nth-child(1) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(2) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(3) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(4) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(5) > *
+              forEach:
+                length: 5
+                api: oskar.product
+                subSelector: '> div'
+              selector: .horizontal-list__item:nth-child(index)
         - type: productList
           selector: '>:nth-child(5)'
           children:
             - type: productBlock
-              selector: .horizontal-list__item:nth-child(1) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(2) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(3) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(4) > *
-            - type: productBlock
-              selector: .horizontal-list__item:nth-child(5) > *
+              forEach:
+                length: 5
+                api: oskar.product
+                subSelector: '> div'
+              selector: .horizontal-list__item:nth-child(index)
         - type: brandList
           selector: '>:nth-child(6)'
           children:
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(1) > * > *
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(2) > * > *
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(3) > * > *
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(4) > * > *
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(5) > * > *
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(6) > * > *
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(1) > * > *:nth-child(2)
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(2) > * > *:nth-child(2)
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(3) > * > *:nth-child(2)
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(4) > * > *:nth-child(2)
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(5) > * > *:nth-child(2)
-            - type: brandBlock
-              selector: .horizontal-list__item:nth-child(6) > * > *:nth-child(2)
+            - type: brandColumn
+              forEach:
+                length: 6
+                subSelector: '> div'
+              selector: .horizontal-list__item:nth-child(index)
+              children:
+                - type: brandBlock
+                  forEach:
+                    length: 2
+                    api: oskar.brand
+                  selector: '> div'
         - type: bannerList
           selector: '>:nth-child(7)'
           children:
             - type: bannerBlock
-              selector: .row>div:nth-child(1) a
-            - type: bannerBlock
-              selector: .row>div:nth-child(2) a
+              forEach:
+                length: 2
+                api: cms.banner
+                subSelector: '> a'
+              selector: .row>div:nth-child(index)
         - type: setList
           selector: '>:nth-child(8)'
           children:
             - type: setListBlock
-              selector: .horizontal-list__item:nth-child(1) > *
-            - type: setListBlock
-              selector: .horizontal-list__item:nth-child(2) > *
-            - type: setListBlock
-              selector: .horizontal-list__item:nth-child(3) > *
+              forEach:
+                length: 3
+                api: oskar.set
+                subSelector: '> div'
+              selector: .horizontal-list__item:nth-child(index)
         - type: latestUserPhotos
           selector: '>:nth-child(9)'
           children:
             - type: userPhotoBlock
-              selector: .horizontal-list__item:nth-child(1) > *
-            - type: userPhotoBlock
-              selector: .horizontal-list__item:nth-child(2) > *
-            - type: userPhotoBlock
-              selector: .horizontal-list__item:nth-child(3) > *
+              forEach:
+                length: 3
+                api: oskar.customerPhoto
+                subSelector: '> div'
+              selector: .horizontal-list__item:nth-child(index)
         - type: latestReviews
           selector: '>:nth-child(10)'
           children:
             - type: reviewBlock
-              selector: .horizontal-list__item:nth-child(1) > *
-            - type: reviewBlock
-              selector: .horizontal-list__item:nth-child(2) > *
+              forEach:
+                length: 2
+                api: oskar.review
+                subSelector: '> div'
+              selector: .horizontal-list__item:nth-child(index)
         - type: instagramPosts
           selector: '>:nth-child(11)'
           children:
             - type: instagramPost
-              selector: '[data-testid="instagram-post"]:nth-child(1) > *'
-            - type: instagramPost
-              selector: '[data-testid="instagram-post"]:nth-child(2) > *'
-            - type: instagramPost
-              selector: '[data-testid="instagram-post"]:nth-child(3) > *'
-            - type: instagramPost
-              selector: '[data-testid="instagram-post"]:nth-child(4) > *'
+              forEach:
+                length: 4
+                api: instagram.instagramPost
+                subSelector: '> a'
+              selector: '[data-testid="instagram-post"]:nth-child(index)'
         - type: richText
           selector: '>:nth-child(12)'
     - type: footer
@@ -220,16 +224,7 @@ rootComponent:
                 - type: footerPageLink
                   selector: .footer-links > *:nth-child(4)
                 - type: footerThrustLink
-                  selector: .link:nth-child(1)
-                - type: footerThrustLink
-                  selector: .link:nth-child(2)
-                - type: footerThrustLink
-                  selector: .link:nth-child(3)
-                - type: footerThrustLink
-                  selector: .link:nth-child(4)
-                - type: footerThrustLink
-                  selector: .link:nth-child(5)
-                - type: footerThrustLink
-                  selector: .link:nth-child(6)
-                - type: footerThrustLink
-                  selector: .link:nth-child(7)
+                  forEach:
+                    api: cms.thrustedShop
+                    length: 7
+                  selector: .link:nth-child(index)

@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/dom-parser": "^0.1.1",
     "@types/random-seed": "^0.3.3",
+    "change-case": "^4.1.2",
     "clsx": "^1.2.1",
     "dom-parser": "^0.1.6",
     "joy-con-webhid": "^0.4.0",

@@ -1,0 +1,39 @@
+
+
+.Sprint {
+  position: absolute;
+  bottom: 0;
+  left: calc(min(48vw, 48rem) + 1vw);
+  overflow: hidden;
+  width: 50vw;
+  height: 16vw;
+  color: black;
+}
+
+.Sprint > header {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.Sprint > div {
+  position: absolute;
+  bottom: -1rem;
+  left: 0.5rem;
+  display: flex;
+  gap: 2vw;
+  transform: scale(0.5);
+  transform-origin: top left;
+}
+
+.openTicket {
+  position: relative;
+  height: 4vw !important;
+}
+
+.openTicket > footer {
+  display: none;
+}
+
+.openTicketComponent {
+  display: none;
+}

@@ -2,18 +2,20 @@ import { Point2 } from '../joy-con/madgwick'
 
 export interface ButtonEvent {
   type: 'button'
-  soloValue?:
-    | 'down'
-    | 'up'
-    | 'right'
-    | 'left'
-    | 'stick'
-    | 'bumperLeft'
-    | 'bumperRight'
-    | 'special'
+  soloValue?: SoloButton
   changed: boolean
   sameButtonCount: number
 }
+
+export type SoloButton =
+  | 'down'
+  | 'up'
+  | 'right'
+  | 'left'
+  | 'stick'
+  | 'bumperLeft'
+  | 'bumperRight'
+  | 'special'
 
 export interface MoveEvent {
   type: 'move'

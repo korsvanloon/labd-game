@@ -60,11 +60,3 @@
   text-align: center;
   border-radius: 1.5rem;
 }
-
-.ticket {
-  z-index: -1;
-  top: 1vw;
-  left: 4vw;
-  color: black;
-  transform-origin: top left;
-}

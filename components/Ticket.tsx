@@ -6,18 +6,18 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Component } from '../game/level'
+import { Ticket } from '../game/level-progress'
 import styles from './Ticket.module.css'
 
 type Props = {
-  component: Component
+  ticket: Ticket
   /** In radians */
   rotation: number
   componentClassName?: string
 } & HTMLAttributes<HTMLDivElement>
 
-export const Ticket = ({
-  component,
+export const TicketCard = ({
+  ticket,
   rotation,
   componentClassName,
   ...attributes
@@ -37,6 +37,8 @@ export const Ticket = ({
     setScale(size)
   }, [ref.current])
 
+  const component = ticket.component
+
   return (
     <div
       {...attributes}
@@ -50,20 +52,30 @@ export const Ticket = ({
       }
     >
       <div
-        className={clsx(styles.Ticket, attributes.className)}
+        className={clsx(styles.Ticket, attributes.className, ticket.progress)}
         data-action-zone="ticket"
         data-component-id={component.id}
       >
-        <div className={styles.info}>
+        <header className={styles.info}>
           <div className={styles.name}>{component.type}</div>
           <div className={styles.id}>{component.id}</div>
-          <div className={styles.points}>{component.structure.length}</div>
-        </div>
+          <div className={styles.points}>{component.codeLines.length}</div>
+        </header>
         <div
           ref={ref}
           className={clsx(styles.component, componentClassName)}
           dangerouslySetInnerHTML={{ __html: component.html }}
         />
+
+        <footer className={styles.footer}>
+          <div>{ticket.progress}</div>
+          {component.forEach && (
+            <>
+              <div>API: {component.forEach.api}</div>
+              <div>Amount: {component.forEach.length}</div>
+            </>
+          )}
+        </footer>
       </div>
     </div>
   )

@@ -118,7 +118,7 @@ export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
     })
 
     this.window.document.addEventListener('mouseenter', (event) => {
-      const position = { x: event.x, y: event.y }
+      const position = { x: event.x + 5, y: event.y + 5 }
 
       this.onPosition?.({
         type: 'position',
@@ -128,16 +128,16 @@ export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
     })
 
     this.window.addEventListener('mousemove', (event) => {
+      const position = { x: event.x + 5, y: event.y + 5 }
       const value = {
-        x: event.x - this.lastValues.position.x,
-        y: event.y - this.lastValues.position.y,
+        x: position.x - this.lastValues.position.x,
+        y: position.y - this.lastValues.position.y,
       }
       const direction = getDirection(value)
       this.sameDirectionCount =
         this.lastValues.direction === direction
           ? this.sameDirectionCount + 1
           : 0
-      const position = { x: event.x, y: event.y }
       this.onPosition?.({
         type: 'position',
         position,

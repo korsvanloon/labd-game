@@ -3,7 +3,7 @@
 .app {
   --purlpe: hsl(318deg 100% 67% / 90%);
   --yellow: hsl(50deg 100% 50%);
-  --green: hsl(142deg 100% 50% / 90%);
+  --green: hsl(142deg 100% 50% / 80%);
   --pink: hsl(318deg 100% 67% / 90%);
   --turqoise: hsl(181deg 93% 47% / 90%);
   --red: hsl(354deg 70% 54%);
@@ -71,19 +71,21 @@
   height: 2.5rem;
 }
 
-.app :global(.scrollable) {
+.app [data-action-zone="vertical-scroll"] {
   overflow-y: scroll;
 }
 
-.app :global(.drop-zone) {
+.app [data-action-zone="component-slot"] {
   position: relative;
   flex: 1;
   min-width: 2rem;
+  min-width: 4rem;
   min-height: 1rem;
   border: 2px dashed hsla(0deg 0% 50% / 50%) !important;
+  text-indent: -999999px;
 }
 
-.app :global(.drop-zone) > *:not(:global(.component-id)) {
+.app [data-action-zone="component-slot"] > * {
   visibility: hidden !important;
 }
 
@@ -109,4 +111,12 @@
   font-size: 3rem;
   font-weight: 800;
   text-shadow: 0 0 10px black;
+}
+
+.playerTicket {
+  z-index: -1;
+  top: 1vw;
+  left: 4vw;
+  color: black;
+  transform-origin: top left;
 }

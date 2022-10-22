@@ -1,28 +1,22 @@
-import { shuffle } from '../util/collection'
-import { clamp, sum } from '../util/math'
+import { sum } from '../util/math'
 import { randomSeed } from '../util/random'
 import { findNodes } from '../util/tree'
 import { Component, Level } from './level'
 
-const seed = 2
-const random = randomSeed(seed)
-
 export type LevelState = {
-  componentsProgress: ComponentProgress[]
+  tickets: Ticket[]
   codingProgress: CodingProgress
   bugs: number
 }
 
-export type ComponentProgress = {
+/**
+ * A ticket normally starts at 'specified', which .
+ * Then it needs to be coded.
+ */
+export type Ticket = {
   component: Component
-  progress:
-    | 'specified'
-    | 'coded'
-    | 'grabbed'
-    | 'cms-filled'
-    | 'api-filled'
-    | 'ready'
-    | 'deployed'
+  progress: 'specified' | 'coding' | 'coded' | 'ready' | 'deployed'
+  player?: number // controllerId
 }
 
 export type CodingProgress = {
@@ -33,12 +27,12 @@ export type CodingProgress = {
 
 export const calculateScore = (levelProgress: LevelState) =>
   sum(
-    levelProgress.componentsProgress.filter((f) => f.progress === 'deployed'),
-    (p) => p.component.structure.length,
+    levelProgress.tickets.filter((ticket) => ticket.progress === 'deployed'),
+    (p) => p.component.codeLines.length,
   ) - levelProgress.bugs
 
 export const initialLevelProgress = (level: Level): LevelState => ({
-  componentsProgress: [
+  tickets: [
     {
       component: level.rootComponent,
       progress: 'deployed',
@@ -48,92 +42,12 @@ export const initialLevelProgress = (level: Level): LevelState => ({
   bugs: 0,
 })
 
-export const getNextComponents = (
-  component: Component,
-  componentsProgress: ComponentProgress[],
-) => [
+export const getNextComponents = (component: Component, tickets: Ticket[]) => [
   ...findNodes(
     component,
     (c) =>
-      componentsProgress.some(
-        (p) => p.progress === 'deployed' && p.component.children?.includes(c),
-      ) && !componentsProgress.some((p) => p.component === c),
+      tickets.some(
+        (t) => t.progress === 'deployed' && t.component.children?.includes(c),
+      ) && !tickets.some((t) => t.component === c),
   ),
 ]
-
-export function changeIndent(state: LevelState, change: number) {
-  const { indents, errors, current } = state.codingProgress
-  const ticket = state.componentsProgress.find(
-    (c) => c.progress === 'specified',
-  )
-  if (ticket && current < ticket?.component.structure.length) {
-    indents[current] = clamp(indents[current] + change, 0, 10)
-    errors[current] = false
-  }
-}
-
-export function addIndent(state: LevelState) {
-  const { indents } = state.codingProgress
-  indents.push(indents[indents.length - 1])
-}
-
-export function deploy(
-  state: LevelState,
-  level: Level,
-  ticket: ComponentProgress,
-  dropZone: Element,
-) {
-  ticket.progress = 'deployed'
-  dropZone.classList.remove('drop-zone')
-  dropZone.lastElementChild?.remove()
-  dropZone.outerHTML = ticket.component.html
-
-  const queueSize = 4
-
-  const existingSpecified = state.componentsProgress
-    .filter((p) => p.progress === 'specified')
-    .slice(queueSize)
-
-  state.componentsProgress = [
-    ...state.componentsProgress.filter((p) => !existingSpecified.includes(p)),
-    // All new items after the queue size get shuffled to create some randomness and replayability.
-    ...shuffle(
-      [
-        ...existingSpecified,
-        ...getNextComponents(
-          level.rootComponent,
-          state.componentsProgress,
-        ).map<ComponentProgress>((component) => ({
-          component,
-          progress: 'specified',
-        })),
-      ],
-      random,
-    ),
-  ]
-}
-
-export const ticketValidation = (
-  state: LevelState,
-  ticket: ComponentProgress,
-) => {
-  const errors = ticket.component.structure.map(
-    ({ indent }, i) => indent !== state.codingProgress.indents[i],
-  )
-  const isValid = errors.every((error) => !error)
-  return { isValid, errors }
-}
-
-export function commit(state: LevelState, ticket: ComponentProgress) {
-  ticket.progress = 'coded'
-  state.codingProgress.indents = [0]
-  state.codingProgress.current = 0
-  state.codingProgress.errors = []
-  state.componentsProgress
-    .filter(
-      (p) =>
-        p.component.type === ticket.component.type &&
-        p.progress === 'specified',
-    )
-    .forEach((p) => (p.progress = 'coded'))
-}

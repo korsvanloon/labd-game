@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs'
-import domParser, { HTMLElement } from 'node-html-parser'
+import domParser, { HTMLElement, Node, TextNode } from 'node-html-parser'
 import { parse } from 'yaml'
 import { isValue } from '../util/collection'
 import { findNodes } from '../util/tree'
@@ -7,6 +7,7 @@ import { findNodes } from '../util/tree'
 export type LevelFile = {
   url: string
   rootComponent: Component
+  apis: Api[]
 }
 
 export interface Level {
@@ -14,24 +15,80 @@ export interface Level {
   styles: string[]
   rootComponent: Component
   totalComponents: number
+  apis: Api[]
 }
+
+export interface Api {
+  name: string
+  type: 'cms' | 'commerce' | 'social'
+  contentTypes: ApiContentType[]
+}
+export interface ApiContentType {
+  name: string
+  fields: ApiField[]
+}
+
+export interface ApiField {
+  type: ApiFieldType
+  name: string
+}
+
+export type ApiFieldType =
+  | 'text'
+  | 'number'
+  | 'image'
+  | 'yes/no'
+  | 'reference'
+  | 'list'
 
 export interface Component {
-  id: string
   type: string
   selector: string
+  forEach?: ForEach
+  api?: string
   horizontalScrollSelector?: string
+  // enhanced:
+  id: string
   html: string
+  codeLines: CodeLine[]
   children?: Component[]
-  copyContent?: CopyContent[]
-  structure: StructureLine[]
 }
 
-export type StructureLine = {
-  indent: number
-  line: string
-  isChildContainer: boolean
+export type ForEach = {
+  length: number
+  subSelector?: string
+  api: string
 }
+
+export type ElementCodeLine = {
+  type: 'element'
+  indent: number
+  element: string
+  classes: string[]
+}
+
+export type ComponentSlotCodeLine = {
+  type: 'component-slot'
+  indent: number
+  component: string
+}
+export type TextCodeLine = {
+  type: 'text'
+  indent: number
+  text: string
+}
+
+export type ForEachLine = {
+  type: 'for-each'
+  indent: number
+  component: string
+}
+
+export type CodeLine =
+  | ElementCodeLine
+  | ComponentSlotCodeLine
+  | TextCodeLine
+  | ForEachLine
 
 export type CopyContent = {
   selector: string
@@ -48,13 +105,18 @@ export const createLevel = (
 
   const dom = domParser.parse(pageHtmlString, {})
 
-  enhanceComponent(levelFile.rootComponent, dom, '0')
+  enhanceComponent(
+    levelFile.rootComponent,
+    dom.querySelector(levelFile.rootComponent.selector)!,
+    '0',
+  )
 
   const totalComponents = [...findNodes(levelFile.rootComponent, () => true)]
     .length
 
   return {
     url: levelFile.url,
+    apis: levelFile.apis,
     styles: getStyles(dom, origin),
     rootComponent: levelFile.rootComponent,
     totalComponents,
@@ -72,63 +134,56 @@ export const getStyles = (dom: HTMLElement, origin: string) =>
       .map((link) => link.getAttribute('data-href')),
   ].filter(isValue)
 
-const enhanceComponent = (
+export const enhanceComponent = (
   component: Component,
   dom: HTMLElement,
   id: string,
 ) => {
-  const componentDom = dom.querySelector(component.selector)
-  if (!componentDom) {
-    throw new Error(`Could not find ${component.selector}`)
-  }
   component.id = id
-  componentDom?.setAttribute('component-id', id)
 
+  if (!dom) {
+    throw new Error(`No dom for ${component.type} ${component.selector}`)
+  }
+  // Register id
+  dom.setAttribute('data-component-id', id)
+
+  // Add horizontal scroll
   if (component.horizontalScrollSelector) {
-    componentDom
+    dom
       .querySelector(component.horizontalScrollSelector)
-      ?.classList.add('horizontal-scrollable')
+      ?.setAttribute('data-action-zone', 'horizontal-scroll')
   }
 
+  // Register component-slots
   component.children?.forEach((child, i) => {
-    enhanceComponent(child, componentDom, `${id}.${i}`)
-    const childDom = componentDom.querySelector(child.selector)
-    childDom?.classList.add('drop-zone')
+    if (child.forEach) {
+      for (let i = 0; i < child.forEach.length; i++) {
+        const itemSelector = child.selector.replace('(index)', `(${i + 1})`)
+        const childSelector = itemSelector + (child.forEach?.subSelector ?? '')
+        enhanceComponent(child, dom.querySelector(childSelector)!, `${id}.${i}`)
+        dom
+          .querySelector(itemSelector)
+          ?.setAttribute('data-for-each-index', i.toString())
+        dom
+          .querySelector(childSelector)
+          ?.setAttribute('data-action-zone', 'component-slot')
+      }
+    } else {
+      enhanceComponent(child, dom.querySelector(child.selector)!, `${id}.${i}`)
+      dom
+        .querySelector(child.selector)
+        ?.setAttribute('data-action-zone', 'component-slot')
+    }
   })
 
-  component.structure = getStructure(componentDom)
+  component.codeLines ??= [...getCodeLines(dom, component)]
 
-  component.html = getSanitizedHtml(componentDom)
+  component.html ??= getSanitizedHtml(dom)
 }
 export const sanitizeClasses = (value: string) =>
-  value.replace(/[\w-]+(--|__)/g, '').replace('.drop-zone', '')
-
-export const getStructure = (
-  dom: HTMLElement,
-  lastDropZoneIndent = -1,
-): StructureLine[] =>
-  dom.structure
-    .split('\n')
-    .map<StructureLine>((line) => ({
-      line: sanitizeClasses(line.trim()),
-      indent: line.search(/\S/) / 2,
-      isChildContainer: line.includes('.drop-zone'),
-    }))
-    .filter(({ indent, line, isChildContainer }) => {
-      if (indent < lastDropZoneIndent) {
-        lastDropZoneIndent = -1
-      }
-      if (lastDropZoneIndent === -1 && isChildContainer) {
-        lastDropZoneIndent = indent
-      }
-      if (
-        lastDropZoneIndent === -1 &&
-        /^noscript|^meta|^div\.component-id/.test(line)
-      ) {
-        lastDropZoneIndent = indent - 1
-      }
-      return lastDropZoneIndent === -1 || indent <= lastDropZoneIndent
-    })
+  /__[0-9A-Z]{5}$}/.test(value)
+    ? value.replace(/__[0-9A-Z]{4}$}/, '')
+    : value.replace(/[\w-]+(--|__)/g, '')
 
 export const getSanitizedHtml = (dom: HTMLElement) => {
   dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
@@ -137,4 +192,88 @@ export const getSanitizedHtml = (dom: HTMLElement) => {
     .replace(/<\/(a|button|input|select)>/g, '</span>')
     .replace(/<noscript>/g, '')
     .replace(/<\/noscript>/g, '')
+}
+
+export function* getCodeLines(
+  dom: Node,
+  component: Component,
+  indent = 0,
+  counters = { childIndex: 0, forEachIndex: 0 },
+): Iterable<CodeLine> {
+  if (dom instanceof TextNode) {
+    yield {
+      indent,
+      type: 'text',
+      text: dom.text.replace(/\n/g, ' '),
+    }
+  } else if (dom instanceof HTMLElement) {
+    if (['noscript', 'meta'].includes(dom.tagName.toLowerCase())) return
+
+    yield {
+      indent,
+      type: 'element',
+      element: dom.tagName.toLowerCase(),
+      classes: [...dom.classList.values()].map(sanitizeClasses).filter(Boolean),
+    }
+
+    let i = indent + 1
+    for (const child of dom.childNodes) {
+      if (!(child instanceof HTMLElement)) {
+        yield* getCodeLines(child, component, indent + 1, counters)
+        continue
+      }
+
+      const forEachIndexAttribute = child.getAttribute('data-for-each-index')
+
+      if (forEachIndexAttribute !== undefined) {
+        counters.forEachIndex = Number(forEachIndexAttribute)
+
+        if (counters.forEachIndex === 0) {
+          const childComponent = component.children?.[counters.childIndex]!
+          yield {
+            indent: i++,
+            type: 'for-each',
+            component: childComponent.type,
+          }
+        } else {
+          continue
+        }
+      }
+
+      const isComponentSlot =
+        child.getAttribute('data-action-zone') === 'component-slot'
+
+      if (isComponentSlot) {
+        const childComponent = component.children?.[counters.childIndex]!
+        yield {
+          indent: i,
+          type: 'component-slot',
+          component: childComponent.type,
+        }
+        if (!counters.forEachIndex) {
+          counters.childIndex++
+        }
+      } else {
+        yield* getCodeLines(child, component, i, counters)
+      }
+    }
+  }
+}
+
+export const codeLinesToString = (codeLines: CodeLine[]) =>
+  codeLines.map((c) => '  '.repeat(c.indent) + codeLineToString(c)).join('\n')
+
+export const codeLineToString = (codeLine: CodeLine) => {
+  switch (codeLine.type) {
+    case 'component-slot':
+      return `{ ${codeLine.component} }`
+    case 'element':
+      return codeLine.element + codeLine.classes.map((c) => '.' + c).join('')
+    case 'for-each':
+      return `for-each ${codeLine.component}s`
+    case 'text':
+      return `"${codeLine.text}"`
+    default:
+      return ''
+  }
 }

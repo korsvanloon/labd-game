@@ -21,6 +21,25 @@
   z-index: 11;
 }
 
+.Ticket > header::before {
+  content: '';
+  width: 2vw;
+  height: 2vw;
+  border-radius: 2vw;
+}
+
+.Ticket:global(.specified) > header::before {
+  background-color: hsl(223deg 12% 89% / 75%);
+}
+
+.Ticket:global(.coded) > header::before {
+  background-color: var(--yellow);
+}
+
+.Ticket:global(.ready) > header::before {
+  background-color: var(--green);
+}
+
 .component {
   position: absolute;
   overflow: hidden;
@@ -64,4 +83,18 @@
   font-weight: 600;
   line-height: 1.5rem;
   border-radius: 1.25rem;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;;
+  display: flex;
+  width: 100%;
+  padding: 1vw;
+  background-color: hsl(223deg 12% 89% / 75%);
+  font-weight: bold;
+}
+
+.footer > * {
+  flex: 1;
 }

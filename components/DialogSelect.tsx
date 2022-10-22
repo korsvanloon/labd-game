@@ -8,7 +8,7 @@ type Props<T> = {
   current: T
   options: T[]
   getOptionValue: (o: T) => string
-  getOptionNode: (o: T, selected: boolean) => React.ReactNode
+  buildOptionNode: (o: T, selected: boolean) => React.ReactNode
   controller: Controller
   open?: boolean
   onSubmit: (profile: T) => void
@@ -18,7 +18,7 @@ export function DialogSelect<T>({
   current,
   options,
   getOptionValue,
-  getOptionNode,
+  buildOptionNode: getOptionNode,
   controller,
   open,
   onSubmit,

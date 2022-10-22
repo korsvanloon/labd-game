@@ -2,7 +2,6 @@ import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 import { LevelState } from '../game/level-progress'
 import styles from './CodeEditor.module.css'
-import { Ticket } from './Ticket'
 
 type Props = {
   levelProgress: LevelState
@@ -16,12 +15,12 @@ export type CodeAction =
   | 'commit'
 
 export const CodeEditor = ({
-  levelProgress: { componentsProgress, codingProgress },
+  levelProgress: { tickets, codingProgress },
   ...attributes
 }: Props) => {
   const ref = useRef<HTMLPreElement>(null)
-  const ticket = componentsProgress.find((p) => p.progress === 'specified')
-  const lines = ticket?.component.structure ?? []
+  const ticket = tickets.find((p) => p.progress === 'coding')
+  const lines = ticket?.component.codeLines ?? []
 
   useEffect(() => {
     if (!ref.current) return
@@ -33,11 +32,7 @@ export const CodeEditor = ({
   return (
     <div {...attributes} className={clsx(styles.CodeEditor)}>
       <div className={styles.header}>{ticket?.component.type}</div>
-      <pre
-        className={clsx('scrollable')}
-        ref={ref}
-        data-action-zone="code-editor"
-      >
+      <pre ref={ref} data-action-zone="code-editor">
         {lines.slice(0, codingProgress.indents.length).map((line, i) => (
           <code
             key={i}
@@ -47,59 +42,37 @@ export const CodeEditor = ({
             )}
           >
             {'  '.repeat(codingProgress.indents[i])}
-            {line.line.split('.').map((word, i) => (
-              <span
-                key={i}
-                className={clsx(i === 0 ? styles.element : styles.class)}
-              >
-                {word.trim()}
-              </span>
-            ))}
+            {line.type === 'element' ? (
+              <>
+                <span className={styles.element}>{line.element}</span>
+                {line.classes.map((c) => (
+                  <span key={c} className={styles.class}>
+                    {c}
+                  </span>
+                ))}
+              </>
+            ) : line.type === 'component-slot' ? (
+              <span className={styles.componentSlot}>{line.component}</span>
+            ) : line.type === 'for-each' ? (
+              <>
+                <span className={styles.forEach}>for-each </span>
+                <span className={styles.foreEachValue}>{line.component}s</span>
+              </>
+            ) : line.type === 'text' ? (
+              <span className={clsx(styles.text)}>{line.text}</span>
+            ) : undefined}
           </code>
         ))}
       </pre>
       <button
         className={clsx(styles.commitButton)}
         disabled={
-          codingProgress.indents.length !== ticket?.component.structure.length
+          codingProgress.indents.length !== ticket?.component.codeLines.length
         }
         data-action-zone="commit-button"
       >
         Commit
       </button>
-
-      <div className={styles.finishedTickets}>
-        {componentsProgress
-          .filter((p) => p.progress === 'coded')
-          .map(({ component }, i, a) => (
-            <Ticket
-              component={component}
-              key={component.id}
-              rotation={-1.4}
-              className={clsx(styles.ticket)}
-              componentClassName={clsx(styles.ticketComponent)}
-            />
-          ))}
-      </div>
-      <div className={styles.openTickets}>
-        <header>Current Sprint</header>
-        <div>
-          {componentsProgress
-            .filter((p) => p.progress === 'specified')
-            .map(({ component }) => (
-              <Ticket
-                component={component}
-                key={component.id}
-                rotation={-0.5 * Math.PI}
-                style={{
-                  position: 'relative',
-                }}
-                className={styles.openTicket}
-                componentClassName={clsx(styles.openTicketComponent)}
-              />
-            ))}
-        </div>
-      </div>
     </div>
   )
 }
