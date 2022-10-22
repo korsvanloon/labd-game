@@ -1,4 +1,4 @@
-import { Point2 } from '../joy-con/madgwick'
+import { Point2 } from './joy-con/madgwick'
 
 export interface ButtonEvent {
   type: 'button'

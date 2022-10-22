@@ -1,5 +1,5 @@
-import { Controller } from '../controller/interface'
-import { clamp } from '../util/math'
+import { clamp } from '../../util/math'
+import { Controller } from '../interface'
 import { connectRingCon } from './connectRingCon'
 import {
   accelerationDebounced,

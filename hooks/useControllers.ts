@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Controller } from '../controller/interface'
+import { JoyConConnection, requestJoyCon } from '../controller/joy-con'
 import { MouseKeyboard } from '../controller/mouse-keyboard'
-import { JoyConConnection, requestJoyCon } from '../joy-con'
 
 export const useControllers = () => {
   const [controllers, setControllers] = useState<Controller[]>([])

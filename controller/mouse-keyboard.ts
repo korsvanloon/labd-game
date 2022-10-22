@@ -1,6 +1,6 @@
-import { Point2 } from '../joy-con/madgwick'
+import { dataUri } from './error-sound-data-uri'
 import { Controller, PositionEvent } from './interface'
-// import { Angles, Point2 } from './madgwick'
+import { Point2 } from './joy-con/madgwick'
 
 type BaseMouseKeyboardEvent = {
   event: Event
@@ -59,6 +59,9 @@ export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
   }
 
   buzz(): void {
+    const snd = new Audio(dataUri)
+    snd.volume = 0.5
+    snd.play()
     console.error('bug!')
   }
 

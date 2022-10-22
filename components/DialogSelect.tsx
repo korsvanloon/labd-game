@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller } from '../controller/interface'
-import { accelerationDebounced } from '../joy-con/events'
+import { accelerationDebounced } from '../controller/joy-con/events'
 import styles from './DialogSelect.module.css'
 
 type Props<T> = {
