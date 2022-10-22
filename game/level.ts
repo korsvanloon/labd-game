@@ -1,6 +1,5 @@
 import { readFileSync } from 'fs'
 import domParser, { HTMLElement } from 'node-html-parser'
-
 import { parse } from 'yaml'
 import { isValue } from '../util/collection'
 import { findNodes } from '../util/tree'
@@ -31,6 +30,7 @@ export interface Component {
 export type StructureLine = {
   indent: number
   line: string
+  isChildContainer: boolean
 }
 
 export type CopyContent = {
@@ -101,20 +101,24 @@ const enhanceComponent = (
   component.html = getSanitizedHtml(componentDom)
 }
 export const sanitizeClasses = (value: string) =>
-  value.replace(/[\w-]+(--|__)/g, '')
+  value.replace(/[\w-]+(--|__)/g, '').replace('.drop-zone', '')
 
-export const getStructure = (dom: HTMLElement, lastDropZoneIndent = -1) =>
+export const getStructure = (
+  dom: HTMLElement,
+  lastDropZoneIndent = -1,
+): StructureLine[] =>
   dom.structure
     .split('\n')
-    .map((line) => ({
+    .map<StructureLine>((line) => ({
       line: sanitizeClasses(line.trim()),
       indent: line.search(/\S/) / 2,
+      isChildContainer: line.includes('.drop-zone'),
     }))
-    .filter(({ indent, line }) => {
+    .filter(({ indent, line, isChildContainer }) => {
       if (indent < lastDropZoneIndent) {
         lastDropZoneIndent = -1
       }
-      if (lastDropZoneIndent === -1 && line.includes('drop-zone')) {
+      if (lastDropZoneIndent === -1 && isChildContainer) {
         lastDropZoneIndent = indent
       }
       if (

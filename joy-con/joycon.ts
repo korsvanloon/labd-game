@@ -33,7 +33,7 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
   ledstate: number = 0
 
   onButton?: (event: ButtonEvent) => void
-  onJoystick?: (event: JoyStickEvent) => void
+  onMove?: (event: JoyStickEvent) => void
   onAccelerationChange?: (event: AccelerationEvent) => void
   onOrientationChange?: (event: OrientationEvent) => void
   onDeviceInfo?: (event: DeviceInfoEvent) => void
@@ -351,10 +351,10 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
 
         this.sameDirectionCount = changed ? 0 : this.sameDirectionCount + 1
 
-        this.onJoystick?.({
+        this.onMove?.({
           controller: this,
-          type: 'joyStick',
-          value: stickValue,
+          type: 'move',
+          move: stickValue,
           direction: getDirection(stickValue),
           sameDirectionCount: this.sameDirectionCount,
         })

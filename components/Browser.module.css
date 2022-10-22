@@ -1,6 +1,5 @@
 .Browser {
   position: fixed;
-  top: -2vh;
   right: 2vh;
   display: flex;
   flex-direction: column;
@@ -10,7 +9,7 @@
   background-color: hsl(0deg 0% 100% / 80%);
   transform: scale(0.5) ;
   transform-box: fill-box;
-  transform-origin: right;
+  transform-origin: top right;
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
 }

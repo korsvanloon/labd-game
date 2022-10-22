@@ -58,7 +58,8 @@
 }
 
 .connect:disabled {
-  opacity: 0.75;
+  opacity: 0.5;
+  color: hsl(0deg 0% 20%);
 }
 
 .connect:not(:disabled):hover {
@@ -68,7 +69,6 @@
 .connect svg {
   width: 2.5rem;
   height: 2.5rem;
-  color: white;
 }
 
 .app :global(.scrollable) {

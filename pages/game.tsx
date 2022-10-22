@@ -35,7 +35,7 @@ type Props = {
   level: Level
 }
 
-const seed = 0
+const seed = 2
 const random = randomSeed(seed)
 
 export default function LevelView({ level }: Props) {
@@ -151,18 +151,6 @@ export default function LevelView({ level }: Props) {
           <span>Connect Mouse-Keyboard</span>
           <IconKeyboard />
         </button>
-        <div>
-          {controllers.map((controller) => (
-            <div key={controller.id}>
-              {`Player ${controller.id + 1} `}
-              <strong>
-                {controllerProfiles[controller.id]?.name ??
-                  profiles[controller.id]?.name}
-              </strong>
-              {` on ${controller.deviceName}`}
-            </div>
-          ))}
-        </div>
         <div className={styles.stats}>
           <div>
             <span>Features</span>
@@ -185,6 +173,18 @@ export default function LevelView({ level }: Props) {
               {score}
             </ScoreNumber>
           </div>
+        </div>
+        <div>
+          {controllers.map((controller) => (
+            <div key={controller.id}>
+              <span>{controller.id + 1} </span>
+              <strong>
+                {controllerProfiles[controller.id]?.name ??
+                  profiles[controller.id]?.name}
+              </strong>
+              {` on ${controller.deviceName}`}
+            </div>
+          ))}
         </div>
         <ScoreNumber
           changed={totalDeployed === level.totalComponents}
@@ -297,31 +297,42 @@ export const handleChangeCode = (
 
           const { current, indents } = state.codingProgress
 
-          const isCommit = current === ticket.component.structure.length
+          if (
+            // current is at last coded line
+            current === indents.length - 1 &&
+            // but there is more to code
+            indents.length < ticket.component.structure.length
+          ) {
+            addIndent(state)
+          }
+          state.codingProgress.current = Math.min(
+            current + 1,
+            ticket.component.structure.length - 1,
+          )
+          return { ...state }
+        })
+        break
+      }
+      case 'commit': {
+        setLevelState((state) => {
+          const ticket = state.componentsProgress.find(
+            (c) => c.progress === 'specified',
+          )
+          if (
+            !ticket ||
+            state.codingProgress.indents.length !==
+              ticket.component.structure.length
+          )
+            return state
 
-          if (isCommit) {
-            const { isValid, errors } = ticketValidation(state, ticket)
+          const { isValid, errors } = ticketValidation(state, ticket)
 
-            if (isValid) {
-              commit(state, ticket)
-            } else if (!arrayEquals(state.codingProgress.errors, errors)) {
-              controller.buzz()
-              state.codingProgress.errors = errors
-              state.bugs += errors.filter(Boolean).length
-            }
-          } else {
-            if (
-              // current is at last coded line
-              current === indents.length - 1 &&
-              // but there is more to code
-              indents.length < ticket.component.structure.length
-            ) {
-              addIndent(state)
-            }
-            state.codingProgress.current = Math.min(
-              current + 1,
-              ticket.component.structure.length,
-            )
+          if (isValid) {
+            commit(state, ticket)
+          } else if (!arrayEquals(state.codingProgress.errors, errors)) {
+            controller.buzz()
+            state.codingProgress.errors = errors
+            state.bugs += errors.filter(Boolean).length
           }
           return { ...state }
         })

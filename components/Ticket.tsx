@@ -40,7 +40,7 @@ export const Ticket = ({
   return (
     <div
       {...attributes}
-      className={clsx(styles.Ticket, attributes.className)}
+      className={clsx(styles.location)}
       style={
         {
           ...attributes.style,
@@ -49,15 +49,22 @@ export const Ticket = ({
         } as CSSProperties
       }
     >
-      <div className={styles.info}>
-        <div className={styles.name}>{component.type}</div>
-        <div className={styles.id}>{component.id}</div>
-      </div>
       <div
-        ref={ref}
-        className={clsx(styles.component, componentClassName)}
-        dangerouslySetInnerHTML={{ __html: component.html }}
-      />
+        className={clsx(styles.Ticket, attributes.className)}
+        data-action-zone="ticket"
+        data-component-id={component.id}
+      >
+        <div className={styles.info}>
+          <div className={styles.name}>{component.type}</div>
+          <div className={styles.id}>{component.id}</div>
+          <div className={styles.points}>{component.structure.length}</div>
+        </div>
+        <div
+          ref={ref}
+          className={clsx(styles.component, componentClassName)}
+          dangerouslySetInnerHTML={{ __html: component.html }}
+        />
+      </div>
     </div>
   )
 }

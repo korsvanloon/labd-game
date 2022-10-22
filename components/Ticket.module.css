@@ -1,5 +1,5 @@
-.Ticket {
-  position: absolute;
+.location {
+  position: relative  ;
   left: 0;
   transition: left 0.1s ease, bottom 0.3s ease;
   transform: rotate(calc(var(--rotation) * 1rad));
@@ -9,55 +9,59 @@
   transform-origin: center;
 }
 
-.Ticket > .component {
+.Ticket {
+  position: relative;
+  width: 24vw;
+  height: 16vw;
+  background-color: hsl(0deg 0% 100% / 95%);
+  box-shadow: 0 0 1.5rem var(--player-color, black);
+}
+
+.Ticket:global(.hover) {
+  z-index: 11;
+}
+
+.component {
   position: absolute;
+  overflow: hidden;
   box-sizing: content-box;
   width: max-content;
-  border: calc((1/var(--scale)) * 40px) solid transparent;
-  transform: translate(-50%, -3.7%)  scale(var(--scale));
-  transform-box: fill-box;
-  transform-origin: top center;
-}
-
-.Ticket > .component::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-shadow: 0 0 calc((1/var(--scale)) * 2.5rem) calc((1/var(--scale)) * 0.5rem) var(--player-color, black);
-  background-color: hsl(0deg 0% 100% / 95%);
-}
-
-.Ticket > * > * {
-  overflow: hidden;
   max-height: 800px;
+  transform: translate(2vw, 0) scale(var(--scale));
+  transform-box: fill-box;
+  transform-origin: top left;
 }
 
 .info {
   position: relative;
-
-  /* z-index: 2; */
-  bottom: 2vw;
   display: flex;
   align-items: center;
-  width: 24vw;
-  height: 4vw;
-  padding: 2vw;
-  border: 1px solid hsl(0deg 0% 80% );
-  background-color: hsl(0deg 0% 100% );
+  padding: 1vw;
+  border: 1px solid hsl(0deg 0% 80%);
   color: black;
   gap: 1vw;
-  transform: translateX(-12vw);
+
+  /* transform: translateX(-12vw); */
 }
 
-/* .name {
-
-} */
+.name {
+  flex: 1;
+  font-size: 1.5rem;
+}
 
 .id {
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.points {
+  min-width: 0.75rem;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
+  background-color: hsl(223deg 12% 89%);
+  color: hsl(218deg 54% 20%);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5rem;
+  border-radius: 1.25rem;
 }

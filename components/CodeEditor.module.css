@@ -29,7 +29,7 @@
   overflow-y: scroll;
   height: calc(min(48vw, 48vh) - 3.5rem);
   padding: 1rem;
-  color: var(--purple);
+  color: var(--pink);
 }
 
 .CodeEditor pre > code {
@@ -50,7 +50,7 @@
   content: '.';
 }
 
-.submit {
+.commitButton {
   position: absolute;
   top: 3rem;
   right: 1rem;
@@ -62,22 +62,29 @@
   border-radius: 0.25rem;
 }
 
-.submit:disabled {
+.commitButton:disabled {
   background-color: hsl(200deg 100% 20%);
 }
 
-.submit:not(:disabled)::after {
-  content: '\25BC';
+.commitButton:not(:disabled):global(.hover) {
+  background-color: hsl(200deg 100% 45%);
+}
+
+.commitButton:not(:disabled)::after {
+  content: '▶';
   position: absolute;
-  top: 0;
   right: 0;
-  width: 1rem;
-  height: 1rem;
-  border: 1px solid white;
-  margin: 0.75rem;
-  font-size: 0.625rem;
-  line-height: 1rem;
-  border-radius: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding-left: 0.15rem;
+  border: 1px solid hsl(0deg 0% 0% / 90%);
+  margin: 0 0.75rem;
+  background-color: hsl(0deg 0% 25% / 50%);
+  color: hsl(0deg 0% 0% / 90%);
+  font-size: 1rem;
+  line-height: 1.5rem;
+  text-align: center;
+  border-radius: 1.5rem;
 }
 
 .error :first-child {
@@ -86,16 +93,18 @@
 
 .finishedTickets {
   position: absolute;
-  top: -15rem;
-  left: 0;
+  top: -22vw;
+  right: 0;
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
+  align-items: flex-end;
   width: 100%;
+  height: 20vw;
   color: black;
 }
 
 .ticketComponent {
-  filter: grayscale();
+  /* filter: grayscale(); */
 }
 
 .openTickets {
@@ -103,25 +112,23 @@
   bottom: 0;
   left: calc(min(48vw, 48rem) + 1vw);
   overflow: hidden;
-  width: 14vw;
-  height: 18vw;
+  width: 50vw;
+  height: 16vw;
   color: black;
 }
 
 .openTickets > header {
-  /* padding: 0.5vw 0; */
   font-size: 1.5rem;
   font-weight: bold;
 }
 
 .openTickets > div {
-  position: relative;
-  top: 20px;
-  top: 30%;
-  left: 1.5rem;
+  position: absolute;
+  bottom: -1rem;
+  left: 0.5rem;
   display: flex;
   gap: 2vw;
-  transform: scale(0.6);
+  transform: scale(0.5);
   transform-origin: top left;
 }
 

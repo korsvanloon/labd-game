@@ -13,6 +13,7 @@ export type CodeAction =
   | 'line-down'
   | 'indent-left'
   | 'indent-right'
+  | 'commit'
 
 export const CodeEditor = ({
   levelProgress: { componentsProgress, codingProgress },
@@ -33,8 +34,9 @@ export const CodeEditor = ({
     <div {...attributes} className={clsx(styles.CodeEditor)}>
       <div className={styles.header}>{ticket?.component.type}</div>
       <pre
-        className={clsx('scrollable', 'action-zone', 'code-editor')}
+        className={clsx('scrollable')}
         ref={ref}
+        data-action-zone="code-editor"
       >
         {lines.slice(0, codingProgress.indents.length).map((line, i) => (
           <code
@@ -57,8 +59,11 @@ export const CodeEditor = ({
         ))}
       </pre>
       <button
-        className={clsx(styles.submit)}
-        disabled={codingProgress.indents.length !== codingProgress.current}
+        className={clsx(styles.commitButton)}
+        disabled={
+          codingProgress.indents.length !== ticket?.component.structure.length
+        }
+        data-action-zone="commit-button"
       >
         Commit
       </button>
@@ -71,17 +76,8 @@ export const CodeEditor = ({
               component={component}
               key={component.id}
               rotation={-1.4}
-              style={{
-                zIndex: a.length - i,
-                left: `calc(80% - ${i + 1}   * min(8vw, 8vh))`,
-              }}
               className={clsx(styles.ticket)}
-              componentClassName={clsx(
-                styles.ticketComponent,
-                'action-zone',
-                'object',
-                'coded-component',
-              )}
+              componentClassName={clsx(styles.ticketComponent)}
             />
           ))}
       </div>
@@ -90,22 +86,16 @@ export const CodeEditor = ({
         <div>
           {componentsProgress
             .filter((p) => p.progress === 'specified')
-            .map(({ component }, i, a) => (
+            .map(({ component }) => (
               <Ticket
                 component={component}
                 key={component.id}
                 rotation={-0.5 * Math.PI}
                 style={{
-                  zIndex: i,
                   position: 'relative',
                 }}
                 className={styles.openTicket}
-                componentClassName={clsx(
-                  styles.openTicketComponent,
-                  // 'action-zone',
-                  // 'object',
-                  // 'coded-component',
-                )}
+                componentClassName={clsx(styles.openTicketComponent)}
               />
             ))}
         </div>

@@ -4,7 +4,7 @@ import { randomSeed } from '../util/random'
 import { findNodes } from '../util/tree'
 import { Component, Level } from './level'
 
-const seed = 0
+const seed = 2
 const random = randomSeed(seed)
 
 export type LevelState = {

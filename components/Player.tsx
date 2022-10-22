@@ -28,7 +28,7 @@ type Props = {
 
 const scrollStep = 200
 
-type ActionZone = 'code-editor' | 'object' | 'cms' | 'browser'
+type ActionZone = 'code-editor' | 'ticket' | 'cms' | 'browser' | 'commit-button'
 
 type PlayerState = {
   position: Point2
@@ -55,8 +55,13 @@ export const Player = ({
   })
   const [openDialog, setOpenDialog] = useState(false)
 
+  const color = playerColor[controller.id]
+
   useEffect(() => {
     if (openDialog) return
+
+    controller.onPosition = ({ position }) =>
+      setState((s) => ({ ...s, position }))
 
     controller.onButton = ({ soloValue, changed }) => {
       switch (soloValue) {
@@ -99,7 +104,7 @@ export const Player = ({
         }
         case 'left': {
           switch (state.zone) {
-            case 'object': {
+            case 'ticket': {
               if (!changed) return
 
               if (state.componentProgress) {
@@ -144,11 +149,12 @@ export const Player = ({
         }
         case 'right': {
           switch (state.zone) {
-            case 'object': {
+            case 'ticket': {
               if (!state.componentProgress) {
-                const { actionZone } = getActionZoneElement(state.position)
-                const componentId =
-                  actionZone?.firstElementChild?.getAttribute('component-id')
+                const { actionZoneElement: actionZone } = getActionZoneElement(
+                  state.position,
+                )
+                const componentId = actionZone?.dataset.componentId
                 if (!componentId) return
 
                 const componentProgress = levelProgress.componentsProgress.find(
@@ -160,6 +166,10 @@ export const Player = ({
                   setState((s) => ({ ...s, componentProgress }))
                 }
               }
+              break
+            }
+            case 'commit-button': {
+              onChangeCode('commit')
               break
             }
             case 'browser': {
@@ -200,65 +210,47 @@ export const Player = ({
         }
       }
     }
-    controller.onJoystick = ({ value }) => {
-      const speed = controller instanceof JoyCon ? 8 : 1
-      const vw = window.innerWidth * 0.01
+    controller.onMove = ({ move }) =>
+      setState((state) => {
+        const speed = controller instanceof JoyCon ? 8 : 1
 
-      const position = {
-        x: clamp(state.position.x + value.x * speed, 4 * vw, 96 * vw),
-        y: clamp(
-          state.position.y + value.y * speed,
-          0,
-          window.innerHeight - 10 * vw,
-        ),
-      }
+        const position = getNewPosition(state.position, move, speed)
 
-      const color = playerColor[controller.id]
+        const { actionZoneElement, zone, hoverElements } =
+          getActionZoneElement(position)
 
-      const { actionZone, hoverElements } = getActionZoneElement(position)
+        removeExistingHover(color)
 
-      const classList = actionZone?.classList
-      const zone: ActionZone | undefined = classList?.contains('code-editor')
-        ? 'code-editor'
-        : classList?.contains('browser')
-        ? 'browser'
-        : classList?.contains('object')
-        ? 'object'
-        : undefined
+        if (zone && actionZoneElement) {
+          switch (zone) {
+            case 'browser': {
+              if (state.componentProgress) {
+                const dropZone = hoverElements.find((e) =>
+                  e.classList.contains('drop-zone'),
+                )
 
-      const existingHover = document.querySelector<HTMLElement>(
-        `.hover.${color}`,
-      )
-      if (existingHover) {
-        existingHover.classList.remove('hover', color)
-        existingHover.style.removeProperty('--player-color')
-      }
-
-      if (zone && actionZone) {
-        switch (zone) {
-          case 'browser': {
-            if (state.componentProgress) {
-              const dropZone = hoverElements.find((e) =>
-                e.classList.contains('drop-zone'),
-              )
-
-              if (dropZone) {
-                dropZone.classList.add('hover', color)
-                dropZone.style.setProperty('--player-color', color)
+                if (dropZone) {
+                  dropZone.classList.add('hover', color)
+                  dropZone.style.setProperty('--player-color', color)
+                }
               }
+              break
             }
-            break
-          }
-          case 'object': {
-            actionZone.classList.add('hover', color)
-            actionZone.style.setProperty('--player-color', color)
-            break
+            case 'ticket': {
+              actionZoneElement.classList.add('hover', color)
+              actionZoneElement.style.setProperty('--player-color', color)
+              actionZoneElement.parentElement!.style.zIndex = '1'
+              break
+            }
+            case 'commit-button': {
+              actionZoneElement.classList.add('hover', color)
+              break
+            }
           }
         }
-      }
 
-      setState((s) => ({ ...s, zone, position }))
-    }
+        return { ...state, zone, position }
+      })
   }, [controller, openDialog, state, level, levelProgress])
 
   return (
@@ -266,7 +258,7 @@ export const Player = ({
       <div
         className={styles.player}
         style={{
-          color: playerColor[controller.id],
+          color,
           top: `${state.position.y}px`,
           left: `${state.position.x}px`,
           backgroundImage: `url(${profile.img}`,
@@ -286,7 +278,7 @@ export const Player = ({
         open={openDialog}
         controller={controller}
         options={profiles}
-        style={{ borderColor: playerColor[controller.id] }}
+        style={{ borderColor: color }}
         getOptionNode={(option, selected) => (
           <div
             className={clsx(styles.playerOption, selected && styles.selected)}
@@ -313,8 +305,41 @@ const getActionZoneElement = (position: Point2) => {
     position.y,
   ) as HTMLElement[]
 
+  const actionZoneElement = hoverElements.find((e) => e.dataset['actionZone'])
+
+  const zone = actionZoneElement?.dataset['actionZone'] as
+    | ActionZone
+    | undefined
+
   return {
-    actionZone: hoverElements.find((e) => e.classList.contains('action-zone')),
+    zone,
+    actionZoneElement,
     hoverElements,
   }
 }
+
+const removeExistingHover = (color: string) => {
+  const existingHover = document.querySelector<HTMLElement>(`.hover.${color}`)
+  if (existingHover) {
+    existingHover.classList.remove('hover', color)
+    existingHover.style.removeProperty('--player-color')
+    if (
+      existingHover.dataset.actionZone === 'ticket' &&
+      existingHover.parentElement
+    ) {
+      existingHover.parentElement.style.zIndex = ''
+    }
+  }
+}
+
+// const vw = window.innerWidth * 0.01
+
+const getNewPosition = (
+  position: Point2,
+  move: Point2,
+  speed: number,
+  vw = window.innerWidth * 0.01,
+) => ({
+  x: clamp(position.x + move.x * speed, 4 * vw, 96 * vw),
+  y: clamp(position.y + move.y * speed, 0, window.innerHeight - 10 * vw),
+})

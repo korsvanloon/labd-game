@@ -1,11 +1,11 @@
 import { Point2 } from '../joy-con/madgwick'
-import { Controller } from './interface'
+import { Controller, PositionEvent } from './interface'
 // import { Angles, Point2 } from './madgwick'
 
 type BaseMouseKeyboardEvent = {
   event: Event
 }
-export type MouseKeyboardEvent = ButtonEvent | JoyStickEvent
+export type MouseKeyboardEvent = ButtonEvent | MouseEvent
 
 export type ButtonEvent = BaseMouseKeyboardEvent & {
   type: 'button'
@@ -23,8 +23,8 @@ export type ButtonEvent = BaseMouseKeyboardEvent & {
   sameButtonCount: number
 }
 
-export type JoyStickEvent = BaseMouseKeyboardEvent & {
-  type: 'joyStick'
+export type MouseEvent = BaseMouseKeyboardEvent & {
+  type: 'move'
   direction?:
     | 'left'
     | 'right'
@@ -34,19 +34,26 @@ export type JoyStickEvent = BaseMouseKeyboardEvent & {
     | 'upRight'
     | 'downLeft'
     | 'downRight'
-  value: Point2
+  move: Point2
   sameDirectionCount: number
 }
 
-export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
+export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
   ledstate: number = 0
 
   onButton?: (event: ButtonEvent) => void
-  onJoystick?: (event: JoyStickEvent) => void
+  onMove?: (event: MouseEvent) => void
+  onPosition?: (event: PositionEvent) => void
 
   private sameButtonCount: number = 0
   private sameDirectionCount: number = 0
-  private lastValues: { key?: string; direction?: Direction } = {}
+  private lastValues: {
+    key?: string
+    direction?: Direction
+    position: Point2
+  } = {
+    position: { x: 0, y: 0 },
+  }
   get deviceName(): string {
     return 'Mouse-Keyboard'
   }
@@ -58,7 +65,8 @@ export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
   constructor(public id: number, public window: Window) {}
 
   async open() {
-    this.window.addEventListener('click', (event) => {
+    this.window.addEventListener('contextmenu', (event) => {
+      event.preventDefault()
       this.onButton?.({
         event,
         type: 'button',
@@ -68,7 +76,19 @@ export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
         sameButtonCount: 0,
       })
     })
-    this.window.addEventListener('keypress', (event) => {
+    this.window.addEventListener('click', (event) => {
+      event.preventDefault()
+      this.onButton?.({
+        event,
+        type: 'button',
+        value: 'right',
+        soloValue: 'right',
+        changed: true,
+        sameButtonCount: 0,
+      })
+    })
+
+    this.window.addEventListener('keydown', (event) => {
       const changed = this.lastValues.key !== event.key
       this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
       this.lastValues.key = event.key
@@ -81,6 +101,7 @@ export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
         sameButtonCount: this.sameButtonCount,
       })
     })
+
     this.window.addEventListener('keyup', (event) => {
       const key = undefined
       const changed = this.lastValues.key !== key
@@ -95,25 +116,41 @@ export class MouseKeyboard implements Controller<ButtonEvent, JoyStickEvent> {
         sameButtonCount: this.sameButtonCount,
       })
     })
+
+    this.window.document.addEventListener('mouseenter', (event) => {
+      const position = { x: event.x, y: event.y }
+
+      this.onPosition?.({
+        type: 'position',
+        position,
+      })
+      this.lastValues.position = position
+    })
+
     this.window.addEventListener('mousemove', (event) => {
       const value = {
-        x: event.movementX,
-        y: event.movementY,
+        x: event.x - this.lastValues.position.x,
+        y: event.y - this.lastValues.position.y,
       }
       const direction = getDirection(value)
       this.sameDirectionCount =
         this.lastValues.direction === direction
           ? this.sameDirectionCount + 1
           : 0
-      this.lastValues.direction = direction
-
-      this.onJoystick?.({
+      const position = { x: event.x, y: event.y }
+      this.onPosition?.({
+        type: 'position',
+        position,
+      })
+      this.onMove?.({
         event,
-        type: 'joyStick',
-        value,
+        type: 'move',
+        move: value,
         direction,
         sameDirectionCount: this.sameDirectionCount,
       })
+      this.lastValues.direction = direction
+      this.lastValues.position = position
     })
   }
 }
@@ -133,18 +170,25 @@ const threshold = 0.1
 
 const toSoloValue = (value?: string): ButtonEvent['soloValue'] => {
   switch (value) {
+    case 'ArrowUp':
     case 'w':
       return 'up'
+    case 'ArrowDown':
     case 's':
       return 'down'
+    case 'ArrowLeft':
     case 'a':
       return 'left'
+    case 'ArrowRight':
     case 'd':
       return 'right'
+    case 'Space':
     case 'q':
       return 'bumperLeft'
+    case 'Shift':
     case 'e':
       return 'bumperRight'
+    case 'Escape':
     case '1':
       return 'special'
     default:

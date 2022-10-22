@@ -15,8 +15,8 @@ export interface ButtonEvent {
   sameButtonCount: number
 }
 
-export interface JoyStickEvent {
-  type: 'joyStick'
+export interface MoveEvent {
+  type: 'move'
   direction?:
     | 'left'
     | 'right'
@@ -26,17 +26,23 @@ export interface JoyStickEvent {
     | 'upRight'
     | 'downLeft'
     | 'downRight'
-  value: Point2
+  move: Point2
   sameDirectionCount: number
+}
+
+export interface PositionEvent {
+  type: 'position'
+  position: Point2
 }
 
 export interface Controller<
   B extends ButtonEvent = ButtonEvent,
-  J extends JoyStickEvent = JoyStickEvent,
+  J extends MoveEvent = MoveEvent,
 > {
   id: number
   get deviceName(): string
   buzz(): void
   onButton?: (event: B) => void
-  onJoystick?: (event: J) => void
+  onMove?: (event: J) => void
+  onPosition?: (event: PositionEvent) => void
 }

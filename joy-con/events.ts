@@ -49,7 +49,7 @@ export type ButtonEvent = BaseJoyConEvent & {
 }
 
 export type JoyStickEvent = BaseJoyConEvent & {
-  type: 'joyStick'
+  type: 'move'
   direction?:
     | 'left'
     | 'right'
@@ -59,7 +59,7 @@ export type JoyStickEvent = BaseJoyConEvent & {
     | 'upRight'
     | 'downLeft'
     | 'downRight'
-  value: Point2
+  move: Point2
   sameDirectionCount: number
 }
 

@@ -13,12 +13,8 @@ export const Browser = ({ level, progress, ...attributes }: Props) => {
   return (
     <div
       {...attributes}
-      className={clsx(
-        styles.Browser,
-        attributes.className,
-        'action-zone',
-        'browser',
-      )}
+      className={clsx(styles.Browser, attributes.className)}
+      data-action-zone="browser"
     >
       <div className={styles.header}>{level.url}</div>
       <div

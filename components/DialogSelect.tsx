@@ -51,7 +51,7 @@ export function DialogSelect<T>({
           ?.scrollIntoView({ block: 'center' })
       }
 
-      controller.onJoystick = ({ direction, sameDirectionCount }) => {
+      controller.onMove = ({ direction, sameDirectionCount }) => {
         if (accelerationDebounced(sameDirectionCount)) return
 
         switch (direction) {
