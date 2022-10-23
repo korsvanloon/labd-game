@@ -1,27 +1,27 @@
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import { Apis } from '../components/Apis'
-import { AppBar } from '../components/AppBar'
-import { Browser } from '../components/Browser'
-import { CodeEditor } from '../components/CodeEditor'
-import { PlayerView } from '../components/Player'
-import { Sprint } from '../components/Sprint'
-import { TicketCard } from '../components/Ticket'
-import { Profile } from '../data/profiles'
-import { handleAction } from '../game/action-handler'
-import { cheats } from '../game/cheats'
-import { createLevel, Level, readLevelFile } from '../game/level'
+import { Apis } from '../../components/Apis'
+import { AppBar } from '../../components/AppBar'
+import { Browser } from '../../components/Browser'
+import { CodeEditor } from '../../components/CodeEditor'
+import { PlayerView } from '../../components/Player'
+import { Sprint } from '../../components/Sprint'
+import { TicketCard } from '../../components/Ticket'
+import { Profile } from '../../data/profiles'
+import { handleAction } from '../../game/action-handler'
+import { cheats } from '../../game/cheats'
+import { createLevel, Level, readLevelFile } from '../../game/level'
 import {
   getNextComponents,
   initialLevelProgress,
   LevelState,
   Ticket,
-} from '../game/level-progress'
-import { useControllers } from '../hooks/useControllers'
-import { shuffle } from '../util/collection'
-import { randomSeed } from '../util/random'
-import styles from './game.module.css'
+} from '../../game/level-progress'
+import { useControllers } from '../../hooks/useControllers'
+import { shuffle } from '../../util/collection'
+import { randomSeed } from '../../util/random'
+import styles from './level.module.css'
 
 type Props = {
   level: Level
@@ -122,15 +122,25 @@ export default function LevelView({ level }: Props) {
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({}) => {
-  const levelFile = readLevelFile('agradi-homepage')
+export const getServerSideProps: GetServerSideProps<Props> = async ({
+  query,
+}) => {
+  const levelName = query.level as string
 
-  const htmlString = await fetch(levelFile.url).then((r) => r.text())
-  const level = createLevel(htmlString, levelFile)
+  try {
+    const levelFile = readLevelFile(levelName)
 
-  return {
-    props: {
-      level,
-    },
+    const htmlString = await fetch(levelFile.url).then((r) => r.text())
+    const level = createLevel(htmlString, levelFile)
+
+    return {
+      props: {
+        level,
+      },
+    }
+  } catch {
+    return {
+      notFound: true,
+    }
   }
 }

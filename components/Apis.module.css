@@ -1,10 +1,8 @@
 .Apis {
   position: relative;
+  width: fit-content;
   padding: 1vw;
   font-size: 2rem;
-  width: fit-content;
-  /* flex-direction: column;
-  justify-content: flex-start; */
 }
 
 .Apis > header {

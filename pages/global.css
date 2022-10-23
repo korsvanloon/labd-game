@@ -1,3 +1,21 @@
+@import url('./fonts.css');
+
 html {
   font-size: 1vh;
+}
+
+
+body {
+  font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
+  font-size: 1.25rem;
+}
+
+:root {
+  --purlpe: hsl(318deg 100% 67% / 90%);
+  --yellow: hsl(50deg 100% 50%);
+  --green: hsl(142deg 100% 50% / 80%);
+  --pink: hsl(318deg 100% 67% / 90%);
+  --turqoise: hsl(181deg 93% 47% / 90%);
+  --red: hsl(354deg 70% 54%);
+
 }

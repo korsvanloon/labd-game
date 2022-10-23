@@ -1,34 +1,58 @@
+import { capitalCase } from 'change-case'
+import fs from 'fs'
 import { GetServerSideProps } from 'next'
+import Link from 'next/link'
+import path from 'path'
+import styles from './index.module.css'
 
 type Props = {
-  yearData: { [year: number]: Destination }
+  levels: string[]
 }
 
-export default function Web({ yearData }: Props) {
+export default function Web({ levels }: Props) {
   return (
-    <div>
-      <h1>Web</h1>
-      <pre>{JSON.stringify(yearData, null, 2)}</pre>
+    <div className={styles.Index}>
+      <h1>Lab Digital - The Game</h1>
+
+      <ol className={styles.linkList}>
+        {levels.map((level) => (
+          <li key={level}>
+            <Link href={`/level/${level}`}>
+              <a>{capitalCase(level)}</a>
+            </Link>
+          </li>
+        ))}
+      </ol>
+
+      <div className={styles.controls}>
+        <h2>Controls</h2>
+        <dl>
+          <dt>Minus/Plus</dt>
+          <dd>Switch Avatar</dd>
+          <dt>Joystick</dt>
+          <dd>Move around</dd>
+          <dt>Left</dt>
+          <dd>Cancel/Drop, scroll left, indent code left</dd>
+          <dt>Up</dt>
+          <dd>scroll up</dd>
+          <dt>Right</dt>
+          <dd>Confirm/Pick up, scroll right, indent code right</dd>
+          <dt>Down</dt>
+          <dd>scroll down</dd>
+        </dl>
+      </div>
     </div>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<Props> = async ({
-  query,
-}) => {
-  const year = Number.isInteger(Number(query.year)) ? Number(query.year) : null
-
-  const data = await fetch(
-    'http://localhost:4000/migrations' + (year ? `/year/${year}` : ''),
-  ).then((r) => r.json())
+export const getServerSideProps: GetServerSideProps<Props> = async ({}) => {
+  const levels = fs
+    .readdirSync('./data/levels')
+    .map((name) => name.replace(path.extname(name), ''))
 
   return {
     props: {
-      yearData: data.data,
+      levels,
     },
   }
-}
-
-interface Destination {
-  [destination: string]: { [origin: string]: number }
 }

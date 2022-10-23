@@ -1,18 +1,9 @@
-@import url('./fonts.css');
 
 .app {
-  --purlpe: hsl(318deg 100% 67% / 90%);
-  --yellow: hsl(50deg 100% 50%);
-  --green: hsl(142deg 100% 50% / 80%);
-  --pink: hsl(318deg 100% 67% / 90%);
-  --turqoise: hsl(181deg 93% 47% / 90%);
-  --red: hsl(354deg 70% 54%);
-
-  height: 100vh;
-  font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
-  font-size: 1.25rem;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+
 }
 
 .app::before {
@@ -55,11 +46,11 @@
 }
 
 .container {
-  display: flex;
-  flex-direction: column;
   position: relative;
-  justify-content: space-between;
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .bottomPanels {
