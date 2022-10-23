@@ -1,3 +1,4 @@
+import { camelCase } from 'change-case'
 import clsx from 'clsx'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 import { LevelState } from '../game/level-progress'
@@ -53,6 +54,8 @@ export const CodeEditor = ({
               </>
             ) : line.type === 'component-slot' ? (
               <span className={styles.componentSlot}>{line.component}</span>
+            ) : line.type === 'field' ? (
+              <span className={styles.field}>{camelCase(line.name)}</span>
             ) : line.type === 'for-each' ? (
               <>
                 <span className={styles.forEach}>for-each </span>

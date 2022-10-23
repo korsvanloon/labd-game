@@ -31,6 +31,7 @@ export interface ApiContentType {
 export interface ApiField {
   type: ApiFieldType
   name: string
+  selector?: string
 }
 
 export type ApiFieldType =
@@ -85,11 +86,19 @@ export type ForEachLine = {
   component: string
 }
 
+export type FieldCodeLine = {
+  type: 'field'
+  indent: number
+  name: string
+  fieldType: ApiFieldType
+}
+
 export type CodeLine =
   | ElementCodeLine
   | ComponentSlotCodeLine
   | TextCodeLine
   | ForEachLine
+  | FieldCodeLine
 
 export type CopyContent = {
   selector: string
@@ -110,6 +119,7 @@ export const createLevel = (
     levelFile.rootComponent,
     dom.querySelector(levelFile.rootComponent.selector)!,
     '0',
+    levelFile.apis,
   )
 
   const totalComponents = [...findNodes(levelFile.rootComponent, () => true)]
@@ -139,6 +149,7 @@ export const enhanceComponent = (
   component: Component,
   dom: HTMLElement,
   id: string,
+  apis: Api[],
 ) => {
   // Register id
   component.id = id
@@ -153,23 +164,20 @@ export const enhanceComponent = (
   // Register component-slots
   component.children?.forEach((child, i) => {
     if (child.forEach) {
-      child.forEach.ids = []
-      for (let fi = 0; fi < child.forEach.length; fi++) {
-        const itemSelector = child.selector.replace('(index)', `(${fi + 1})`)
-        const childSelector = itemSelector + (child.forEach?.subSelector ?? '')
-        const childDom = dom.querySelector(childSelector)
-        if (!childDom) {
-          throw new Error(`Could not find ${childSelector}`)
-        }
+      const forEachDoms = dom.querySelectorAll(child.selector)
+      child.forEach.ids = forEachDoms.map((_, fi) => `${id}.${fi}`)
+      child.forEach.length = child.forEach.ids.length
+
+      for (const [fi, forEachDom] of forEachDoms.entries()) {
+        const childDom = child.forEach.subSelector
+          ? forEachDom.querySelector(child.forEach!.subSelector!)!
+          : forEachDom
+
         child.forEach.ids[fi] = `${id}.${fi}`
         childDom.setAttribute('data-component-id', `${id}.${fi}`)
-        enhanceComponent(child, childDom, `${id}.x`)
-        dom
-          .querySelector(itemSelector)
-          ?.setAttribute('data-for-each-index', fi.toString())
-        dom
-          .querySelector(childSelector)
-          ?.setAttribute('data-action-zone', 'component-slot')
+        enhanceComponent(child, childDom, `${id}.x`, apis)
+        forEachDom.setAttribute('data-for-each-index', fi.toString())
+        childDom.setAttribute('data-action-zone', 'component-slot')
       }
     } else {
       const childDom = dom.querySelector(child.selector)
@@ -177,21 +185,27 @@ export const enhanceComponent = (
         throw new Error(`Could not find ${child.selector}`)
       }
       childDom.setAttribute('data-component-id', `${id}.${i}`)
-      enhanceComponent(child, childDom, `${id}.${i}`)
+      enhanceComponent(child, childDom, `${id}.${i}`, apis)
       dom
         .querySelector(child.selector)
         ?.setAttribute('data-action-zone', 'component-slot')
     }
   })
 
-  component.codeLines ??= [...getCodeLines(dom, component)]
+  const [apiName, contentTypeName] = component.forEach?.api.split('.') ?? []
+  const api = apis?.find((a) => a.name === apiName)
+  const fieldNodes = api?.contentTypes
+    ?.find((type) => type.name === contentTypeName)
+    ?.fields?.map((field) => ({
+      field,
+      node:
+        field.selector && dom ? [...dom.querySelectorAll(field.selector)] : dom,
+    }))
+
+  component.codeLines ??= [...getCodeLines(dom, component, fieldNodes)]
 
   component.html ??= getSanitizedHtml(dom)
 }
-export const sanitizeClasses = (value: string) =>
-  /__[0-9A-Z]{5}$}/.test(value)
-    ? value.replace(/__[0-9A-Z]{4}$}/, '')
-    : value.replace(/[\w-]+(--|__)/g, '')
 
 export const getSanitizedHtml = (dom: HTMLElement) => {
   dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
@@ -202,17 +216,32 @@ export const getSanitizedHtml = (dom: HTMLElement) => {
     .replace(/<\/noscript>/g, '')
 }
 
+type FieldNode = {
+  nodes?: HTMLElement[]
+  field: ApiField
+}
+
 export function* getCodeLines(
   dom: Node,
   component: Component,
+  fieldNodes?: FieldNode[],
   indent = 0,
   counters = { childIndex: 0, forEachIndex: 0 },
 ): Iterable<CodeLine> {
-  if (dom instanceof TextNode) {
+  const apiField = fieldNodes?.find((n) => n.nodes?.includes(dom.parentNode))
+
+  if (apiField) {
+    yield {
+      indent,
+      type: 'field',
+      name: apiField.field.name,
+      fieldType: apiField.field.type,
+    }
+  } else if (dom instanceof TextNode) {
     yield {
       indent,
       type: 'text',
-      text: dom.text.replace(/\n/g, ' '),
+      text: dom.text.replace(/\n/g, ' ').trim(),
     }
   } else if (dom instanceof HTMLElement) {
     if (['noscript', 'meta'].includes(dom.tagName.toLowerCase())) return
@@ -227,7 +256,7 @@ export function* getCodeLines(
     let i = indent + 1
     for (const child of dom.childNodes) {
       if (!(child instanceof HTMLElement)) {
-        yield* getCodeLines(child, component, indent + 1, counters)
+        yield* getCodeLines(child, component, fieldNodes, indent + 1, counters)
         continue
       }
 
@@ -262,11 +291,16 @@ export function* getCodeLines(
           counters.childIndex++
         }
       } else {
-        yield* getCodeLines(child, component, i, counters)
+        yield* getCodeLines(child, component, fieldNodes, i, counters)
       }
     }
   }
 }
+
+export const sanitizeClasses = (value: string) =>
+  /__[0-9A-Za-z]{5}$/.test(value) && !/__[a-z]{5}$/.test(value)
+    ? value.replace(/__[0-9A-Za-z]{5}$/, '')
+    : value.replace(/[\w-]+(--|__)/g, '')
 
 export const codeLinesToString = (codeLines: CodeLine[]) =>
   codeLines.map((c) => '  '.repeat(c.indent) + codeLineToString(c)).join('\n')

@@ -5,21 +5,32 @@ apis:
     contentTypes:
       - name: usp
         fields:
-          - name: text
+          - name: usp
             type: text
       - name: menu
+        fields:
+          - name: linkText
+            type: text
       - name: banner
       - name: linkBlock
+        fields:
+          - name: linkText
+            type: text
+            selector: a
       - name: thrustedShop
   - name: oskar
     type: commerce
     contentTypes:
       - name: category
+        fields:
+          - name: categoryName
+            type: text
+            selector: span
       - name: product
         fields:
           - name: title
             type: text
-            selector: .title
+            selector: .product-block__title
           - name: banner
             type: text
             selector: .product-banner
@@ -28,24 +39,50 @@ apis:
             selector: img
           - name: price
             type: number
-            selector: .after
+            selector: .c-price
           - name: availability
             type: string
-            selector: .availability
+            selector: .product-cell__availability-header
           - name: stock-status
             type: string
-            selector: .availability-header
+            selector: .product-cell__availability
       - name: set
         fields:
           - name: title
             type: text
-            selector: .title
-          - name: products
-            type: referenceList
-            selector: .title
+            selector: strong
+          # - name: products
+          #   type: referenceList
+          #   selector: .title
       - name: customerPhoto
+        fields:
+          - name: userAndDate
+            type: text
+            selector: .bold
+          - name: productTitle
+            type: text
+            selector: a > div > p
+          - name: price
+            type: text
+            selector: .c-price__after
+          - name: discount
+            type: text
+            selector: .c-price__percentage
       - name: brand
       - name: review
+        fields:
+          - name: userAndDate
+            type: text
+            selector: '> div > p'
+          - name: message
+            type: text
+            selector: blockquote
+          - name: productTitle
+            type: text
+            selector: '> div > div:last-child > p'
+          - name: price
+            type: text
+            selector: .c-price__after
   - name: instagram
     type: social
     contentTypes:
@@ -62,7 +99,7 @@ rootComponent:
           forEach:
             length: 3
             api: wagtail.usp
-          selector: .n-header__usps .row > *:nth-child(index)
+          selector: .n-header__usps .row > *
         - type: countrySwitch
           selector: .n-header__link--flag
     - type: navBar
@@ -84,7 +121,7 @@ rootComponent:
             length: 10
             api: wagtail.menu
             subSelector: '> *'
-          selector: .n-main-menu__item:nth-child(index)
+          selector: .n-main-menu__item
     - type: promoBanner
       selector: .promobanner
     - type: main
@@ -104,14 +141,16 @@ rootComponent:
                 length: 10
                 api: oskar.category
                 subSelector: '> a'
-              selector: .horizontal-list__item:nth-child(index)
+              selector: .horizontal-list__item
         - type: bannerList
           selector: '>:nth-child(3)'
           children:
             - type: bannerBlock
-              selector: .row>div:nth-child(1) a
-            - type: bannerBlock
-              selector: .row>div:nth-child(2) a
+              forEach:
+                length: 2
+                api: wagtail.banner
+                subSelector: '> a'
+              selector: .row>div
         - type: productList
           selector: '>:nth-child(4)'
           children:
@@ -120,7 +159,7 @@ rootComponent:
                 length: 5
                 api: oskar.product
                 subSelector: '> div'
-              selector: .horizontal-list__item:nth-child(index)
+              selector: .horizontal-list__item
         - type: productList
           selector: '>:nth-child(5)'
           children:
@@ -129,21 +168,15 @@ rootComponent:
                 length: 5
                 api: oskar.product
                 subSelector: '> div'
-              selector: .horizontal-list__item:nth-child(index)
+              selector: .horizontal-list__item
         - type: brandList
           selector: '>:nth-child(6)'
           children:
-            - type: brandColumn
+            - type: brandBlock
               forEach:
-                length: 6
-                subSelector: '> div'
-              selector: .horizontal-list__item:nth-child(index)
-              children:
-                - type: brandBlock
-                  forEach:
-                    length: 2
-                    api: oskar.brand
-                  selector: '> div'
+                length: 12
+                api: oskar.brand
+              selector: .horizontal-list__item > div > div
         - type: bannerList
           selector: '>:nth-child(7)'
           children:
@@ -152,7 +185,7 @@ rootComponent:
                 length: 2
                 api: wagtail.banner
                 subSelector: '> a'
-              selector: .row>div:nth-child(index)
+              selector: .row>div
         - type: setList
           selector: '>:nth-child(8)'
           children:
@@ -161,7 +194,7 @@ rootComponent:
                 length: 3
                 api: oskar.set
                 subSelector: '> div'
-              selector: .horizontal-list__item:nth-child(index)
+              selector: .horizontal-list__item
         - type: latestUserPhotos
           selector: '>:nth-child(9)'
           children:
@@ -170,7 +203,7 @@ rootComponent:
                 length: 3
                 api: oskar.customerPhoto
                 subSelector: '> div'
-              selector: .horizontal-list__item:nth-child(index)
+              selector: .horizontal-list__item
         - type: latestReviews
           selector: '>:nth-child(10)'
           children:
@@ -179,7 +212,7 @@ rootComponent:
                 length: 2
                 api: oskar.review
                 subSelector: '> div'
-              selector: .horizontal-list__item:nth-child(index)
+              selector: .horizontal-list__item
         - type: instagramPosts
           selector: '>:nth-child(11)'
           children:
@@ -188,7 +221,7 @@ rootComponent:
                 length: 4
                 api: instagram.instagramPost
                 subSelector: '> a'
-              selector: '[data-testid="instagram-post"]:nth-child(index)'
+              selector: '[data-testid="instagram-post"]'
         - type: richText
           selector: '>:nth-child(12)'
     - type: footer
@@ -210,8 +243,18 @@ rootComponent:
               selector: .row > *:nth-child(1)
             - type: linkBlock
               selector: .row > *:nth-child(2)
+              children:
+                - type: link
+                  selector: '> a'
+                  forEach:
+                    api: wagtail.menu
             - type: linkBlock
               selector: .row > *:nth-child(3)
+              children:
+                - type: link
+                  selector: '> a'
+                  forEach:
+                  api: wagtail.menu
             - type: newsLetter
               selector: .row > *:nth-child(4)
             - type: footerBottom
@@ -227,4 +270,4 @@ rootComponent:
                   forEach:
                     api: wagtail.thrustedShop
                     length: 7
-                  selector: .link:nth-child(index)
+                  selector: .link

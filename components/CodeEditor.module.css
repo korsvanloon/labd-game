@@ -1,11 +1,11 @@
 .CodeEditor {
+  position: relative;
   width: min(40vw);
   height: min(48vw, 48vh);
   background-color: hsl(0deg 0% 0% / 90%);
   color: white;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  position: relative;
 }
 
 .header {
@@ -84,6 +84,20 @@
 
 .componentSlot::after {
   content: ' />';
+  color: hsla(0deg 0% 50% / 60%);
+}
+
+.field {
+  color: var(--pink);
+}
+
+.field::before {
+  content: '{ ';
+  color: hsla(0deg 0% 50% / 60%);
+}
+
+.field::after {
+  content: ' }';
   color: hsla(0deg 0% 50% / 60%);
 }
 

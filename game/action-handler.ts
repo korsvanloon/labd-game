@@ -135,12 +135,6 @@ export const handleAction = (
 
                 if (isValid) {
                   commit(state, ticket)
-                  const newTicket = state.tickets.find(
-                    (c) => c.progress === 'specified',
-                  )
-                  if (newTicket) {
-                    newTicket.progress = 'coding'
-                  }
                 } else if (!arrayEquals(state.codingProgress.errors, errors)) {
                   controller.buzz()
                   state.codingProgress.errors = errors
@@ -148,7 +142,8 @@ export const handleAction = (
                 }
                 return { ...state }
               })
-              break
+              // return is event.preventDefault()
+              return
             }
           }
           break
@@ -192,11 +187,14 @@ export const handleAction = (
               if (getComputedStyle(zone.element).overflowX !== 'visible') {
                 zone.element.scrollBy({ left: -scrollStep })
               } else {
-                zone.element.style.marginLeft = `0px`
+                zone.element.style.marginLeft = `${Math.min(
+                  0,
+                  parseInt(zone.element.style.marginLeft || '0') + scrollStep,
+                )}px`
               }
               break
             }
-            case 'left': {
+            case 'right': {
               if (getComputedStyle(zone.element).overflowX !== 'visible') {
                 zone.element.scrollBy({ left: -scrollStep })
               } else {

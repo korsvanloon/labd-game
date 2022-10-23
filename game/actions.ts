@@ -90,4 +90,9 @@ export function commit(state: LevelState, ticket: Ticket) {
     )
 
     .forEach((p) => (p.progress = progress))
+
+  const newTicket = state.tickets.find((c) => c.progress === 'specified')
+  if (newTicket) {
+    newTicket.progress = 'coding'
+  }
 }

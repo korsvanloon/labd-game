@@ -13,10 +13,7 @@ ticket has:
 - a type (e.g. uspBar)
 - optionally a design
 - whether it needs API data
-- whether it needs CMS content
 
-api properties in code
-footer menuBlock api item
-indent on error
-banner block
-brand list block
+Header usps
+Menu item
+split footer menu

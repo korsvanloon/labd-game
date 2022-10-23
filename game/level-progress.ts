@@ -1,5 +1,4 @@
 import { sum } from '../util/math'
-import { randomSeed } from '../util/random'
 import { findNodes } from '../util/tree'
 import { Component, Level } from './level'
 
@@ -9,10 +8,6 @@ export type LevelState = {
   bugs: number
 }
 
-/**
- * A ticket normally starts at 'specified', which .
- * Then it needs to be coded.
- */
 export type Ticket = {
   component: Component
   progress: 'specified' | 'coding' | 'coded' | 'ready' | 'deployed'
@@ -28,7 +23,7 @@ export type CodingProgress = {
 export const calculateScore = (levelProgress: LevelState) =>
   sum(
     levelProgress.tickets.filter((ticket) => ticket.progress === 'deployed'),
-    (p) => p.component.codeLines.length,
+    (p) => p.component.codeLines.length * (p.component.forEach?.length ?? 1),
   ) - levelProgress.bugs
 
 export const initialLevelProgress = (level: Level): LevelState => ({
