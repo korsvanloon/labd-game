@@ -43,7 +43,7 @@ apis:
           - name: products
             type: referenceList
             selector: .title
-      - name: customerImage
+      - name: customerPhoto
       - name: brand
       - name: review
   - name: instagram
@@ -150,7 +150,7 @@ rootComponent:
             - type: bannerBlock
               forEach:
                 length: 2
-                api: cms.banner
+                api: wagtail.banner
                 subSelector: '> a'
               selector: .row>div:nth-child(index)
         - type: setList
@@ -225,6 +225,6 @@ rootComponent:
                   selector: .footer-links > *:nth-child(4)
                 - type: footerThrustLink
                   forEach:
-                    api: cms.thrustedShop
+                    api: wagtail.thrustedShop
                     length: 7
                   selector: .link:nth-child(index)

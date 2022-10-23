@@ -25,12 +25,20 @@ export function deploy(
   state: LevelState,
   level: Level,
   ticket: Ticket,
-  dropZone: Element,
+  dropZone: HTMLElement,
 ) {
-  ticket.progress = 'deployed'
   dropZone.removeAttribute('data-action-zone')
-  dropZone.lastElementChild?.remove()
-  dropZone.outerHTML = ticket.component.html
+
+  if (ticket.component.forEach) {
+    ticket.component.forEach.ids = ticket.component.forEach.ids.filter(
+      (id) => id !== dropZone.dataset.componentId,
+    )
+  }
+  if (!ticket.component.forEach?.ids.length) {
+    ticket.progress = 'deployed'
+    ticket.player = undefined
+  } else {
+  }
 
   const queueSize = 4
 

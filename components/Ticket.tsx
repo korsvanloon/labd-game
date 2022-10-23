@@ -72,7 +72,7 @@ export const TicketCard = ({
           {component.forEach && (
             <>
               <div>API: {component.forEach.api}</div>
-              <div>Amount: {component.forEach.length}</div>
+              <div>Amount: {component.forEach.ids.length}</div>
             </>
           )}
         </footer>

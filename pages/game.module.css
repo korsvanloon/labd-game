@@ -11,13 +11,15 @@
   height: 100vh;
   font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
   font-size: 1.25rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .app::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
-  left:0;
+  left: 0;
   width: 100%;
   height: 100%;
   background-image: url('/images/background-purple.png');
@@ -63,7 +65,7 @@
 }
 
 .connect:not(:disabled):hover {
-  background-color:  hsl(0deg 0% 20%);
+  background-color: hsl(0deg 0% 20%);
 }
 
 .connect svg {
@@ -71,11 +73,11 @@
   height: 2.5rem;
 }
 
-.app [data-action-zone="vertical-scroll"] {
+.app [data-action-zone='vertical-scroll'] {
   overflow-y: scroll;
 }
 
-.app [data-action-zone="component-slot"] {
+.app [data-action-zone='component-slot'] {
   position: relative;
   flex: 1;
   min-width: 2rem;
@@ -85,7 +87,7 @@
   text-indent: -999999px;
 }
 
-.app [data-action-zone="component-slot"] > * {
+.app [data-action-zone='component-slot'] > * {
   visibility: hidden !important;
 }
 
@@ -119,4 +121,19 @@
   left: 4vw;
   color: black;
   transform-origin: top left;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.bottomPanels {
+  display: flex;
+  align-items: flex-end;
+  padding: 1vw;
+  gap: 1vw;
 }

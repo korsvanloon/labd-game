@@ -1,8 +1,10 @@
-
 .Apis {
-  position: absolute;
+  position: relative;
   padding: 1vw;
   font-size: 2rem;
+  width: fit-content;
+  /* flex-direction: column;
+  justify-content: flex-start; */
 }
 
 .Apis > header {
@@ -14,10 +16,9 @@
 .api {
   padding: 1vw;
   background-color: hsl(0deg 0% 100% / 90%);
-
 }
 
-.Apis > div{
+.Apis > div {
   display: flex;
   gap: 1vw;
 }
@@ -31,19 +32,17 @@
   padding-left: 1.5vw;
 }
 
-.api > div>div::before {
+.api > div > div::before {
   content: '/';
-
 }
 
-.api > div>div::after {
+.api > div > div::after {
   content: 'get';
   position: absolute;
   left: 0;
   font-size: 50%;
   font-weight: bold;
   line-height: 3rem;
-
 }
 
 .api :global(.hover) {

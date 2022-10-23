@@ -155,13 +155,16 @@ export default function LevelView({ level }: Props) {
         </ScoreNumber>
       </header>
 
-      <Apis level={level} />
+      <div className={styles.container}>
+        <Browser level={level} progress={levelState} className={styles.level} />
+        <Apis level={level} />
 
-      <Browser level={level} progress={levelState} className={styles.level} />
+        <div className={styles.bottomPanels}>
+          <CodeEditor levelProgress={levelState} />
 
-      <CodeEditor levelProgress={levelState} />
-
-      <Sprint tickets={levelState.tickets} />
+          <Sprint tickets={levelState.tickets} />
+        </div>
+      </div>
 
       <div className={styles.playerContainer}>
         {controllers.map((controller) => (

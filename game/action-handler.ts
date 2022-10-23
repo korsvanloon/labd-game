@@ -165,8 +165,10 @@ export const handleAction = (
                 if (!ticket) return state
 
                 const isValid =
-                  slotComponentId === ticket?.component.id &&
-                  ticket.progress === 'ready'
+                  ticket.progress === 'ready' &&
+                  slotComponentId &&
+                  (ticket.component.forEach?.ids.includes(slotComponentId) ||
+                    slotComponentId === ticket.component.id)
 
                 if (isValid) {
                   deploy(state, level, ticket, zone.element)
@@ -174,9 +176,9 @@ export const handleAction = (
                   state.bugs += Math.ceil(
                     ticket.component.codeLines.length * 0.5,
                   )
+                  ticket.player = undefined
                   controller.buzz()
                 }
-                ticket.player = undefined
                 return { ...state }
               })
               break

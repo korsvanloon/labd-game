@@ -1,5 +1,5 @@
 .location {
-  position: relative  ;
+  position: relative;
   left: 0;
   transition: left 0.1s ease, bottom 0.3s ease;
   transform: rotate(calc(var(--rotation) * 1rad));
@@ -14,7 +14,7 @@
   width: 24vw;
   height: 16vw;
   background-color: hsl(0deg 0% 100% / 95%);
-  box-shadow: 0 0 1.5rem var(--player-color, black);
+  box-shadow: 0 0 1.5vw var(--player-color, black);
 }
 
 .Ticket:global(.hover) {
@@ -65,29 +65,29 @@
 
 .name {
   flex: 1;
-  font-size: 1.5rem;
+  font-size: 1.5vw;
 }
 
 .id {
-  font-size: 1.5rem;
+  font-size: 1.5vw;
   font-weight: bold;
 }
 
 .points {
-  min-width: 0.75rem;
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
+  min-width: 0.75vw;
+  padding-right: 0.5vw;
+  padding-left: 0.5vw;
   background-color: hsl(223deg 12% 89%);
   color: hsl(218deg 54% 20%);
-  font-size: 1.25rem;
+  font-size: 1.25vw;
   font-weight: 600;
-  line-height: 1.5rem;
-  border-radius: 1.25rem;
+  line-height: 1.5vw;
+  border-radius: 1.25vw;
 }
 
 .footer {
   position: absolute;
-  bottom: 0;;
+  bottom: 0;
   display: flex;
   width: 100%;
   padding: 1vw;

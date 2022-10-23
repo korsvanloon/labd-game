@@ -58,6 +58,7 @@ export type ForEach = {
   length: number
   subSelector?: string
   api: string
+  ids: string[]
 }
 
 export type ElementCodeLine = {
@@ -139,13 +140,8 @@ export const enhanceComponent = (
   dom: HTMLElement,
   id: string,
 ) => {
-  component.id = id
-
-  if (!dom) {
-    throw new Error(`No dom for ${component.type} ${component.selector}`)
-  }
   // Register id
-  dom.setAttribute('data-component-id', id)
+  component.id = id
 
   // Add horizontal scroll
   if (component.horizontalScrollSelector) {
@@ -157,19 +153,31 @@ export const enhanceComponent = (
   // Register component-slots
   component.children?.forEach((child, i) => {
     if (child.forEach) {
-      for (let i = 0; i < child.forEach.length; i++) {
-        const itemSelector = child.selector.replace('(index)', `(${i + 1})`)
+      child.forEach.ids = []
+      for (let fi = 0; fi < child.forEach.length; fi++) {
+        const itemSelector = child.selector.replace('(index)', `(${fi + 1})`)
         const childSelector = itemSelector + (child.forEach?.subSelector ?? '')
-        enhanceComponent(child, dom.querySelector(childSelector)!, `${id}.${i}`)
+        const childDom = dom.querySelector(childSelector)
+        if (!childDom) {
+          throw new Error(`Could not find ${childSelector}`)
+        }
+        child.forEach.ids[fi] = `${id}.${fi}`
+        childDom.setAttribute('data-component-id', `${id}.${fi}`)
+        enhanceComponent(child, childDom, `${id}.x`)
         dom
           .querySelector(itemSelector)
-          ?.setAttribute('data-for-each-index', i.toString())
+          ?.setAttribute('data-for-each-index', fi.toString())
         dom
           .querySelector(childSelector)
           ?.setAttribute('data-action-zone', 'component-slot')
       }
     } else {
-      enhanceComponent(child, dom.querySelector(child.selector)!, `${id}.${i}`)
+      const childDom = dom.querySelector(child.selector)
+      if (!childDom) {
+        throw new Error(`Could not find ${child.selector}`)
+      }
+      childDom.setAttribute('data-component-id', `${id}.${i}`)
+      enhanceComponent(child, childDom, `${id}.${i}`)
       dom
         .querySelector(child.selector)
         ?.setAttribute('data-action-zone', 'component-slot')
