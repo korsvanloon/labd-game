@@ -1,0 +1,8 @@
+url: https://labdigital.nl/
+apis: []
+rootComponent:
+  type: page
+  selector: body
+  # children:
+  #   - type: header
+  #     selector: '> header'

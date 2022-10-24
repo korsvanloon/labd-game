@@ -1,0 +1,20 @@
+url: https://www.knivesandtools.nl/
+apis:
+  - name: commercetools
+    type: commerce
+    contentTypes:
+      - name: brand
+        # fields:
+        #   - name: usp
+        #     type: text
+rootComponent:
+  type: page
+  selector: body
+  children:
+    - type: brandList
+      selector: .BrandListBlock-box
+      children:
+        - type: brand
+          forEach:
+            api: commercetools.brand
+          selector: a

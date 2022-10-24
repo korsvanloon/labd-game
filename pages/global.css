@@ -11,7 +11,7 @@ body {
 }
 
 :root {
-  --purlpe: hsl(318deg 100% 67% / 90%);
+  --purple: hsl(318deg 100% 67% / 90%);
   --yellow: hsl(50deg 100% 50%);
   --green: hsl(142deg 100% 50% / 80%);
   --pink: hsl(318deg 100% 67% / 90%);
