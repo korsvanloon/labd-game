@@ -210,8 +210,10 @@ export const enhanceComponent = (
     ?.find((type) => type.name === contentTypeName)
     ?.fields?.map((field) => ({
       field,
-      node:
-        field.selector && dom ? [...dom.querySelectorAll(field.selector)] : dom,
+      nodes:
+        field.selector && dom
+          ? [...dom.querySelectorAll(field.selector)]
+          : [dom],
     }))
 
   component.codeLines ??= [...getCodeLines(dom, component, fieldNodes)]

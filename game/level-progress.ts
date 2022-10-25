@@ -22,7 +22,9 @@ export type CodingProgress = {
 
 export const calculateScore = (levelProgress: LevelState) =>
   sum(
-    levelProgress.tickets.filter((ticket) => ticket.progress === 'deployed'),
+    levelProgress.tickets
+      .slice(1)
+      .filter((ticket) => ticket.progress === 'deployed'),
     (p) => p.component.codeLines.length * (p.component.forEach?.length ?? 1),
   ) - levelProgress.bugs
 

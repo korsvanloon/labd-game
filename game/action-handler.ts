@@ -196,7 +196,7 @@ export const handleAction = (
             }
             case 'right': {
               if (getComputedStyle(zone.element).overflowX !== 'visible') {
-                zone.element.scrollBy({ left: -scrollStep })
+                zone.element.scrollBy({ left: scrollStep })
               } else {
                 zone.element.style.marginLeft = `${Math.max(
                   -1200,
