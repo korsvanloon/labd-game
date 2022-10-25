@@ -20,6 +20,7 @@ export const Apis = ({ level, ...attributes }: Props) => (
           <div>
             {api.contentTypes.map((type) => (
               <div
+                key={type.name}
                 data-action-zone="api"
                 data-api={api.name}
                 data-type={type.name}

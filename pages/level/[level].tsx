@@ -1,3 +1,4 @@
+import { existsSync } from 'fs'
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
@@ -11,7 +12,12 @@ import { TicketCard } from '../../components/Ticket'
 import { Profile } from '../../data/profiles'
 import { handleAction } from '../../game/action-handler'
 import { cheats } from '../../game/cheats'
-import { createLevel, Level, readLevelFile } from '../../game/level'
+import {
+  createLevel,
+  Level,
+  readLevelFile,
+  readLevelHtml,
+} from '../../game/level'
 import {
   getNextComponents,
   initialLevelProgress,
@@ -130,7 +136,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   try {
     const levelFile = readLevelFile(levelName)
 
-    const htmlString = await fetch(levelFile.url).then((r) => r.text())
+    const htmlString = existsSync(`./data/sites/${levelName}.html`)
+      ? readLevelHtml(levelName)
+      : await fetch(levelFile.url).then((r) => r.text())
+
     const level = createLevel(htmlString, levelFile)
 
     return {
@@ -138,7 +147,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
         level,
       },
     }
-  } catch {
+  } catch (e) {
+    console.error(e)
     return {
       notFound: true,
     }

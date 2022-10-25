@@ -107,6 +107,9 @@ export type CopyContent = {
 export const readLevelFile = (name: string): LevelFile =>
   parse(readFileSync(`./data/levels/${name}.yaml`, 'utf-8')) as LevelFile
 
+export const readLevelHtml = (name: string): string =>
+  readFileSync(`./data/sites/${name}.html`, 'utf-8')
+
 export const createLevel = (
   pageHtmlString: string,
   levelFile: LevelFile,
@@ -115,12 +118,20 @@ export const createLevel = (
 
   const dom = domParser.parse(pageHtmlString, {})
 
-  enhanceComponent(
-    levelFile.rootComponent,
-    dom.querySelector(levelFile.rootComponent.selector)!,
-    '0',
-    levelFile.apis,
-  )
+  dom.querySelectorAll('script,noscript,meta').forEach((e) => e.remove())
+  dom
+    .querySelectorAll('img')
+    .filter((e) => e.getAttribute('src')?.startsWith('/'))
+    .forEach((e) => e.setAttribute('src', origin + e.getAttribute('src')))
+  dom
+    .querySelectorAll('source')
+    .filter((e) => e.getAttribute('srcset')?.startsWith('/'))
+    .forEach((e) => e.setAttribute('srcset', origin + e.getAttribute('srcset')))
+
+  const rootDom = dom.querySelector(levelFile.rootComponent.selector)!
+  dom.querySelectorAll('style').forEach((style) => rootDom.appendChild(style))
+
+  enhanceComponent(levelFile.rootComponent, rootDom, '0', levelFile.apis)
 
   const totalComponents = [...findNodes(levelFile.rootComponent, () => true)]
     .length
@@ -138,6 +149,7 @@ export const getStyles = (dom: HTMLElement, origin: string) =>
   [
     ...dom
       .querySelectorAll('link[rel=stylesheet]')
+      .filter((link) => !link.getAttribute('media'))
       .map((link) => link.getAttribute('href'))
       .map((href) => (href?.startsWith('http') ? href : `${origin}${href}`)),
     ...dom
@@ -238,6 +250,7 @@ export function* getCodeLines(
       fieldType: apiField.field.type,
     }
   } else if (dom instanceof TextNode) {
+    if (dom.text.startsWith('<!--') || !dom.text.trim()) return
     yield {
       indent,
       type: 'text',
@@ -252,6 +265,8 @@ export function* getCodeLines(
       element: dom.tagName.toLowerCase(),
       classes: [...dom.classList.values()].map(sanitizeClasses).filter(Boolean),
     }
+
+    if (['svg'].includes(dom.tagName.toLowerCase())) return
 
     let i = indent + 1
     for (const child of dom.childNodes) {

@@ -14,32 +14,34 @@ export default function Web({ levels }: Props) {
     <div className={styles.Index}>
       <h1>Lab Digital - The Game</h1>
 
-      <ol className={styles.linkList}>
-        {levels.map((level) => (
-          <li key={level}>
-            <Link href={`/level/${level}`}>
-              <a>{capitalCase(level)}</a>
-            </Link>
-          </li>
-        ))}
-      </ol>
+      <div className={styles.body}>
+        <ol className={styles.linkList}>
+          {levels.map((level) => (
+            <li key={level}>
+              <Link href={`/level/${level}`}>
+                <a>{capitalCase(level.replace(/^\d{2}-/, ''))}</a>
+              </Link>
+            </li>
+          ))}
+        </ol>
 
-      <div className={styles.controls}>
-        <h2>Controls</h2>
-        <dl>
-          <dt>Minus/Plus</dt>
-          <dd>Switch Avatar</dd>
-          <dt>Joystick</dt>
-          <dd>Move around</dd>
-          <dt>Left</dt>
-          <dd>Cancel/Drop, scroll left, indent code left</dd>
-          <dt>Up</dt>
-          <dd>scroll up</dd>
-          <dt>Right</dt>
-          <dd>Confirm/Pick up, scroll right, indent code right</dd>
-          <dt>Down</dt>
-          <dd>scroll down</dd>
-        </dl>
+        <div className={styles.controls}>
+          <h2>Controls</h2>
+          <dl>
+            <dt>Minus/Plus</dt>
+            <dd>Switch Avatar</dd>
+            <dt>Joystick</dt>
+            <dd>Move around</dd>
+            <dt>Left</dt>
+            <dd>Cancel/Drop, scroll left, indent code left</dd>
+            <dt>Up</dt>
+            <dd>scroll up</dd>
+            <dt>Right</dt>
+            <dd>Confirm/Pick up, scroll right, indent code right</dd>
+            <dt>Down</dt>
+            <dd>scroll down</dd>
+          </dl>
+        </div>
       </div>
     </div>
   )

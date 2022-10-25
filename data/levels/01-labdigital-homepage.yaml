@@ -3,6 +3,6 @@ apis: []
 rootComponent:
   type: page
   selector: body
-  # children:
-  #   - type: header
-  #     selector: '> header'
+  children:
+    - type: partnerBlock
+      selector: '#partners .block .row'
