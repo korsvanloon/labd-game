@@ -16,6 +16,7 @@ export interface Level {
   rootComponent: Component
   totalComponents: number
   apis: Api[]
+  totalTime: number
 }
 
 export interface Api {
@@ -142,6 +143,7 @@ export const createLevel = (
     styles: getStyles(dom, origin),
     rootComponent: levelFile.rootComponent,
     totalComponents,
+    totalTime: totalComponents * 60,
   }
 }
 

@@ -55,3 +55,15 @@
   font-weight: 800;
   text-shadow: 0 0 10px black;
 }
+
+.loseMessage {
+  --color: var(--red);
+
+  position: fixed;
+  z-index: 100;
+  top: 40%;
+  left: 45%;
+  font-size: 3rem;
+  font-weight: 800;
+  text-shadow: 0 0 10px black;
+}

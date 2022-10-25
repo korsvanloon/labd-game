@@ -10,6 +10,7 @@ import { calculateScore, LevelState } from '../game/level-progress'
 import { usePrevious } from '../hooks/usePrevious'
 import IconJoyCon from '../public/icon-joycon.svg'
 import IconKeyboard from '../public/icon-keyboard.svg'
+import { formatTime } from '../util/format'
 import styles from './AppBar.module.css'
 
 type Props = {
@@ -19,11 +20,13 @@ type Props = {
   controllerProfiles: Profile[]
   levelState: LevelState
   level: Level
+  time: number
 } & HTMLAttributes<HTMLDivElement>
 
 export const AppBar = ({
   level,
   levelState,
+  time,
   controllerProfiles,
   controllers,
   onAddJoyCon,
@@ -68,6 +71,11 @@ export const AppBar = ({
       </button>
       <div className={styles.stats}>
         <div>
+          <span>Time left</span>
+
+          <strong>{formatTime(level.totalTime - time)}</strong>
+        </div>
+        <div>
           <span>Features</span>
 
           <strong>{`${totalDeployed} / ${level.totalComponents}`}</strong>
@@ -101,12 +109,16 @@ export const AppBar = ({
           </div>
         ))}
       </div>
-      <ScoreNumber
-        changed={totalDeployed === level.totalComponents}
-        className={styles.winMessage}
-      >
-        {totalDeployed === level.totalComponents ? 'Completed!' : ''}
-      </ScoreNumber>
+      {levelState.finished === 'won' && (
+        <ScoreNumber changed className={styles.winMessage}>
+          Completed
+        </ScoreNumber>
+      )}
+      {levelState.finished === 'lost' && (
+        <ScoreNumber changed className={styles.loseMessage}>
+          Deadline failed!
+        </ScoreNumber>
+      )}
     </header>
   )
 }

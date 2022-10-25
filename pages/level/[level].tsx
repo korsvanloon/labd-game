@@ -25,6 +25,7 @@ import {
   Ticket,
 } from '../../game/level-progress'
 import { useControllers } from '../../hooks/useControllers'
+import { useTimedCounter } from '../../hooks/useCountdown'
 import { shuffle } from '../../util/collection'
 import { randomSeed } from '../../util/random'
 import styles from './level.module.css'
@@ -42,6 +43,24 @@ export default function LevelView({ level }: Props) {
     initialLevelProgress(level),
   )
   const [controllerProfiles, setProfiles] = useState<Profile[]>([])
+
+  const time = useTimedCounter(level.totalComponents * 60, !levelState.finished)
+
+  useEffect(() => {
+    const totalDeployed = levelState.tickets.filter(
+      (c) => c.progress === 'deployed',
+    ).length
+
+    const lost = level.totalTime === time
+    const won = totalDeployed === level.totalComponents
+
+    if (won) {
+      setLevelState((s) => ({ ...s, finished: 'won' }))
+    }
+    if (lost) {
+      setLevelState((s) => ({ ...s, finished: 'lost' }))
+    }
+  }, [time])
 
   useEffect(() => {
     // For debugging
@@ -68,6 +87,7 @@ export default function LevelView({ level }: Props) {
       ],
     }))
   }, [])
+
   return (
     <div className={styles.app}>
       <Head>
@@ -83,6 +103,7 @@ export default function LevelView({ level }: Props) {
         controllers={controllers}
         onAddJoyCon={addJoyCon}
         onAddMouseKeyboard={addMouseKeyboard}
+        time={time}
       />
 
       <div className={styles.container}>

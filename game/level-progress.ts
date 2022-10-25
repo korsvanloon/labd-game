@@ -6,6 +6,7 @@ export type LevelState = {
   tickets: Ticket[]
   codingProgress: CodingProgress
   bugs: number
+  finished?: 'won' | 'lost'
 }
 
 export type Ticket = {
