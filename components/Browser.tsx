@@ -2,17 +2,27 @@ import clsx from 'clsx'
 import React from 'react'
 import { Level } from '../game/level'
 import { LevelState } from '../game/level-progress'
-import styles from './Browser.module.css'
+
+export type Styles = {
+  browser: {
+    root?: string
+    header?: string
+  }
+}
 
 type Props = {
   level: Level
   progress: LevelState
+  styles: Styles
 } & React.HTMLAttributes<HTMLDivElement>
 
-export const Browser = ({ level, progress, ...attributes }: Props) => {
+export const Browser = ({ level, progress, styles, ...attributes }: Props) => {
   return (
-    <div {...attributes} className={clsx(styles.Browser, attributes.className)}>
-      <div className={styles.header}>{level.url}</div>
+    <div
+      {...attributes}
+      className={clsx(styles.browser.root, attributes.className)}
+    >
+      <div className={styles.browser.header}>{level.url}</div>
       <div
         data-action-zone="vertical-scroll"
         key={level.rootComponent.selector}

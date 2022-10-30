@@ -46,7 +46,8 @@ export const handleAction = (
         case 'code-editor': {
           switch (event.soloValue) {
             case 'up': {
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const { current } = state.codingProgress
                 state.codingProgress.current = Math.max(0, current - 1)
                 return { ...state }
@@ -54,7 +55,8 @@ export const handleAction = (
               break
             }
             case 'down': {
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const ticket = state.tickets.find(
                   (c) => c.progress === 'coding',
                 )
@@ -79,14 +81,16 @@ export const handleAction = (
               break
             }
             case 'left': {
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 changeIndent(state, -1)
                 return { ...state }
               })
               break
             }
             case 'right': {
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const ticket = getPlayerTicket(state, controller.id)
                 if (ticket?.progress === 'specified') {
                   const existing = state.tickets.find(
@@ -113,6 +117,7 @@ export const handleAction = (
 
                 return state
               })
+              break
             }
           }
           break
@@ -120,7 +125,8 @@ export const handleAction = (
         case 'commit-button': {
           switch (event.soloValue) {
             case 'right': {
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const ticket = state.tickets.find(
                   (c) => c.progress === 'coding',
                 )
@@ -153,7 +159,8 @@ export const handleAction = (
             case 'right': {
               if (!event.changed) return
 
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const slotComponentId = zone.element.dataset.componentId
                 const ticket = getPlayerTicket(state, controller.id)
 
@@ -211,7 +218,8 @@ export const handleAction = (
         case 'ticket': {
           switch (event.soloValue) {
             case 'right': {
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const existing = getPlayerTicket(state, controller.id)
                 if (existing) {
                   existing.player = undefined
@@ -249,7 +257,8 @@ export const handleAction = (
             case 'left': {
               if (!event.changed) return
 
-              updateLevelState((state) => {
+              updateLevelState((s) => {
+                const state = structuredClone(s)
                 const ticket = getPlayerTicket(state, controller.id)
                 if (ticket) {
                   ticket.player = undefined
@@ -275,7 +284,8 @@ export function handleApiAction(
 ) {
   switch (event.soloValue) {
     case 'right': {
-      updateLevelState((state) => {
+      updateLevelState((s) => {
+        const state = structuredClone(s)
         const api = [zone.element.dataset.api, zone.element.dataset.type]
           .filter(isValue)
           .join('.')

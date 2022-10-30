@@ -1,4 +1,4 @@
-.location {
+.root {
   position: relative;
   left: 0;
   transition: left 0.1s ease, bottom 0.3s ease;
@@ -9,7 +9,7 @@
   transform-origin: center;
 }
 
-.Ticket {
+.card {
   position: relative;
   width: 24vw;
   height: 16vw;
@@ -17,26 +17,26 @@
   box-shadow: 0 0 1.5vw var(--player-color, black);
 }
 
-.Ticket:global(.hover) {
+.card:global(.hover) {
   z-index: 11;
 }
 
-.Ticket > header::before {
+.card > header::before {
   content: '';
   width: 2vw;
   height: 2vw;
   border-radius: 2vw;
 }
 
-.Ticket:global(.specified) > header::before {
+.card:global(.specified) > header::before {
   background-color: hsl(223deg 12% 89% / 75%);
 }
 
-.Ticket:global(.coded) > header::before {
+.card:global(.coded) > header::before {
   background-color: var(--yellow);
 }
 
-.Ticket:global(.ready) > header::before {
+.card:global(.ready) > header::before {
   background-color: var(--green);
 }
 

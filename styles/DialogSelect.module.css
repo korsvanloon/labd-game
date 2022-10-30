@@ -1,8 +1,8 @@
-.dialog {
+.root {
   padding: 0;
 }
 
-.dialog::backdrop {
+.root::backdrop {
   background-color: transparent;
 }
 

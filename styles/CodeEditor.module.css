@@ -1,4 +1,4 @@
-.CodeEditor {
+.root {
   position: relative;
   width: min(40vw);
   height: min(48vw, 48vh);
@@ -18,7 +18,7 @@
   border-top-right-radius: 1rem;
 }
 
-.CodeEditor pre {
+.root pre {
   position: relative;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -26,7 +26,7 @@
   padding: 1rem;
 }
 
-.CodeEditor pre > code {
+.root pre > code {
   display: block;
   font-size: 1vw;
 }

@@ -1,0 +1,122 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100vh;
+  gap: 4vw;
+
+}
+
+.root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/background-purple.png');
+  background-position: bottom;
+  background-size: cover;
+  opacity: 0.2;
+}
+
+
+.root h1 {
+  padding: 2vw;
+  font-size:6vw;
+}
+
+.body {
+  display: flex;
+  gap: 2vw;
+}
+
+.linkList {
+  height: fit-content;
+  padding: 0;
+  border-bottom: 2px solid hsl(0deg 0% 80%);
+  margin: 0;
+  counter-set: level;
+}
+
+.linkList li {
+  position: relative;
+  overflow: hidden;
+  border-top: 2px solid hsl(0deg 0% 80%);
+  background-color: hsl(0deg 0% 100% / 80%);
+  list-style: none;
+  counter-increment: level;
+}
+
+.linkList li::before {
+  content: "Level " counter(level);
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0.5vw 1vw;
+  font-size: 2vw;
+  font-weight: bold;
+}
+
+.linkList a::before {
+  content: '';
+  display: inline-block;
+  width: 3vw;
+  height:  3vw;
+  margin-right: 3vw;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg class='icon icon--icon-arrow-right'  viewBox='0 0 21 19' version='1.1' xmlns='http://www.w3.org/2000/svg' fill='%2300ff5ecc'%3e%3ctitle%3eArrow right%3c/title%3e%3cpath d='M15.0649462,13.4350288 L15.0649462,15.9350288 L12.5651962,15.9350288 L12.5651962,18.4350288 L10.0649462,18.4350288 L10.0649462,15.9350288 L12.5649462,15.9350288 L12.5649462,13.4350288 L15.0649462,13.4350288 Z M12.5651962,0.935028843 L12.5651962,3.43502884 L15.0649462,3.43502884 L15.0649712,5.93495384 L17.5649712,5.93495384 L17.5649712,8.43495384 L20.0649712,8.43495384 L20.0649712,10.9349538 L17.5649712,10.9349538 L17.5649712,13.4352038 L15.0649712,13.4352038 L15.0649712,10.9349538 L0.064971157,10.9349538 L0.064971157,8.43495384 L15.0649712,8.43495384 L15.0649462,5.93502884 L12.5649462,5.93502884 L12.5649462,3.43502884 L10.0649462,3.43502884 L10.0649462,0.935028843 L12.5651962,0.935028843 Z'%3e%3c/path%3e%3c/svg%3e");
+  background-position: center center;
+  background-repeat: no-repeat;
+
+}
+
+.linkList a {
+  display: flex;
+  align-items: center;
+  padding: 3vw 2vw;
+  color: black;
+  font-size: 1.5vw;
+  font-weight: 700;
+  letter-spacing: -.05em;
+  text-decoration: none;
+  transition: transform .4s ease-out, color .15s ease-in-out;
+  transform: translateX(-5vw);
+
+}
+
+.linkList a:hover{
+  transform: translateX(0);
+  color: var(--green);
+}
+
+
+
+
+.controls {
+  position: relative;
+  padding: 3vw 4vw;
+  background-color: hsl(0deg 0% 100% / 80%);
+  font-size: 1.5vw;
+}
+
+.controls h2 {
+  text-align: center;
+}
+
+.controls dl  {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1vw;
+}
+
+.controls dl > * {
+  flex: 1 1 20%;
+  padding: 0.5vw;
+  margin: 0;
+}
+
+.controls dt {
+  font-weight: bold;
+  text-align: right;
+}

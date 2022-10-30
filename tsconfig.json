@@ -5,15 +5,13 @@
     "target": "ESNext",
     "moduleResolution": "node",
     "composite": false,
-
     "declaration": true,
     "declarationMap": true,
     "inlineSources": false,
-
     "downlevelIteration": true,
     "noUnusedLocals": false,
     "noUnusedParameters": true,
-
+    "rootDir": ".",
     "preserveWatchOutput": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
@@ -28,8 +26,19 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["next-env.d.ts", "index.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "index.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

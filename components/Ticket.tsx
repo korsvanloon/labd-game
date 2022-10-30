@@ -7,19 +7,33 @@ import {
   useState,
 } from 'react'
 import { Ticket } from '../game/level-progress'
-import styles from './Ticket.module.css'
+
+export type Styles = {
+  ticket: {
+    root?: string
+    card?: string
+    info?: string
+    name?: string
+    id?: string
+    points?: string
+    component?: string
+    footer?: string
+  }
+}
 
 type Props = {
   ticket: Ticket
   /** In radians */
   rotation: number
   componentClassName?: string
+  styles: Styles
 } & HTMLAttributes<HTMLDivElement>
 
 export const TicketCard = ({
   ticket,
   rotation,
   componentClassName,
+  styles,
   ...attributes
 }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -42,7 +56,7 @@ export const TicketCard = ({
   return (
     <div
       {...attributes}
-      className={clsx(styles.location)}
+      className={clsx(styles.ticket.root)}
       style={
         {
           ...attributes.style,
@@ -52,22 +66,28 @@ export const TicketCard = ({
       }
     >
       <div
-        className={clsx(styles.Ticket, attributes.className, ticket.progress)}
+        className={clsx(
+          styles.ticket.card,
+          attributes.className,
+          ticket.progress,
+        )}
         data-action-zone="ticket"
         data-component-id={component.id}
       >
-        <header className={styles.info}>
-          <div className={styles.name}>{component.type}</div>
-          <div className={styles.id}>{component.id}</div>
-          <div className={styles.points}>{component.codeLines.length}</div>
+        <header className={styles.ticket.info}>
+          <div className={styles.ticket.name}>{component.type}</div>
+          <div className={styles.ticket.id}>{component.id}</div>
+          <div className={styles.ticket.points}>
+            {component.codeLines.length}
+          </div>
         </header>
         <div
           ref={ref}
-          className={clsx(styles.component, componentClassName)}
+          className={clsx(styles.ticket.component, componentClassName)}
           dangerouslySetInnerHTML={{ __html: component.html }}
         />
 
-        <footer className={styles.footer}>
+        <footer className={styles.ticket.footer}>
           <div>{ticket.progress}</div>
           {component.forEach && (
             <>

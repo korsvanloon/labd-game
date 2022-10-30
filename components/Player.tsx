@@ -7,8 +7,15 @@ import { Profile, profiles } from '../data/profiles'
 import { Level } from '../game/level'
 import { LevelState } from '../game/level-progress'
 import { clamp } from '../util/math'
-import { DialogSelect } from './DialogSelect'
-import styles from './Player.module.css'
+import { DialogSelect, Styles as DialogStyles } from './DialogSelect'
+
+export type Styles = {
+  player: {
+    player?: string
+    playerOption?: string
+    playerOptionSelected?: string
+  }
+} & DialogStyles
 
 type Props = {
   controller: Controller
@@ -18,6 +25,7 @@ type Props = {
   profile: Profile
   onChangeProfile: (profile: Profile) => void
   children?: ReactNode
+  styles: Styles
 } & React.HTMLAttributes<HTMLDivElement>
 
 export type ActionZone = {
@@ -47,6 +55,7 @@ export const PlayerView = ({
   onChangeProfile,
   onAction,
   children,
+  styles,
   ...attributes
 }: Props) => {
   const [state, setState] = useState<PlayerState>({
@@ -93,12 +102,18 @@ export const PlayerView = ({
 
         return { ...state, actionZones, position }
       })
-  }, [controller, openDialog, state, level, levelProgress])
+
+    return () => {
+      controller.onButton = undefined
+      controller.onPosition = undefined
+      controller.onMove = undefined
+    }
+  }, [openDialog, state.actionZones])
 
   return (
     <div {...attributes}>
       <div
-        className={styles.player}
+        className={styles.player.player}
         style={{
           color,
           top: `${state.position.y}px`,
@@ -114,11 +129,15 @@ export const PlayerView = ({
         controller={controller}
         options={profiles}
         style={{ borderColor: color }}
+        styles={styles}
         buildOptionNode={(option, selected) => (
           <div
-            className={clsx(styles.playerOption, selected && styles.selected)}
+            className={clsx(
+              styles.player.playerOption,
+              selected && styles.player.playerOptionSelected,
+            )}
           >
-            <img src={option.img} className={styles.playerOptionImg} />
+            <img src={option.img} />
             <div>{option.name}</div>
           </div>
         )}

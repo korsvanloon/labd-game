@@ -1,4 +1,4 @@
-.Browser {
+.root {
   position: fixed;
   right: 2vh;
   display: flex;
@@ -25,17 +25,17 @@
   border-radius: 2rem;
 }
 
-.Browser [data-action-zone='component-slot']::before {
+.root [data-action-zone='component-slot']::before {
   content: attr(data-component-id);
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
+  font-size: 1.5vw;
   text-align: center;
   text-indent: 0;
-  font-size: 1.5vw;
 }
 
-.Browser [data-action-zone='component-slot']:global(.hover) {
+.root [data-action-zone='component-slot']:global(.hover) {
   box-shadow: inset 0 0 2rem var(--player-color);
 }

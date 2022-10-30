@@ -13,7 +13,7 @@
       "",
       "export const ${TM_FILENAME/(\\..*)//}${1} = ({...attributes}: Props) => {",
       "  return (",
-      "      <div {...attributes} className={clsx(styles.${TM_FILENAME/(\\..*)//})}>",
+      "      <div {...attributes} className={clsx(styles.root)}>",
       "        test",
       "      </div>",
       "  )",

@@ -113,7 +113,7 @@ export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
       this.onButton?.({
         event,
         type: 'button',
-        value: event.key,
+        value: key,
         soloValue: toSoloValue(key),
         changed,
         sameButtonCount: this.sameButtonCount,

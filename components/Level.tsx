@@ -1,43 +1,59 @@
-import { existsSync } from 'fs'
-import { GetServerSideProps } from 'next'
+'use client'
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import { Apis } from '../../components/Apis'
-import { AppBar } from '../../components/AppBar'
-import { Browser } from '../../components/Browser'
-import { CodeEditor } from '../../components/CodeEditor'
-import { PlayerView } from '../../components/Player'
-import { Sprint } from '../../components/Sprint'
-import { TicketCard } from '../../components/Ticket'
-import { Profile } from '../../data/profiles'
-import { handleAction } from '../../game/action-handler'
-import { cheats } from '../../game/cheats'
-import {
-  createLevel,
-  Level,
-  readLevelFile,
-  readLevelHtml,
-} from '../../game/level'
+import { Profile } from '../data/profiles'
+import { handleAction } from '../game/action-handler'
+import { cheats } from '../game/cheats'
+import { Level } from '../game/level'
 import {
   getNextComponents,
   initialLevelProgress,
   LevelState,
   Ticket,
-} from '../../game/level-progress'
-import { useControllers } from '../../hooks/useControllers'
-import { useTimedCounter } from '../../hooks/useCountdown'
-import { shuffle } from '../../util/collection'
-import { randomSeed } from '../../util/random'
-import styles from './level.module.css'
+} from '../game/level-progress'
+import { useControllers } from '../hooks/useControllers'
+import { useTimedCounter } from '../hooks/useCountdown'
+import { shuffle } from '../util/collection'
+import { randomSeed } from '../util/random'
+import { Apis, Styles as ApisStyles } from './Apis'
+import { AppBar, Styles as AppBarStyles } from './AppBar'
+import { Browser, Styles as BrowserStyles } from './Browser'
+import { CodeEditor, Styles as CodeEditorStyles } from './CodeEditor'
+import { Styles as DialogSelectStyles } from './DialogSelect'
+import { PlayerView, Styles as PlayerStyles } from './Player'
+import { Styles as ScoreNumberStyles } from './ScoreNumber'
+import { Sprint, Styles as SprintStyles } from './Sprint'
+import { Styles as TicketStyles, TicketCard } from './Ticket'
+
+export type Styles = {
+  level: {
+    root?: string
+    container?: string
+    level?: string
+    playerContainer?: string
+    playerTicket?: string
+    playerTicketComponent?: string
+    bottomPanels?: string
+  }
+} & AppBarStyles &
+  ApisStyles &
+  BrowserStyles &
+  CodeEditorStyles &
+  DialogSelectStyles &
+  PlayerStyles &
+  ScoreNumberStyles &
+  TicketStyles &
+  SprintStyles
 
 type Props = {
   level: Level
+  styles: Styles
 }
 
 const seed = 2
 const random = randomSeed(seed)
 
-export default function LevelView({ level }: Props) {
+export default function LevelView({ level, styles }: Props) {
   const [controllers, addJoyCon, addMouseKeyboard] = useControllers()
   const [levelState, setLevelState] = useState<LevelState>(
     initialLevelProgress(level),
@@ -89,13 +105,7 @@ export default function LevelView({ level }: Props) {
   }, [])
 
   return (
-    <div className={styles.app}>
-      <Head>
-        {level.styles.map((style, i) => (
-          <link key={i} rel="stylesheet" href={style} />
-        ))}
-      </Head>
-
+    <div className={styles.level.root}>
       <AppBar
         level={level}
         levelState={levelState}
@@ -104,20 +114,26 @@ export default function LevelView({ level }: Props) {
         onAddJoyCon={addJoyCon}
         onAddMouseKeyboard={addMouseKeyboard}
         time={time}
+        styles={styles}
       />
 
-      <div className={styles.container}>
-        <Browser level={level} progress={levelState} className={styles.level} />
-        <Apis level={level} />
+      <div className={styles.level.container}>
+        <Browser
+          level={level}
+          progress={levelState}
+          className={styles.level.level}
+          styles={styles}
+        />
+        <Apis level={level} styles={styles} />
 
-        <div className={styles.bottomPanels}>
-          <CodeEditor levelProgress={levelState} />
+        <div className={styles.level.bottomPanels}>
+          <CodeEditor levelProgress={levelState} styles={styles} />
 
-          <Sprint tickets={levelState.tickets} />
+          <Sprint tickets={levelState.tickets} styles={styles} />
         </div>
       </div>
 
-      <div className={styles.playerContainer}>
+      <div className={styles.level.playerContainer}>
         {controllers.map((controller) => (
           <PlayerView
             key={controller.id}
@@ -130,6 +146,7 @@ export default function LevelView({ level }: Props) {
             level={level}
             levelProgress={levelState}
             onAction={handleAction(setLevelState, level, controller)}
+            styles={styles}
           >
             {levelState.tickets
               .filter((p) => p.player === controller.id)
@@ -138,8 +155,9 @@ export default function LevelView({ level }: Props) {
                   key={ticket.component.id}
                   ticket={ticket}
                   rotation={-0.4}
-                  className={styles.playerTicket}
-                  componentClassName={styles.playerTicketComponent}
+                  className={styles.level.playerTicket}
+                  componentClassName={styles.level.playerTicketComponent}
+                  styles={styles}
                 />
               ))}
           </PlayerView>
@@ -147,31 +165,4 @@ export default function LevelView({ level }: Props) {
       </div>
     </div>
   )
-}
-
-export const getServerSideProps: GetServerSideProps<Props> = async ({
-  query,
-}) => {
-  const levelName = query.level as string
-
-  try {
-    const levelFile = readLevelFile(levelName)
-
-    const htmlString = existsSync(`./data/sites/${levelName}.html`)
-      ? readLevelHtml(levelName)
-      : await fetch(levelFile.url).then((r) => r.text())
-
-    const level = createLevel(htmlString, levelFile)
-
-    return {
-      props: {
-        level,
-      },
-    }
-  } catch (e) {
-    console.error(e)
-    return {
-      notFound: true,
-    }
-  }
 }

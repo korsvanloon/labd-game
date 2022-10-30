@@ -1,4 +1,4 @@
-.Sprint {
+.root {
   position: relative;
   overflow: hidden;
   width: 50vw;
@@ -6,12 +6,12 @@
   color: black;
 }
 
-.Sprint > header {
+.root > header {
   font-size: 1.5rem;
   font-weight: bold;
 }
 
-.Sprint > div {
+.root > div {
   position: absolute;
   bottom: -1rem;
   left: 0.5rem;

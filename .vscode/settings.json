@@ -5,7 +5,10 @@
     "source.organizeImports": true
   },
   "css.validate": false,
-  "eslint.validate": ["typescript", "javascript"],
+  "eslint.validate": [
+    "typescript",
+    "javascript"
+  ],
   "eslint.packageManager": "pnpm",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.preferences.importModuleSpecifier": "relative",
@@ -32,7 +35,10 @@
   },
   "eslint.options": {
     "parserOptions": {
-      "project": ["${workspaceFolder}/tsconfig.json"]
+      "project": [
+        "${workspaceFolder}/tsconfig.json"
+      ]
     }
-  }
+  },
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

@@ -2,7 +2,14 @@ import clsx from 'clsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller } from '../controller/interface'
 import { accelerationDebounced } from '../controller/joy-con/events'
-import styles from './DialogSelect.module.css'
+
+export type Styles = {
+  dialogSelect: {
+    root?: string
+    selected?: string
+    option?: string
+  }
+}
 
 type Props<T> = {
   current: T
@@ -12,6 +19,7 @@ type Props<T> = {
   controller: Controller
   open?: boolean
   onSubmit: (profile: T) => void
+  styles: Styles
 }
 
 export function DialogSelect<T>({
@@ -22,6 +30,7 @@ export function DialogSelect<T>({
   controller,
   open,
   onSubmit,
+  styles,
   ...attributes
 }: Props<T> & Omit<React.HTMLAttributes<HTMLDialogElement>, 'onSubmit'>) {
   const ref = useRef<HTMLDialogElement>(null)
@@ -111,7 +120,7 @@ export function DialogSelect<T>({
     <dialog
       {...attributes}
       ref={ref}
-      className={clsx(styles.dialog, attributes.className)}
+      className={clsx(styles.dialogSelect.root, attributes.className)}
       style={{ marginLeft: `${controller.id * 25 + 5}%`, ...attributes.style }}
     >
       <form method="dialog">
@@ -119,8 +128,8 @@ export function DialogSelect<T>({
           <label
             key={i}
             className={clsx(
-              styles.option,
-              option === selected && styles.selected,
+              styles.dialogSelect.option,
+              option === selected && styles.dialogSelect.selected,
             )}
           >
             <input

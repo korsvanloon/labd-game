@@ -1,6 +1,9 @@
 import clsx from 'clsx'
 import { CSSProperties, HTMLAttributes, useEffect, useState } from 'react'
-import { ScoreNumber } from '../components/ScoreNumber'
+import {
+  ScoreNumber,
+  Styles as ScoreNumberStyles,
+} from '../components/ScoreNumber'
 import { Controller } from '../controller/interface'
 import { JoyCon } from '../controller/joy-con/joycon'
 import { MouseKeyboard } from '../controller/mouse-keyboard'
@@ -11,7 +14,16 @@ import { usePrevious } from '../hooks/usePrevious'
 import IconJoyCon from '../public/icon-joycon.svg'
 import IconKeyboard from '../public/icon-keyboard.svg'
 import { formatTime } from '../util/format'
-import styles from './AppBar.module.css'
+
+export type Styles = {
+  appBar: {
+    loseMessage?: string
+    winMessage?: string
+    stats?: string
+    connect?: string
+    root?: string
+  }
+} & ScoreNumberStyles
 
 type Props = {
   controllers: Controller[]
@@ -21,10 +33,12 @@ type Props = {
   levelState: LevelState
   level: Level
   time: number
+  styles: Styles
 } & HTMLAttributes<HTMLDivElement>
 
 export const AppBar = ({
   level,
+  styles,
   levelState,
   time,
   controllerProfiles,
@@ -50,9 +64,12 @@ export const AppBar = ({
   ).length
 
   return (
-    <header {...attributes} className={clsx(styles.AppBar)}>
+    <header
+      {...attributes}
+      className={clsx(styles.appBar.root, attributes.className)}
+    >
       <button
-        className={clsx(styles.connect)}
+        className={clsx(styles.appBar.connect)}
         type="button"
         onClick={onAddJoyCon}
         disabled={controllers.filter((c) => c instanceof JoyCon).length === 2}
@@ -61,7 +78,7 @@ export const AppBar = ({
         <IconJoyCon />
       </button>
       <button
-        className={clsx(styles.connect)}
+        className={clsx(styles.appBar.connect)}
         type="button"
         disabled={controllers.some((c) => c instanceof MouseKeyboard)}
         onClick={onAddMouseKeyboard}
@@ -69,7 +86,7 @@ export const AppBar = ({
         <span>Connect Mouse-Keyboard</span>
         <IconKeyboard />
       </button>
-      <div className={styles.stats}>
+      <div className={styles.appBar.stats}>
         <div>
           <span>Time left</span>
 
@@ -92,6 +109,7 @@ export const AppBar = ({
                     : 'var(--red)',
               } as CSSProperties
             }
+            styles={styles}
           >
             {score}
           </ScoreNumber>
@@ -110,12 +128,20 @@ export const AppBar = ({
         ))}
       </div>
       {levelState.finished === 'won' && (
-        <ScoreNumber changed className={styles.winMessage}>
+        <ScoreNumber
+          changed
+          className={styles.appBar.winMessage}
+          styles={styles}
+        >
           Completed
         </ScoreNumber>
       )}
       {levelState.finished === 'lost' && (
-        <ScoreNumber changed className={styles.loseMessage}>
+        <ScoreNumber
+          changed
+          className={styles.appBar.loseMessage}
+          styles={styles}
+        >
           Deadline failed!
         </ScoreNumber>
       )}

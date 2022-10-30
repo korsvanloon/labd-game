@@ -1,11 +1,11 @@
-.Apis {
+.root {
   position: relative;
   width: fit-content;
   padding: 1vw;
   font-size: 2rem;
 }
 
-.Apis > header {
+.root > header {
   background-color: hsl(0deg 0% 95% / 90%);
   font-weight: bold;
   text-align: center;
@@ -16,7 +16,7 @@
   background-color: hsl(0deg 0% 100% / 90%);
 }
 
-.Apis > div {
+.root > div {
   display: flex;
   gap: 1vw;
 }
