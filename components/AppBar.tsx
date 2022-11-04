@@ -47,7 +47,7 @@ export const AppBar = ({
   onAddMouseKeyboard,
   ...attributes
 }: Props) => {
-  const score = calculateScore(levelState)
+  const score = calculateScore(level, levelState, time)
 
   useEffect(() => {
     setScoreChanged(true)

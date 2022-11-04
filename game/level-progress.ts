@@ -21,13 +21,19 @@ export type CodingProgress = {
   indents: number[]
 }
 
-export const calculateScore = (levelProgress: LevelState) =>
+export const calculateScore = (
+  level: Level,
+  levelProgress: LevelState,
+  time: number,
+) =>
   sum(
     levelProgress.tickets
       .slice(1)
       .filter((ticket) => ticket.progress === 'deployed'),
     (p) => p.component.codeLines.length * (p.component.forEach?.length ?? 1),
-  ) - levelProgress.bugs
+  ) -
+  levelProgress.bugs +
+  (levelProgress.finished === 'won' ? level.totalTime - time : 0)
 
 export const initialLevelProgress = (level: Level): LevelState => ({
   tickets: [

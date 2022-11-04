@@ -52,7 +52,7 @@ export function deploy(
     ...shuffle(
       [
         ...existingSpecified,
-        ...getNextComponents(level.rootComponent, state.tickets).map<Ticket>(
+        ...getNextComponents(ticket.component, state.tickets).map<Ticket>(
           (component) => ({
             component,
             progress: 'specified',

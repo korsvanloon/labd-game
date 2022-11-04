@@ -19,7 +19,7 @@ export default function Web({ levels }: Props) {
           {levels.map((level) => (
             <li key={level}>
               <Link href={`/level/${level}`}>
-                <a>{capitalCase(level.replace(/^\d{2}-/, ''))}</a>
+                {capitalCase(level.replace(/^\d{2}-/, ''))}
               </Link>
             </li>
           ))}

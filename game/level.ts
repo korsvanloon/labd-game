@@ -12,7 +12,6 @@ export type LevelFile = {
 
 export interface Level {
   url: string
-  styles: string[]
   rootComponent: Component
   totalComponents: number
   apis: Api[]
@@ -117,7 +116,7 @@ export const createLevel = (
 ): Level => {
   const origin = new URL(levelFile.url).origin
 
-  const dom = domParser.parse(pageHtmlString, {})
+  const dom = getDom(pageHtmlString)
 
   dom.querySelectorAll('script,noscript,meta').forEach((e) => e.remove())
   dom
@@ -130,7 +129,6 @@ export const createLevel = (
     .forEach((e) => e.setAttribute('srcset', origin + e.getAttribute('srcset')))
 
   const rootDom = dom.querySelector(levelFile.rootComponent.selector)!
-  dom.querySelectorAll('style').forEach((style) => rootDom.appendChild(style))
 
   enhanceComponent(levelFile.rootComponent, rootDom, '0', levelFile.apis)
 
@@ -140,23 +138,24 @@ export const createLevel = (
   return {
     url: levelFile.url,
     apis: levelFile.apis,
-    styles: getStyles(dom, origin),
     rootComponent: levelFile.rootComponent,
     totalComponents,
     totalTime: totalComponents * 60,
   }
 }
 
-export const getStyles = (dom: HTMLElement, origin: string) =>
+export const getDom = (htmlString: string) => domParser.parse(htmlString)
+
+export const getStyleLinkUrls = (dom: HTMLElement, origin: string) =>
   [
     ...dom
       .querySelectorAll('link[rel=stylesheet]')
       .filter((link) => !link.getAttribute('media'))
       .map((link) => link.getAttribute('href'))
       .map((href) => (href?.startsWith('http') ? href : `${origin}${href}`)),
-    ...dom
-      .querySelectorAll('style[data-href]')
-      .map((link) => link.getAttribute('data-href')),
+    // ...dom
+    //   .querySelectorAll('style[data-href]')
+    //   .map((link) => link.getAttribute('data-href')),
   ].filter(isValue)
 
 export const enhanceComponent = (

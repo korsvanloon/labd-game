@@ -20,7 +20,7 @@ export const Browser = ({ level, progress, styles, ...attributes }: Props) => {
   return (
     <div
       {...attributes}
-      className={clsx(styles.browser.root, attributes.className)}
+      className={clsx(styles.browser.root, attributes.className, 'browser')}
     >
       <div className={styles.browser.header}>{level.url}</div>
       <div
