@@ -4,20 +4,27 @@
   gap: 1rem;
   padding: 2vw;
   height: 100%;
+  justify-content: center;
 }
 
-.root > div {
+.profile {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 8vw;
   border: 2px solid var(--player-color, black);
+  background: none;
+  padding: 0;
 }
-.root > div:global(.hover) {
+.profile > div {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+}
+.profile:global(.hover) {
   box-shadow: 0 0 0.5rem var(--player-color, black);
 }
 
-.root img {
+.profile img {
   display: block;
   width: 100%;
   aspect-ratio: 1/1;
@@ -25,7 +32,7 @@
   object-position: top center;
 }
 
-.root span {
+.profile span {
   position: absolute;
   bottom: 0;
   display: block;

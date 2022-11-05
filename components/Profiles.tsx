@@ -1,5 +1,6 @@
 'use client'
 import clsx from 'clsx'
+import Image from 'next/image'
 import { HTMLAttributes, useEffect, useRef } from 'react'
 import { profiles } from '../data/profiles'
 import { useProfiles } from '../hooks/useProfiles'
@@ -7,6 +8,7 @@ import { PlayerEvent, PlayerStyles } from './Player'
 
 export type Styles = {
   profiles: {
+    profile?: string
     root?: string
   }
 } & PlayerStyles
@@ -42,14 +44,16 @@ export const Profiles = ({ styles, ...attributes }: Props) => {
       data-action-zone="vertical-scroll"
     >
       {profiles.map((p) => (
-        <div
+        <button
           key={p.name}
+          className={styles.profiles.profile}
           data-action-zone="selectable"
-          className={clsx(userProfiles.findIndex((up) => p.name === up?.name))}
         >
-          <img src={p.img} />
+          <div>
+            <Image src={p.img} alt={p.name} fill sizes="8rem" />
+          </div>
           <span>{p.name.split(' ')[0]}</span>
-        </div>
+        </button>
       ))}
     </div>
   )

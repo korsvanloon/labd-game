@@ -4,6 +4,9 @@ const config = {
     appDir: true,
     swcMinify: true,
   },
+  images: {
+    domains: ['labdigital.nl'],
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

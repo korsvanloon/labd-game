@@ -1,33 +1,3 @@
-.root {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 4rem;
-  background-color: hsl(0deg 0% 100% / 80%);
-  color: black;
-  font-size: 4rem;
-  gap: 2rem;
-  transform: translateX(-100%);
-  transition: all 0.3s ease;
-  z-index: 1;
-  border: 0.5rem double var(--turqoise);
-}
-
-.open {
-  transform: translateX(0);
-  box-shadow: -1rem 2rem 4rem var(--turqoise);
-}
-
-.root a {
-  color: inherit;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.root a:hover,.root a:focus {
-  color: var(--pink);
-}
-
 .toggle {
   position: fixed;
   top: 2.5rem;
@@ -41,4 +11,60 @@
   color: transparent;
   cursor: pointer;
   z-index: 1;
+}
+
+.root {
+  composes: panel from './panel.css';
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: black;
+  font-size: 4rem;
+  transform: translateX(-100%);
+  transition: all 0.3s ease;
+  z-index: 1;
+  border-left: none;
+  width: 48rem;
+}
+
+.divider {
+  composes: panel from './panel.css';
+  width: 50%;
+  height: 1rem;
+  display: block;
+}
+
+.open {
+  transform: translateX(0);
+}
+
+.root a {
+  color: inherit;
+  font-weight: bold;
+  text-decoration: none;
+  position: relative;
+  padding: 2rem 4rem;
+}
+
+.root a:global(.hover),.root a:focus {
+  color: var(--player-color);
+}
+.root a:global(.hover)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+  background-color: var(--player-color);
+}
+
+
+
+
+.players {
+  padding: 2rem 4rem;
+  font-size: 2rem;
 }

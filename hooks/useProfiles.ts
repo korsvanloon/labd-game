@@ -5,9 +5,11 @@ const PROFILES = 'profiles'
 
 export const useProfiles = () => {
   const [state, setState] = useState<(Profile | undefined)[]>(
-    getData<(string | null)[]>(PROFILES)?.map((name) =>
-      profiles.find((p) => p.name === name),
-    ) ?? [],
+    (window
+      ? getData<(string | null)[]>(PROFILES)?.map((name) =>
+          profiles.find((p) => p.name === name),
+        )
+      : []) ?? [],
   )
 
   useWindowEvent(PROFILES, () => {

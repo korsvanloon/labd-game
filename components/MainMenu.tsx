@@ -14,6 +14,7 @@ export type Styles = {
     root?: string
     open?: string
     toggle?: string
+    divider?: string
     players?: string
   }
 } & ControllerButtonsStyles
@@ -55,7 +56,7 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
         <Link href={`/player`}>Players</Link>
         <Link href={`/level`}>Levels</Link>
         <Link href={`/help`}>Help</Link>
-        <hr />
+        <hr className={styles.mainMenu.divider} />
         <ControllerButtons styles={styles} />
         <div className={styles.mainMenu.players}>
           {controllers.map((controller) => (

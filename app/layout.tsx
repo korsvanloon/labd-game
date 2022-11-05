@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MainMenu } from '../components/MainMenu'
 import { Players } from '../components/Players'
 import buttonStyles from '../styles/Button.module.css'
+import controllerButtonsStyles from '../styles/ControllerButtons.module.css'
 import '../styles/global.css'
 import mainMenuStyles from '../styles/MainMenu.module.css'
 import playerStyles from '../styles/Player.module.css'
@@ -34,7 +35,7 @@ export default function RootLayout({
               styles={{
                 mainMenu: mainMenuStyles,
                 button: buttonStyles,
-                controller: {},
+                controller: controllerButtonsStyles,
               }}
             />
             <main>{children}</main>

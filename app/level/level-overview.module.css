@@ -7,20 +7,18 @@
 }
 
 .linkList {
+  composes: panel from '../../styles/panel.css';
   height: fit-content;
   padding: 0;
   /* border-bottom: 2px solid hsl(0deg 0% 80%); */
   margin: 0;
   counter-set: level;
-  box-shadow: 0 0 1rem var(--turqoise);
-  border: 0.5rem double var(--turqoise);
 }
 
 .linkList li {
   position: relative;
   overflow: hidden;
   border: 2px solid hsl(0deg 0% 80%);
-  background-color: hsl(0deg 0% 100% / 80%);
   list-style: none;
   counter-increment: level;
 }
@@ -52,8 +50,8 @@
   display: flex;
   align-items: center;
   padding: 3vw 2vw;
-  color: black;
   font-size: 1.5vw;
+  color: inherit;
   font-weight: 700;
   letter-spacing: -.05em;
   text-decoration: none;

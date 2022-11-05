@@ -13,6 +13,10 @@ body {
   margin: 0;
   font-family: 'TT Commons Pro Exp', 'Helvetica Neue', arial, sans-serif;
   font-size: 1.25rem;
+  background-color: black;
+}
+.mouse-keyboard-controller {
+  cursor: none;
 }
 
 :root {

@@ -7,12 +7,10 @@
 }
 
 .controls {
+  composes: panel from '../../styles/panel.css';
   position: relative;
   padding: 3vw 4vw;
-  background-color: hsl(0deg 0% 100% / 80%);
   font-size: 1.5vw;
-  box-shadow: 0 0 2rem var(--turqoise);
-  border: 0.5rem double var(--turqoise);
 }
 
 .controls h2 {

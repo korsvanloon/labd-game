@@ -59,6 +59,7 @@ export const useControllers = () => {
   const disconnectMouseKeyboard = () => {
     controllers.find((c) => c instanceof MouseKeyboard)?.close()
     window.localStorage.removeItem(MOUSE_KEYBOARD)
+    document.body.classList.remove('mouse-keyboard-controller')
     window.dispatchEvent(new CustomEvent(MOUSE_KEYBOARD + '-remove'))
   }
 
@@ -67,6 +68,7 @@ export const useControllers = () => {
       return
     }
     window.localStorage.setItem(MOUSE_KEYBOARD, 'true')
+    document.body.classList.add('mouse-keyboard-controller')
     window.dispatchEvent(new CustomEvent(MOUSE_KEYBOARD + '-add'))
   }
 

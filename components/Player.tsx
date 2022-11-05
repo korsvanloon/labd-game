@@ -16,7 +16,6 @@ export type PlayerStyles = {
 
 type Props = {
   controller: Controller
-  onAction?: (event: ButtonEvent, actionZones: ActionZone[]) => void
   profile?: Profile
   children?: ReactNode
   styles: PlayerStyles
@@ -35,7 +34,6 @@ type ActionZoneType =
   | 'component-slot'
   | 'vertical-scroll'
   | 'horizontal-scroll'
-  | 'selectable'
 
 type PlayerState = {
   position?: Point2
@@ -51,7 +49,6 @@ export type PlayerEvent = {
 export const PlayerView = ({
   controller,
   profile,
-  onAction,
   children,
   styles,
   ...attributes
@@ -67,7 +64,9 @@ export const PlayerView = ({
       setState((s) => ({ ...s, position }))
 
     controller.onButton = (event) => {
-      state.actionZones[0]?.element.dispatchEvent(
+      const actionZone = state.actionZones[0]
+      if (!actionZone) return
+      actionZone.element.dispatchEvent(
         new CustomEvent('player-button', {
           detail: {
             controllerId: controller.id,
@@ -75,7 +74,13 @@ export const PlayerView = ({
           },
         }),
       )
-      onAction?.(event, state.actionZones)
+      if (
+        (actionZone.element instanceof HTMLAnchorElement ||
+          actionZone.element instanceof HTMLButtonElement) &&
+        event.soloValue === 'right'
+      ) {
+        actionZone.element.click()
+      }
     }
 
     controller.onMove = ({ move }) =>
@@ -125,7 +130,12 @@ export const playerColor = ['red', 'blue', 'green', 'yellow']
 
 const getActionZoneElements = (position: Point2): ActionZone[] =>
   (document.elementsFromPoint(position.x, position.y) as HTMLElement[])
-    .filter((e) => e.dataset.actionZone)
+    .filter(
+      (e) =>
+        e.dataset.actionZone ||
+        e instanceof HTMLAnchorElement ||
+        e instanceof HTMLButtonElement,
+    )
     .map((element) => ({
       element,
       type: element?.dataset.actionZone as ActionZoneType,
@@ -147,10 +157,19 @@ const removeExistingHover = (color: string) => {
 }
 
 const addHover = (actionZone: ActionZone, color: string) => {
+  if (
+    actionZone.element instanceof HTMLButtonElement ||
+    actionZone.element instanceof HTMLAnchorElement
+  ) {
+    actionZone.element.classList.add('hover', color)
+    actionZone.element.style.setProperty('--player-color', color)
+  }
   switch (actionZone.type) {
+    case 'api':
     case 'component-slot': {
       actionZone.element.classList.add('hover', color)
       actionZone.element.style.setProperty('--player-color', color)
+      break
     }
     case 'ticket': {
       actionZone.element.classList.add('hover', color)
@@ -160,16 +179,6 @@ const addHover = (actionZone: ActionZone, color: string) => {
     }
     case 'commit-button': {
       actionZone.element.classList.add('hover', color)
-      break
-    }
-    case 'api': {
-      actionZone.element.classList.add('hover', color)
-      actionZone.element.style.setProperty('--player-color', color)
-      break
-    }
-    case 'selectable': {
-      actionZone.element.classList.add('hover', color)
-      actionZone.element.style.setProperty('--player-color', color)
       break
     }
   }
