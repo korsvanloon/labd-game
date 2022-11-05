@@ -2,25 +2,7 @@
 .root {
   display: flex;
   flex-direction: column;
-  height: 100vh;
 
-}
-
-.root::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/images/background-purple.png');
-  background-position: bottom;
-  background-size: cover;
-  opacity: 0.2;
-}
-
-.root [data-action-zone='vertical-scroll'] {
-  overflow-y: scroll;
 }
 
 .root [data-action-zone='component-slot'] {
@@ -46,11 +28,15 @@
 }
 
 .container {
-  position: relative;
+  position: fixed;
   display: flex;
-  flex: 1;
+  flex: 1 1;
   flex-direction: column;
   justify-content: space-between;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  height: calc(100% - 10rem);
 }
 
 .bottomPanels {

@@ -1,0 +1,37 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.controls {
+  position: relative;
+  padding: 3vw 4vw;
+  background-color: hsl(0deg 0% 100% / 80%);
+  font-size: 1.5vw;
+  box-shadow: 0 0 2rem var(--turqoise);
+  border: 0.5rem double var(--turqoise);
+}
+
+.controls h2 {
+  text-align: center;
+}
+
+.controls dl  {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1vw;
+}
+
+.controls dl > * {
+  flex: 1 1 20%;
+  padding: 0.5vw;
+  margin: 0;
+}
+
+.controls dt {
+  font-weight: bold;
+  text-align: right;
+}

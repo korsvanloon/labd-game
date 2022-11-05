@@ -43,6 +43,9 @@ export interface Controller<
 > {
   id: number
   get deviceName(): string
+  get initialPosition(): Point2
+  open(): Promise<void>
+  close(): Promise<void>
   buzz(): void
   onButton?: (event: B) => void
   onMove?: (event: J) => void

@@ -30,8 +30,6 @@ const SUB_COMMAND = {
 const RUMBLE_HEADER = [0x00, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40]
 
 export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
-  ledstate: number = 0
-
   onButton?: (event: ButtonEvent) => void
   onMove?: (event: JoyStickEvent) => void
   onAccelerationChange?: (event: AccelerationEvent) => void
@@ -41,10 +39,13 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
   get deviceName(): string {
     return this.device.productName
   }
+  get initialPosition(): Point2 {
+    return { x: 0, y: 0 }
+  }
   buzz(): void {
     this.rumble(0, 0, 0.9)
   }
-
+  private ledState: number = 0
   private lastPacket?: ReturnType<typeof createPacket>
   private lastEulerAngles: Angles = {
     alpha: 0,
@@ -65,6 +66,11 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
       await this.device.open()
     }
     this.device.addEventListener('inputreport', this._onInputReport.bind(this))
+  }
+  async close() {
+    if (this.device.opened) {
+      await this.device.close()
+    }
   }
 
   private sendSubCommand(subCommand: number[]) {
@@ -220,7 +226,7 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
    * @param {int} state 0...15 (or 0b0000...0b1111 )
    */
   setLEDState(state: number) {
-    this.ledstate = state
+    this.ledState = state
     return this.sendSubCommand([0x30, state])
   }
 
@@ -230,7 +236,7 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
    * @param position 0...3
    */
   setLED(position: number) {
-    return this.setLEDState(this.ledstate | (1 << position))
+    return this.setLEDState(this.ledState | (1 << position))
   }
 
   /**
@@ -240,7 +246,7 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
    */
   resetLED(position: number) {
     return this.setLEDState(
-      this.ledstate & ~((1 << position) | (1 << (4 + position))),
+      this.ledState & ~((1 << position) | (1 << (4 + position))),
     )
   }
 
@@ -250,9 +256,9 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
    * @param position 0..3
    */
   async blinkLED(position: number) {
-    this.ledstate &= ~(1 << position)
-    this.ledstate |= 1 << (4 + position)
-    await this.setLEDState(this.ledstate)
+    this.ledState &= ~(1 << position)
+    this.ledState |= 1 << (4 + position)
+    await this.setLEDState(this.ledState)
   }
 
   /**

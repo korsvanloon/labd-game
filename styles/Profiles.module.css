@@ -1,0 +1,38 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2vw;
+  height: 100%;
+}
+
+.root > div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 8vw;
+  border: 2px solid var(--player-color, black);
+}
+.root > div:global(.hover) {
+  box-shadow: 0 0 0.5rem var(--player-color, black);
+}
+
+.root img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.root span {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  width: 100%;
+
+  /* height: 3vw; */
+  padding: 1rem;
+  background-color: hsl(0deg 0% 100% / 80%);
+  text-align: center;
+}

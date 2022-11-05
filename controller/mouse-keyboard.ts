@@ -5,7 +5,7 @@ import { Point2 } from './joy-con/madgwick'
 type BaseMouseKeyboardEvent = {
   event: Event
 }
-export type MouseKeyboardEvent = ButtonEvent | MouseEvent
+export type MouseKeyboardEvent = ButtonEvent | MoveEvent
 
 export type ButtonEvent = BaseMouseKeyboardEvent & {
   type: 'button'
@@ -23,7 +23,7 @@ export type ButtonEvent = BaseMouseKeyboardEvent & {
   sameButtonCount: number
 }
 
-export type MouseEvent = BaseMouseKeyboardEvent & {
+export type MoveEvent = BaseMouseKeyboardEvent & {
   type: 'move'
   direction?:
     | 'left'
@@ -38,11 +38,11 @@ export type MouseEvent = BaseMouseKeyboardEvent & {
   sameDirectionCount: number
 }
 
-export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
+export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
   ledstate: number = 0
 
   onButton?: (event: ButtonEvent) => void
-  onMove?: (event: MouseEvent) => void
+  onMove?: (event: MoveEvent) => void
   onPosition?: (event: PositionEvent) => void
 
   private sameButtonCount: number = 0
@@ -52,11 +52,17 @@ export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
     direction?: Direction
     position: Point2
   } = {
-    position: { x: 0, y: 0 },
+    position: this.initialPosition,
   }
   get deviceName(): string {
     return 'Mouse-Keyboard'
   }
+
+  get initialPosition(): Point2 {
+    return { x: 0, y: 0 }
+  }
+
+  constructor(public id: number, public window: Window) {}
 
   buzz(): void {
     const snd = new Audio(dataUri)
@@ -65,95 +71,107 @@ export class MouseKeyboard implements Controller<ButtonEvent, MouseEvent> {
     console.error('bug!')
   }
 
-  constructor(public id: number, public window: Window) {}
-
   async open() {
-    this.window.addEventListener('contextmenu', (event) => {
-      event.preventDefault()
-      this.onButton?.({
-        event,
-        type: 'button',
-        value: 'mouse',
-        soloValue: 'stick',
-        changed: true,
-        sameButtonCount: 0,
-      })
-    })
-    this.window.addEventListener('click', (event) => {
-      event.preventDefault()
-      this.onButton?.({
-        event,
-        type: 'button',
-        value: 'right',
-        soloValue: 'right',
-        changed: true,
-        sameButtonCount: 0,
-      })
-    })
+    this.window.addEventListener('contextmenu', this.onContextMenu)
+    this.window.addEventListener('click', this.onClick)
+    this.window.addEventListener('keydown', this.onKeydown)
+    this.window.addEventListener('keyup', this.onKeyup)
+    this.window.document.addEventListener('mouseenter', this.onMouseEnter)
+    this.window.addEventListener('mousemove', this.onMouseMove)
 
-    this.window.addEventListener('keydown', (event) => {
-      const changed = this.lastValues.key !== event.key
-      this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
-      this.lastValues.key = event.key
-      this.onButton?.({
-        event,
-        type: 'button',
-        value: event.key,
-        soloValue: toSoloValue(event.key),
-        changed,
-        sameButtonCount: this.sameButtonCount,
-      })
+    this.onPosition?.({
+      type: 'position',
+      position: this.initialPosition,
     })
+  }
+  async close() {
+    const x = () => {}
+    this.window.addEventListener('contextmenu', this.onContextMenu)
+    this.window.addEventListener('click', this.onClick)
+    this.window.addEventListener('keydown', this.onKeydown)
+    this.window.addEventListener('keyup', this.onKeyup)
+    this.window.addEventListener('mousemove', this.onMouseMove)
+    this.window.document.addEventListener('mouseenter', this.onMouseEnter)
+  }
 
-    this.window.addEventListener('keyup', (event) => {
-      const key = undefined
-      const changed = this.lastValues.key !== key
-      this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
-      this.lastValues.key = key
-      this.onButton?.({
-        event,
-        type: 'button',
-        value: key,
-        soloValue: toSoloValue(key),
-        changed,
-        sameButtonCount: this.sameButtonCount,
-      })
+  private onContextMenu = (event: MouseEvent) => {
+    event.preventDefault()
+    this.onButton?.({
+      event,
+      type: 'button',
+      value: 'mouse',
+      soloValue: 'stick',
+      changed: true,
+      sameButtonCount: 0,
     })
-
-    this.window.document.addEventListener('mouseenter', (event) => {
-      const position = { x: event.x + 5, y: event.y + 5 }
-
-      this.onPosition?.({
-        type: 'position',
-        position,
-      })
-      this.lastValues.position = position
+  }
+  private onClick = (event: MouseEvent) => {
+    event.preventDefault()
+    this.onButton?.({
+      event,
+      type: 'button',
+      value: 'right',
+      soloValue: 'right',
+      changed: true,
+      sameButtonCount: 0,
     })
+  }
+  private onMouseEnter = (event: MouseEvent) => {
+    const position = { x: event.x + 5, y: event.y + 5 }
 
-    this.window.addEventListener('mousemove', (event) => {
-      const position = { x: event.x + 5, y: event.y + 5 }
-      const value = {
-        x: position.x - this.lastValues.position.x,
-        y: position.y - this.lastValues.position.y,
-      }
-      const direction = getDirection(value)
-      this.sameDirectionCount =
-        this.lastValues.direction === direction
-          ? this.sameDirectionCount + 1
-          : 0
-      this.onPosition?.({
-        type: 'position',
-        position,
-      })
-      this.onMove?.({
-        event,
-        type: 'move',
-        move: value,
-        direction,
-        sameDirectionCount: this.sameDirectionCount,
-      })
-      this.lastValues.direction = direction
-      this.lastValues.position = position
+    this.onPosition?.({
+      type: 'position',
+      position,
+    })
+    this.lastValues.position = position
+  }
+  private onMouseMove = (event: MouseEvent) => {
+    const position = { x: event.x + 5, y: event.y + 10 }
+    const value = {
+      x: position.x - this.lastValues.position.x,
+      y: position.y - this.lastValues.position.y,
+    }
+    const direction = getDirection(value)
+    this.sameDirectionCount =
+      this.lastValues.direction === direction ? this.sameDirectionCount + 1 : 0
+    this.onPosition?.({
+      type: 'position',
+      position,
+    })
+    this.onMove?.({
+      event,
+      type: 'move',
+      move: value,
+      direction,
+      sameDirectionCount: this.sameDirectionCount,
+    })
+    this.lastValues.direction = direction
+    this.lastValues.position = position
+  }
+  private onKeydown = (event: KeyboardEvent) => {
+    const changed = this.lastValues.key !== event.key
+    this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
+    this.lastValues.key = event.key
+    const soloValue = toSoloValue(event.key)
+    if (!soloValue) return
+    this.onButton?.({
+      event,
+      type: 'button',
+      value: event.key,
+      soloValue,
+      changed,
+      sameButtonCount: this.sameButtonCount,
+    })
+  }
+  private onKeyup = (event: KeyboardEvent) => {
+    const changed = Boolean(this.lastValues.key)
+    this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
+    this.lastValues.key = undefined
+    this.onButton?.({
+      event,
+      type: 'button',
+      changed,
+      sameButtonCount: this.sameButtonCount,
     })
   }
 }
@@ -185,10 +203,8 @@ const toSoloValue = (value?: string): ButtonEvent['soloValue'] => {
     case 'ArrowRight':
     case 'd':
       return 'right'
-    case 'Space':
     case 'q':
       return 'bumperLeft'
-    case 'Shift':
     case 'e':
       return 'bumperRight'
     case 'Escape':

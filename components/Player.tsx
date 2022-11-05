@@ -1,31 +1,25 @@
-import clsx from 'clsx'
+'use client'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { ButtonEvent, Controller } from '../controller/interface'
 import { JoyCon } from '../controller/joy-con/joycon'
 import { Point2 } from '../controller/joy-con/madgwick'
-import { Profile, profiles } from '../data/profiles'
-import { Level } from '../game/level'
-import { LevelState } from '../game/level-progress'
+import { Profile } from '../data/profiles'
 import { clamp } from '../util/math'
-import { DialogSelect, Styles as DialogStyles } from './DialogSelect'
 
-export type Styles = {
+export type PlayerStyles = {
   player: {
     player?: string
     playerOption?: string
     playerOptionSelected?: string
   }
-} & DialogStyles
+}
 
 type Props = {
   controller: Controller
-  level: Level
-  levelProgress: LevelState
   onAction?: (event: ButtonEvent, actionZones: ActionZone[]) => void
-  profile: Profile
-  onChangeProfile: (profile: Profile) => void
+  profile?: Profile
   children?: ReactNode
-  styles: Styles
+  styles: PlayerStyles
 } & React.HTMLAttributes<HTMLDivElement>
 
 export type ActionZone = {
@@ -41,18 +35,22 @@ type ActionZoneType =
   | 'component-slot'
   | 'vertical-scroll'
   | 'horizontal-scroll'
+  | 'selectable'
 
 type PlayerState = {
-  position: Point2
+  position?: Point2
+  actionZones: ActionZone[]
+}
+
+export type PlayerEvent = {
+  controllerId: number
+  event: ButtonEvent
   actionZones: ActionZone[]
 }
 
 export const PlayerView = ({
   controller,
-  level,
-  levelProgress,
-  profile = profiles[controller.id],
-  onChangeProfile,
+  profile,
   onAction,
   children,
   styles,
@@ -60,36 +58,31 @@ export const PlayerView = ({
 }: Props) => {
   const [state, setState] = useState<PlayerState>({
     actionZones: [],
-    position: {
-      x: 100 + 100 * controller.id,
-      y: 0,
-    },
+    position: controller.initialPosition,
   })
-  const [openDialog, setOpenDialog] = useState(false)
-
   const color = playerColor[controller.id]
 
   useEffect(() => {
-    if (openDialog) return
-
     controller.onPosition = ({ position }) =>
       setState((s) => ({ ...s, position }))
 
     controller.onButton = (event) => {
-      switch (event.soloValue) {
-        case 'special': {
-          if (!event.changed) return
-          setOpenDialog((b) => !b)
-          break
-        }
-        default: {
-          onAction?.(event, state.actionZones)
-        }
-      }
+      state.actionZones[0]?.element.dispatchEvent(
+        new CustomEvent('player-button', {
+          detail: {
+            controllerId: controller.id,
+            event,
+          },
+        }),
+      )
+      onAction?.(event, state.actionZones)
     }
 
     controller.onMove = ({ move }) =>
       setState((state) => {
+        if (!state.position) {
+          return state
+        }
         const speed = controller instanceof JoyCon ? 8 : 1
 
         const position = getNewPosition(state.position, move, speed)
@@ -108,7 +101,7 @@ export const PlayerView = ({
       controller.onPosition = undefined
       controller.onMove = undefined
     }
-  }, [openDialog, state.actionZones])
+  }, [state.actionZones])
 
   return (
     <div {...attributes}>
@@ -116,37 +109,14 @@ export const PlayerView = ({
         className={styles.player.player}
         style={{
           color,
-          top: `${state.position.y}px`,
-          left: `${state.position.x}px`,
-          backgroundImage: `url(${profile.img}`,
+          visibility: state.position ? 'visible' : 'hidden',
+          top: `${state.position?.y}px`,
+          left: `${state.position?.x}px`,
+          backgroundImage: profile ? `url(${profile.img}` : undefined,
         }}
       >
         {children}
       </div>
-      <DialogSelect
-        current={profile}
-        open={openDialog}
-        controller={controller}
-        options={profiles}
-        style={{ borderColor: color }}
-        styles={styles}
-        buildOptionNode={(option, selected) => (
-          <div
-            className={clsx(
-              styles.player.playerOption,
-              selected && styles.player.playerOptionSelected,
-            )}
-          >
-            <img src={option.img} />
-            <div>{option.name}</div>
-          </div>
-        )}
-        getOptionValue={(option) => option.name}
-        onSubmit={(profile) => {
-          onChangeProfile(profile)
-          setOpenDialog(false)
-        }}
-      />
     </div>
   )
 }
@@ -193,6 +163,11 @@ const addHover = (actionZone: ActionZone, color: string) => {
       break
     }
     case 'api': {
+      actionZone.element.classList.add('hover', color)
+      actionZone.element.style.setProperty('--player-color', color)
+      break
+    }
+    case 'selectable': {
       actionZone.element.classList.add('hover', color)
       actionZone.element.style.setProperty('--player-color', color)
       break

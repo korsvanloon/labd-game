@@ -1,3 +1,4 @@
+'use client'
 import clsx from 'clsx'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Controller } from '../controller/interface'
@@ -12,7 +13,7 @@ export type Styles = {
 }
 
 type Props<T> = {
-  current: T
+  current?: T
   options: T[]
   getOptionValue: (o: T) => string
   buildOptionNode: (o: T, selected: boolean) => React.ReactNode
@@ -55,9 +56,11 @@ export function DialogSelect<T>({
     if (open) {
       if (!ref.current.open) {
         ref.current.showModal()
-        ref.current
-          ?.querySelector(`input[value="${getOptionValue(selected)}"]`)
-          ?.scrollIntoView({ block: 'center' })
+        if (selected) {
+          ref.current
+            ?.querySelector(`input[value="${getOptionValue(selected)}"]`)
+            ?.scrollIntoView({ block: 'center' })
+        }
       }
 
       controller.onMove = ({ direction, sameDirectionCount }) => {
@@ -108,7 +111,9 @@ export function DialogSelect<T>({
     if (!ref.current) return
 
     const handleClose = (_event: Event) => {
-      onSubmit(selected)
+      if (selected) {
+        onSubmit(selected)
+      }
     }
 
     ref.current.addEventListener('close', handleClose)

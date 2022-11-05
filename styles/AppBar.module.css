@@ -1,10 +1,18 @@
 .root {
-  position: relative;
+  position: fixed;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-end;
+  top: 0;
+  right: 0;
   align-items: center;
   padding: 1rem;
-  background-color: hsl(0deg 0% 100% / 70%);
+}
+
+.stats {
+  display: flex;
+  gap: 3rem;
+  font-size: 2rem;
+  padding: 2rem;
 }
 
 .stats > div {

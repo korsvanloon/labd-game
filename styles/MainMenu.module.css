@@ -1,0 +1,44 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 4rem;
+  background-color: hsl(0deg 0% 100% / 80%);
+  color: black;
+  font-size: 4rem;
+  gap: 2rem;
+  transform: translateX(-100%);
+  transition: all 0.3s ease;
+  z-index: 1;
+  border: 0.5rem double var(--turqoise);
+}
+
+.open {
+  transform: translateX(0);
+  box-shadow: -1rem 2rem 4rem var(--turqoise);
+}
+
+.root a {
+  color: inherit;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.root a:hover,.root a:focus {
+  color: var(--pink);
+}
+
+.toggle {
+  position: fixed;
+  top: 2.5rem;
+  left: 2.5rem;
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: none;
+  background: url('/icons/icon-menu.svg') no-repeat center center;
+  color: transparent;
+  cursor: pointer;
+  z-index: 1;
+}

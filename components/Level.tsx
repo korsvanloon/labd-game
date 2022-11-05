@@ -1,5 +1,4 @@
 'use client'
-import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { Profile } from '../data/profiles'
 import { handleAction } from '../game/action-handler'
@@ -20,7 +19,7 @@ import { AppBar, Styles as AppBarStyles } from './AppBar'
 import { Browser, Styles as BrowserStyles } from './Browser'
 import { CodeEditor, Styles as CodeEditorStyles } from './CodeEditor'
 import { Styles as DialogSelectStyles } from './DialogSelect'
-import { PlayerView, Styles as PlayerStyles } from './Player'
+import { PlayerStyles, PlayerView } from './Player'
 import { Styles as ScoreNumberStyles } from './ScoreNumber'
 import { Sprint, Styles as SprintStyles } from './Sprint'
 import { Styles as TicketStyles, TicketCard } from './Ticket'
@@ -54,11 +53,10 @@ const seed = 2
 const random = randomSeed(seed)
 
 export default function LevelView({ level, styles }: Props) {
-  const [controllers, addJoyCon, addMouseKeyboard] = useControllers()
+  const { controllers, connectJoyCon, connectMouseKeyboard } = useControllers()
   const [levelState, setLevelState] = useState<LevelState>(
     initialLevelProgress(level),
   )
-  const [controllerProfiles, setProfiles] = useState<Profile[]>([])
 
   const time = useTimedCounter(level.totalComponents * 60, !levelState.finished)
 
@@ -109,10 +107,9 @@ export default function LevelView({ level, styles }: Props) {
       <AppBar
         level={level}
         levelState={levelState}
-        controllerProfiles={controllerProfiles}
         controllers={controllers}
-        onAddJoyCon={addJoyCon}
-        onAddMouseKeyboard={addMouseKeyboard}
+        onAddJoyCon={connectJoyCon}
+        onAddMouseKeyboard={connectMouseKeyboard}
         time={time}
         styles={styles}
       />
@@ -133,18 +130,16 @@ export default function LevelView({ level, styles }: Props) {
         </div>
       </div>
 
-      <div className={styles.level.playerContainer}>
+      {/* <div className={styles.level.playerContainer}>
         {controllers.map((controller) => (
           <PlayerView
             key={controller.id}
             controller={controller}
             profile={controllerProfiles[controller.id]}
-            onChangeProfile={(p) => {
-              controllerProfiles[controller.id] = p
-              setProfiles([...controllerProfiles])
-            }}
-            level={level}
-            levelProgress={levelState}
+            // onChangeProfile={(p) => {
+            //   controllerProfiles[controller.id] = p
+            //   setProfiles([...controllerProfiles])
+            // }}
             onAction={handleAction(setLevelState, level, controller)}
             styles={styles}
           >
@@ -162,7 +157,7 @@ export default function LevelView({ level, styles }: Props) {
               ))}
           </PlayerView>
         ))}
-      </div>
+      </div> */}
     </div>
   )
 }
