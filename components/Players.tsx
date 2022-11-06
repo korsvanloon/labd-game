@@ -16,6 +16,7 @@ type Props = {
 export const Players = ({ styles, ...attributes }: Props) => {
   const { controllers } = useControllers()
   const [profiles] = useProfiles()
+  // const items = useItems()
   return (
     <div {...attributes} className={clsx(styles.players.root)}>
       {controllers.map((controller) => (
@@ -24,7 +25,9 @@ export const Players = ({ styles, ...attributes }: Props) => {
           controller={controller}
           profile={profiles[controller.id]}
           styles={styles}
-        />
+        >
+          {/* {items[controller.id]} */}
+        </PlayerView>
       ))}
     </div>
   )

@@ -71,6 +71,7 @@ export const PlayerView = ({
           detail: {
             controllerId: controller.id,
             event,
+            actionZones: state.actionZones,
           },
         }),
       )

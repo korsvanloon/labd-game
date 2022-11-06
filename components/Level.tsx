@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { handleAction } from '../game/action-handler'
 import { cheats } from '../game/cheats'
 import { Level } from '../game/level'
 import {
@@ -10,6 +11,7 @@ import {
 } from '../game/level-progress'
 import { useControllers } from '../hooks/useControllers'
 import { useTimedCounter } from '../hooks/useCountdown'
+import { usePlayerEvent } from '../hooks/usePlayerEvent'
 import { shuffle } from '../util/collection'
 import { randomSeed } from '../util/random'
 import { Apis, Styles as ApisStyles } from './Apis'
@@ -100,8 +102,19 @@ export default function LevelView({ level, styles }: Props) {
     }))
   }, [])
 
+  const ref = useRef<HTMLDivElement>(null)
+
+  usePlayerEvent(ref.current, (details, event) => {
+    handleAction(
+      setLevelState,
+      level,
+      controllers[details.controllerId],
+    )(details.event, details.actionZones)
+    event.stopPropagation()
+  })
+
   return (
-    <div className={styles.level.root}>
+    <div className={styles.level.root} ref={ref}>
       <AppBar
         level={level}
         levelState={levelState}

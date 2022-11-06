@@ -17,11 +17,12 @@ export const useControllers = () => {
           return [...(joyCons as Controller[]), ...mouseKeyboard]
         }),
     })
+    window.addEventListener(MOUSE_KEYBOARD + '-add', addMouseKeyboard)
+    window.addEventListener(MOUSE_KEYBOARD + '-remove', removeMouseKeyboard)
+
     if (window.localStorage.getItem(MOUSE_KEYBOARD)) {
       connectMouseKeyboard()
     }
-    window.addEventListener(MOUSE_KEYBOARD + '-add', addMouseKeyboard)
-    window.addEventListener(MOUSE_KEYBOARD + '-remove', removeMouseKeyboard)
 
     return () => {
       window.removeEventListener(MOUSE_KEYBOARD + '-add', addMouseKeyboard)
