@@ -18,7 +18,6 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  color: black;
   font-size: 4rem;
   transform: translateX(-100%);
   transition: all 0.3s ease;
@@ -44,6 +43,11 @@
   text-decoration: none;
   position: relative;
   padding: 2rem 4rem;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .root a:global(.hover),.root a:focus {

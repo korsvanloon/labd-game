@@ -23,7 +23,6 @@ export const Players = ({ styles, ...attributes }: Props) => {
           key={controller.id}
           controller={controller}
           profile={profiles[controller.id]}
-          onAction={() => {}}
           styles={styles}
         />
       ))}

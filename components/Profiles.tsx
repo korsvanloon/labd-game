@@ -1,10 +1,11 @@
 'use client'
 import clsx from 'clsx'
 import Image from 'next/image'
-import { HTMLAttributes, useEffect, useRef } from 'react'
+import { CSSProperties, HTMLAttributes, useRef } from 'react'
 import { profiles } from '../data/profiles'
+import { usePlayerEvent } from '../hooks/usePlayerEvent'
 import { useProfiles } from '../hooks/useProfiles'
-import { PlayerEvent, PlayerStyles } from './Player'
+import { playerColor, PlayerStyles } from './Player'
 
 export type Styles = {
   profiles: {
@@ -21,20 +22,15 @@ export const Profiles = ({ styles, ...attributes }: Props) => {
   const [userProfiles, setProfile] = useProfiles()
   const ref = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const handler = (event: Event) => {
-      const details = (event as CustomEvent).detail as PlayerEvent
-
-      const index = [...(ref.current?.children ?? [])].indexOf(
-        event.target as HTMLElement,
-      )
-      setProfile(details.controllerId, profiles[index].name)
+  usePlayerEvent(ref.current, (details, event) => {
+    if (details.event.soloValue !== 'right') {
+      return
     }
-    ref.current?.addEventListener('player-button', handler, true)
-    return () => {
-      ref.current?.removeEventListener('player-button', handler, true)
-    }
-  }, [ref.current])
+    event.stopPropagation()
+    const target = event.target as HTMLElement
+    const index = [...(ref.current?.children ?? [])].indexOf(target)
+    setProfile(details.controllerId, profiles[index]?.name)
+  })
 
   return (
     <div
@@ -46,11 +42,28 @@ export const Profiles = ({ styles, ...attributes }: Props) => {
       {profiles.map((p) => (
         <button
           key={p.name}
-          className={styles.profiles.profile}
+          className={clsx(
+            styles.profiles.profile,
+            userProfiles.includes(p) && styles.profiles.profile,
+          )}
+          style={
+            {
+              '--color': userProfiles.includes(p)
+                ? playerColor[userProfiles.indexOf(p)]
+                : undefined,
+            } as CSSProperties
+          }
           data-action-zone="selectable"
         >
           <div>
-            <Image src={p.img} alt={p.name} fill sizes="8rem" />
+            <Image
+              src={p.img}
+              alt={p.name}
+              fill
+              sizes="8rem"
+              placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk6POrBwACzwFdkSnqJQAAAABJRU5ErkJggg=="
+            />
           </div>
           <span>{p.name.split(' ')[0]}</span>
         </button>

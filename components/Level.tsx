@@ -1,7 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Profile } from '../data/profiles'
-import { handleAction } from '../game/action-handler'
 import { cheats } from '../game/cheats'
 import { Level } from '../game/level'
 import {
@@ -19,10 +17,10 @@ import { AppBar, Styles as AppBarStyles } from './AppBar'
 import { Browser, Styles as BrowserStyles } from './Browser'
 import { CodeEditor, Styles as CodeEditorStyles } from './CodeEditor'
 import { Styles as DialogSelectStyles } from './DialogSelect'
-import { PlayerStyles, PlayerView } from './Player'
+import { PlayerStyles } from './Player'
 import { Styles as ScoreNumberStyles } from './ScoreNumber'
 import { Sprint, Styles as SprintStyles } from './Sprint'
-import { Styles as TicketStyles, TicketCard } from './Ticket'
+import { Styles as TicketStyles } from './Ticket'
 
 export type Styles = {
   level: {

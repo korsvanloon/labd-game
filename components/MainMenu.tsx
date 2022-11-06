@@ -16,6 +16,7 @@ export type Styles = {
     toggle?: string
     divider?: string
     players?: string
+    disabled?: string
   }
 } & ControllerButtonsStyles
 
@@ -50,6 +51,7 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
         <Link
           href={`/level/${gameProgress.currentLevel}`}
           onClick={() => setOpen(false)}
+          className={clsx(!controllers.length && styles.mainMenu.disabled)}
         >
           Continue
         </Link>

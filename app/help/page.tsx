@@ -1,6 +1,6 @@
 import styles from './help.module.css'
 
-export default async function Page() {
+export default function Page() {
   return (
     <div className={styles.root}>
       <div className={styles.controls}>
