@@ -34,34 +34,38 @@ const removeDevice = async (device: HIDDevice) => {
       device.productName
     }`,
   )
+  const controller = connectedJoyCons.get(id)
   connectedJoyCons.delete(id)
+  return controller
 }
 
-export const JoyConConnection = ({
-  onChangeControllers,
-}: {
-  onChangeControllers: (controllers: JoyCon[]) => void
-}) => {
+export const JoyConConnection = () => {
   if (initialized) return
   initialized = true
 
   navigator.hid.addEventListener('connect', async ({ device }) => {
-    await addDevice(device)
-    onChangeControllers([...connectedJoyCons.values()])
-  })
-
-  navigator.hid.addEventListener('disconnect', ({ device }) => {
-    removeDevice(device)
-    onChangeControllers([...connectedJoyCons.values()])
-  })
-
-  navigator.hid
-    .getDevices()
-    .then((devices) =>
-      Promise.all(devices.map(addDevice)).then(() =>
-        onChangeControllers([...connectedJoyCons.values()]),
-      ),
+    const controller = await addDevice(device)
+    window.dispatchEvent(
+      new CustomEvent('controller-add', { detail: controller }),
     )
+  })
+
+  navigator.hid.addEventListener('disconnect', async ({ device }) => {
+    const controller = await removeDevice(device)
+    window.dispatchEvent(
+      new CustomEvent('controller-remove', { detail: controller }),
+    )
+  })
+
+  navigator.hid.getDevices().then((devices) =>
+    Promise.all(devices.map(addDevice)).then(() => {
+      for (const controller of connectedJoyCons.values()) {
+        window.dispatchEvent(
+          new CustomEvent('controller-add', { detail: controller }),
+        )
+      }
+    }),
+  )
 }
 
 export const requestJoyCon = async () => {

@@ -1,34 +1,19 @@
-import { useEffect, useState } from 'react'
+import { createGlobalState } from 'react-hooks-global-state'
 import { Profile, profiles } from '../data/profiles'
 
 const PROFILES = 'profiles'
 
 export const useProfiles = () => {
-  const [state, setState] = useState<(Profile | undefined)[]>(
-    (window
-      ? getData<(string | null)[]>(PROFILES)?.map((name) =>
-          profiles.find((p) => p.name === name),
-        )
-      : []) ?? [],
-  )
-
-  useWindowEvent(PROFILES, () => {
-    setState(
-      getData<(string | null)[]>(PROFILES)?.map((name) =>
-        profiles.find((p) => p.name === name),
-      ) ?? [],
-    )
-  })
+  const [state, setState] = useGlobalState(PROFILES)
 
   const setProfile = (id: number, name: string) => {
     const data = getData<string[]>(PROFILES) ?? []
     data[id] = name
-    // setState(data.map((name) => profiles.find((p) => p.name === name)))
     setData(
       PROFILES,
       data.map((d) => d ?? null),
     )
-    window.dispatchEvent(new CustomEvent(PROFILES))
+    setState(data.map((name) => profiles.find((p) => p.name === name)))
   }
 
   return [state, setProfile] as const
@@ -43,14 +28,14 @@ const getData = <T>(name: string) => {
 const setData = (name: string, item: any) => {
   window.localStorage.setItem(name, JSON.stringify(item))
 }
-export const useWindowEvent = (
-  eventName: string,
-  handler: (event: Event) => void,
-) =>
-  useEffect(() => {
-    window.addEventListener(eventName, handler)
 
-    return () => {
-      window.removeEventListener(eventName, handler)
-    }
-  }, [])
+const { useGlobalState } = createGlobalState<{
+  profiles: (Profile | undefined)[]
+}>({
+  profiles:
+    (typeof window !== 'undefined'
+      ? getData<(string | null)[]>(PROFILES)?.map((name) =>
+          profiles.find((p) => p.name === name),
+        )
+      : []) ?? [],
+})

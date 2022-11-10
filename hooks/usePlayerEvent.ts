@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { PlayerEvent } from '../components/Player'
 
 export const usePlayerEvent = (
-  element: HTMLElement | null,
+  element: HTMLElement | null | undefined,
   callback: (details: PlayerEvent, event: Event) => void,
 ) =>
   useEffect(() => {

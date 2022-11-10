@@ -17,3 +17,5 @@ ticket has:
 Header usps
 Menu item
 split footer menu
+
+if a player clicks a menu item, all players go to that page

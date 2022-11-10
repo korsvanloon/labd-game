@@ -1,5 +1,5 @@
 import { clamp } from '../../util/math'
-import { Controller } from '../interface'
+import { Controller, PositionEvent } from '../interface'
 import { connectRingCon } from './connectRingCon'
 import {
   accelerationDebounced,
@@ -7,7 +7,7 @@ import {
   BatteryEvent,
   ButtonEvent,
   DeviceInfoEvent,
-  JoyStickEvent,
+  MoveEvent,
   OrientationEvent,
 } from './events'
 import { Angles, Point2 } from './madgwick'
@@ -29,9 +29,12 @@ const SUB_COMMAND = {
 }
 const RUMBLE_HEADER = [0x00, 0x00, 0x01, 0x40, 0x40, 0x00, 0x01, 0x40, 0x40]
 
-export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
+export class JoyCon<Context = any>
+  implements Controller<Context, ButtonEvent, MoveEvent>
+{
+  context?: Context
   onButton?: (event: ButtonEvent) => void
-  onMove?: (event: JoyStickEvent) => void
+  onMove?: (event: MoveEvent) => void
   onAccelerationChange?: (event: AccelerationEvent) => void
   onOrientationChange?: (event: OrientationEvent) => void
   onDeviceInfo?: (event: DeviceInfoEvent) => void
@@ -57,6 +60,49 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
   private sameDirectionCount: number = 0
 
   constructor(public id: number, public device: HIDDevice) {}
+  onPosition?: ((event: PositionEvent) => void) | undefined
+  private buttonListeners: {
+    context: Context
+    callback: (event: ButtonEvent) => void
+  }[] = []
+  private moveListeners: {
+    context: Context
+    callback: (event: MoveEvent) => void
+  }[] = []
+  private positionListeners: {
+    context: Context
+    callback: (event: PositionEvent) => void
+  }[] = []
+  addButtonListener(context: Context, callback: (event: ButtonEvent) => void) {
+    this.buttonListeners.push({ context, callback })
+  }
+  addMoveListener(context: Context, callback: (event: MoveEvent) => void) {
+    this.moveListeners.push({ context, callback })
+  }
+  addPositionListener(
+    context: Context,
+    callback: (event: PositionEvent) => void,
+  ) {
+    this.positionListeners.push({ context, callback })
+  }
+  removeButtonListener(callback: (event: ButtonEvent) => void) {
+    this.buttonListeners.splice(
+      this.buttonListeners.findIndex((event) => event.callback === callback),
+      1,
+    )
+  }
+  removeMoveListener(callback: (event: MoveEvent) => void) {
+    this.moveListeners.splice(
+      this.moveListeners.findIndex((event) => event.callback === callback),
+      1,
+    )
+  }
+  removePositionListener(callback: (event: PositionEvent) => void) {
+    this.positionListeners.splice(
+      this.positionListeners.findIndex((event) => event.callback === callback),
+      1,
+    )
+  }
 
   /**
    * Opens the device.
@@ -287,6 +333,7 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
       if (packet.deviceInfo) {
         this.onDeviceInfo?.({
           controller: this,
+          controllerId: this.id,
           type: 'deviceInfo',
           info: packet.deviceInfo,
         })
@@ -303,13 +350,15 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
       if (!isEqual(packet.batteryLevel, this.lastPacket.batteryLevel)) {
         this.onBatteryChange?.({
           controller: this,
+          controllerId: this.id,
+
           type: 'battery',
           ...packet.batteryLevel,
         })
       }
     }
     if (packet.type === 'full_mode' && this.lastPacket?.type === 'full_mode') {
-      const buttonValue = Object.entries(packet.buttonStatus).find(
+      const value = Object.entries(packet.buttonStatus).find(
         ([, v]) => v,
       )?.[0] as ButtonEvent['value']
 
@@ -317,23 +366,39 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
         ([, v]) => v,
       )?.[0] as ButtonEvent['value']
 
-      if (!this.lastPacket || buttonValue || lastButtonValue) {
-        const changed = buttonValue !== lastButtonValue
+      if (!this.lastPacket || value || lastButtonValue) {
+        const changed = value !== lastButtonValue
         this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
+
+        const soloValue = toSoloValue(value)
 
         if (!accelerationDebounced(this.sameButtonCount)) {
           this.onButton?.({
             controller: this,
+            controllerId: this.id,
             type: 'button',
-            value: buttonValue,
-            soloValue: toSoloValue(buttonValue),
+            value,
+            soloValue,
             changed,
             sameButtonCount: this.sameButtonCount,
           })
+          this.buttonListeners
+            .filter((l) => l.context === this.context)
+            .forEach((l) =>
+              l.callback({
+                controller: this,
+                type: 'button',
+                controllerId: this.id,
+                value,
+                soloValue,
+                changed,
+                sameButtonCount: this.sameButtonCount,
+              }),
+            )
         }
       }
 
-      const stickValue = packet.analogStickLeft
+      const move = packet.analogStickLeft
         ? toJoyConDirectionValue(packet.analogStickLeft, 'left')
         : packet.analogStickRight
         ? toJoyConDirectionValue(packet.analogStickRight, 'right')
@@ -345,11 +410,10 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
         : undefined
 
       if (
-        stickValue &&
-        (Math.abs(stickValue.x) > threshold ||
-          Math.abs(stickValue.y) > threshold)
+        move &&
+        (Math.abs(move.x) > threshold || Math.abs(move.y) > threshold)
       ) {
-        const direction = getDirection(stickValue)
+        const direction = getDirection(move)
         const lastDirection = lastsStickValue
           ? getDirection(lastsStickValue)
           : undefined
@@ -359,11 +423,24 @@ export class JoyCon implements Controller<ButtonEvent, JoyStickEvent> {
 
         this.onMove?.({
           controller: this,
+          controllerId: this.id,
           type: 'move',
-          move: stickValue,
-          direction: getDirection(stickValue),
+          move,
+          direction,
           sameDirectionCount: this.sameDirectionCount,
         })
+        this.moveListeners
+          .filter((l) => l.context === this.context)
+          .forEach((l) => {
+            return l.callback({
+              controller: this,
+              type: 'move',
+              controllerId: this.id,
+              move,
+              direction,
+              sameDirectionCount: this.sameDirectionCount,
+            })
+          })
       }
     }
     this.lastPacket = packet

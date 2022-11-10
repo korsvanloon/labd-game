@@ -2,10 +2,10 @@ import { clamp } from '../../util/math'
 import { JoyCon } from './joycon'
 import { Angles, Point2 } from './madgwick'
 
-type BaseJoyConEvent = { controller: JoyCon }
+type BaseJoyConEvent = { controller: JoyCon; controllerId: number }
 export type JoyConEvent =
   | ButtonEvent
-  | JoyStickEvent
+  | MoveEvent
   | AccelerationEvent
   | OrientationEvent
   | BatteryEvent
@@ -13,6 +13,7 @@ export type JoyConEvent =
 
 export type ButtonEvent = BaseJoyConEvent & {
   type: 'button'
+
   soloValue?:
     | 'down' // left, a
     | 'up' // right, y
@@ -48,7 +49,7 @@ export type ButtonEvent = BaseJoyConEvent & {
   sameButtonCount: number
 }
 
-export type JoyStickEvent = BaseJoyConEvent & {
+export type MoveEvent = BaseJoyConEvent & {
   type: 'move'
   direction?:
     | 'left'

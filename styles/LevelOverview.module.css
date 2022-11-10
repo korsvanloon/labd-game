@@ -7,10 +7,9 @@
 }
 
 .linkList {
-  composes: panel from '../../styles/panel.css';
+  composes: panel from './panel.css';
   height: fit-content;
   padding: 0;
-  /* border-bottom: 2px solid hsl(0deg 0% 80%); */
   margin: 0;
   counter-set: level;
 }
@@ -33,7 +32,7 @@
   font-weight: bold;
 }
 
-.linkList a::before {
+.link::before {
   content: '';
   display: inline-block;
   width: 3vw;
@@ -46,12 +45,12 @@
 
 }
 
-.linkList a {
+.link {
   display: flex;
   align-items: center;
   padding: 3vw 2vw;
-  font-size: 1.5vw;
   color: inherit;
+  font-size: 1.5vw;
   font-weight: 700;
   letter-spacing: -.05em;
   text-decoration: none;
@@ -60,11 +59,7 @@
 
 }
 
-.linkList a:hover{
-  transform: translateX(0);
-  color: var(--turqoise);
-}
-.linkList a:hover{
+.link:hover, .selected {
   transform: translateX(0);
   color: var(--turqoise);
 }

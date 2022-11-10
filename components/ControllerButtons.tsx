@@ -20,8 +20,8 @@ export const ControllerButtons = ({ styles, ...attributes }: Props) => {
   const {
     controllers,
     connectJoyCon,
-    connectMouseKeyboard,
-    disconnectMouseKeyboard,
+    connectController,
+    disconnectController,
   } = useControllers()
 
   const hasMouseKeyboard = controllers.some((c) => c instanceof MouseKeyboard)
@@ -40,9 +40,17 @@ export const ControllerButtons = ({ styles, ...attributes }: Props) => {
       <button
         className={clsx(styles.button.primary)}
         type="button"
-        onClick={() =>
-          hasMouseKeyboard ? disconnectMouseKeyboard() : connectMouseKeyboard()
-        }
+        onClick={() => {
+          const mouseController = controllers.find(
+            (c) => c instanceof MouseKeyboard,
+          )
+          if (mouseController) {
+            disconnectController(mouseController)
+          } else {
+            const controller = new MouseKeyboard(controllers.length, window)
+            connectController(controller)
+          }
+        }}
       >
         {hasMouseKeyboard ? (
           <span>Disconnect Mouse-Keyboard</span>

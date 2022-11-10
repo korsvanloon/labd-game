@@ -1,7 +1,8 @@
 .panel {
-  background-color: hsl(0deg 0% 100% / 25%);
   border: 0.5rem double var(--turqoise);
+  background-color: hsl(0deg 0% 100% / 25%);
+  color: white;
+  font-size: 2rem;
   box-shadow: 0 0 1rem var(--turqoise), inset 0 0 1rem var(--turqoise);
   backdrop-filter: blur(8px) hue-rotate(220deg);
-  color: white;
 }

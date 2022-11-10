@@ -3,12 +3,14 @@ import { Controller, PositionEvent } from './interface'
 import { Point2 } from './joy-con/madgwick'
 
 type BaseMouseKeyboardEvent = {
-  event: Event
+  controllerId: number
 }
 export type MouseKeyboardEvent = ButtonEvent | MoveEvent
 
 export type ButtonEvent = BaseMouseKeyboardEvent & {
   type: 'button'
+  // event: Event
+
   soloValue?:
     | 'down' // left, s
     | 'up' // right, w
@@ -25,6 +27,8 @@ export type ButtonEvent = BaseMouseKeyboardEvent & {
 
 export type MoveEvent = BaseMouseKeyboardEvent & {
   type: 'move'
+  // event: Event
+
   direction?:
     | 'left'
     | 'right'
@@ -38,9 +42,23 @@ export type MoveEvent = BaseMouseKeyboardEvent & {
   sameDirectionCount: number
 }
 
-export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
-  ledstate: number = 0
+export class MouseKeyboard<Context = any>
+  implements Controller<Context, ButtonEvent, MoveEvent>
+{
+  context?: Context
 
+  private buttonListeners: {
+    context: Context
+    callback: (event: ButtonEvent) => void
+  }[] = []
+  private moveListeners: {
+    context: Context
+    callback: (event: MoveEvent) => void
+  }[] = []
+  private positionListeners: {
+    context: Context
+    callback: (event: PositionEvent) => void
+  }[] = []
   onButton?: (event: ButtonEvent) => void
   onMove?: (event: MoveEvent) => void
   onPosition?: (event: PositionEvent) => void
@@ -63,6 +81,36 @@ export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
   }
 
   constructor(public id: number, public window: Window) {}
+  addButtonListener(context: Context, callback: (event: ButtonEvent) => void) {
+    this.buttonListeners.push({ context, callback })
+  }
+  addMoveListener(context: Context, callback: (event: MoveEvent) => void) {
+    this.moveListeners.push({ context, callback })
+  }
+  addPositionListener(
+    context: Context,
+    callback: (event: PositionEvent) => void,
+  ) {
+    this.positionListeners.push({ context, callback })
+  }
+  removeButtonListener(callback: (event: ButtonEvent) => void) {
+    this.buttonListeners.splice(
+      this.buttonListeners.findIndex((event) => event.callback === callback),
+      1,
+    )
+  }
+  removeMoveListener(callback: (event: MoveEvent) => void) {
+    this.moveListeners.splice(
+      this.moveListeners.findIndex((event) => event.callback === callback),
+      1,
+    )
+  }
+  removePositionListener(callback: (event: PositionEvent) => void) {
+    this.positionListeners.splice(
+      this.positionListeners.findIndex((event) => event.callback === callback),
+      1,
+    )
+  }
 
   buzz(): void {
     const snd = new Audio(dataUri)
@@ -81,8 +129,18 @@ export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
 
     this.onPosition?.({
       type: 'position',
+      controllerId: this.id,
       position: this.initialPosition,
     })
+    this.positionListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          type: 'position',
+          controllerId: this.id,
+          position: this.initialPosition,
+        }),
+      )
   }
   async close() {
     const x = () => {}
@@ -97,33 +155,101 @@ export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
   private onContextMenu = (event: MouseEvent) => {
     event.preventDefault()
     this.onButton?.({
-      event,
+      // event,
       type: 'button',
+      controllerId: this.id,
       value: 'mouse',
       soloValue: 'stick',
       changed: true,
       sameButtonCount: 0,
     })
+    this.buttonListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          // event,
+          type: 'button',
+          controllerId: this.id,
+          value: 'mouse',
+          soloValue: 'stick',
+          changed: true,
+          sameButtonCount: 0,
+        }),
+      )
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-button', {
+    //     detail: {
+    //       controllerId: this.id,
+    //       value: 'mouse',
+    //       soloValue: 'stick',
+    //       changed: true,
+    //       sameButtonCount: 0,
+    //     },
+    //   }),
+    // )
   }
   private onClick = (event: MouseEvent) => {
     event.preventDefault()
     this.onButton?.({
-      event,
+      // event,
       type: 'button',
+      controllerId: this.id,
       value: 'right',
       soloValue: 'right',
       changed: true,
       sameButtonCount: 0,
     })
+    this.buttonListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          // event,
+          type: 'button',
+          controllerId: this.id,
+          value: 'right',
+          soloValue: 'right',
+          changed: true,
+          sameButtonCount: 0,
+        }),
+      )
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-button', {
+    //     detail: {
+    //       controllerId: this.id,
+    //       value: 'right',
+    //       soloValue: 'right',
+    //       changed: true,
+    //       sameButtonCount: 0,
+    //     },
+    //   }),
+    // )
   }
   private onMouseEnter = (event: MouseEvent) => {
     const position = { x: event.x + 5, y: event.y + 5 }
 
     this.onPosition?.({
       type: 'position',
+      controllerId: this.id,
       position,
     })
     this.lastValues.position = position
+    this.positionListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          type: 'position',
+          controllerId: this.id,
+          position,
+        }),
+      )
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-position', {
+    //     detail: {
+    //       controllerId: this.id,
+    //       position,
+    //     },
+    //   }),
+    // )
   }
   private onMouseMove = (event: MouseEvent) => {
     const position = { x: event.x + 5, y: event.y + 10 }
@@ -131,22 +257,69 @@ export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
       x: position.x - this.lastValues.position.x,
       y: position.y - this.lastValues.position.y,
     }
+    this.onPosition?.({
+      type: 'position',
+      controllerId: this.id,
+      position,
+    })
+    this.positionListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          type: 'position',
+          controllerId: this.id,
+          position,
+        }),
+      )
+
     const direction = getDirection(value)
     this.sameDirectionCount =
       this.lastValues.direction === direction ? this.sameDirectionCount + 1 : 0
-    this.onPosition?.({
-      type: 'position',
-      position,
-    })
+
+    if (!direction) return
+
     this.onMove?.({
-      event,
+      // event,
       type: 'move',
+      controllerId: this.id,
       move: value,
       direction,
       sameDirectionCount: this.sameDirectionCount,
     })
+    this.moveListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          // event,
+          type: 'move',
+          controllerId: this.id,
+          move: value,
+          direction,
+          sameDirectionCount: this.sameDirectionCount,
+        }),
+      )
+
     this.lastValues.direction = direction
     this.lastValues.position = position
+
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-position', {
+    //     detail: {
+    //       controllerId: this.id,
+    //       position,
+    //     },
+    //   }),
+    // )
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-move', {
+    //     detail: {
+    //       controllerId: this.id,
+    //       move: value,
+    //       direction,
+    //       sameDirectionCount: this.sameDirectionCount,
+    //     },
+    //   }),
+    // )
   }
   private onKeydown = (event: KeyboardEvent) => {
     const changed = this.lastValues.key !== event.key
@@ -155,24 +328,72 @@ export class MouseKeyboard implements Controller<ButtonEvent, MoveEvent> {
     const soloValue = toSoloValue(event.key)
     if (!soloValue) return
     this.onButton?.({
-      event,
+      // event,
       type: 'button',
+      controllerId: this.id,
       value: event.key,
       soloValue,
       changed,
       sameButtonCount: this.sameButtonCount,
     })
+    this.buttonListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          // event,
+          type: 'button',
+          controllerId: this.id,
+          value: event.key,
+          soloValue,
+          changed,
+          sameButtonCount: this.sameButtonCount,
+        }),
+      )
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-button', {
+    //     detail: {
+    //       value: event.key,
+    //       controllerId: this.id,
+    //       soloValue,
+    //       changed,
+    //       sameButtonCount: this.sameButtonCount,
+    //     },
+    //   }),
+    // )
   }
   private onKeyup = (event: KeyboardEvent) => {
     const changed = Boolean(this.lastValues.key)
     this.sameButtonCount = changed ? 0 : this.sameButtonCount + 1
     this.lastValues.key = undefined
+    if (!keys.includes(event.key)) return
+
     this.onButton?.({
-      event,
+      // event,
       type: 'button',
+      controllerId: this.id,
       changed,
       sameButtonCount: this.sameButtonCount,
     })
+    this.buttonListeners
+      .filter((l) => l.context === this.context)
+      .forEach((l) =>
+        l.callback({
+          // event,
+          type: 'button',
+          controllerId: this.id,
+          changed,
+          sameButtonCount: this.sameButtonCount,
+        }),
+      )
+    // this.context.dispatchEvent(
+    //   new CustomEvent('controller-button', {
+    //     detail: {
+    //       controllerId: this.id,
+    //       changed,
+    //       sameButtonCount: this.sameButtonCount,
+    //     },
+    //   }),
+    // )
   }
 }
 
@@ -188,6 +409,21 @@ type Direction =
   | undefined
 
 const threshold = 0.1
+
+const keys = [
+  'ArrowUp',
+  'w',
+  'ArrowDown',
+  's',
+  'ArrowLeft',
+  'a',
+  'ArrowRight',
+  'd',
+  'q',
+  'e',
+  'Escape',
+  '1',
+]
 
 const toSoloValue = (value?: string): ButtonEvent['soloValue'] => {
   switch (value) {
