@@ -4,6 +4,7 @@ import buttonStyles from '../styles/Button.module.css'
 import controllerButtonsStyles from '../styles/ControllerButtons.module.css'
 import '../styles/global.css'
 import mainMenuStyles from '../styles/MainMenu.module.css'
+import '../styles/_key-button.css'
 import styles from './layout.module.css'
 
 export default function RootLayout({

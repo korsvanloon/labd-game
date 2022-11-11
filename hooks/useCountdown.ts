@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export const useTimedCounter = (end: number, run: boolean) => {
+export default function useTimedCounter(end: number, run: boolean) {
   const [time, setTime] = useState(0)
   let timeout = useRef(0)
 

@@ -1,9 +1,11 @@
 'use client'
 import React, { ReactNode, useEffect, useState } from 'react'
 import { ButtonEvent, Controller } from '../controller/interface'
+import { accelerationDebounced } from '../controller/joy-con/events'
 import { JoyCon } from '../controller/joy-con/joycon'
 import { Point2 } from '../controller/joy-con/madgwick'
 import { Profile } from '../data/profiles'
+import { ControllerContext } from '../game/controller-context'
 import { clamp } from '../util/math'
 
 export type PlayerStyles = {
@@ -15,7 +17,7 @@ export type PlayerStyles = {
 }
 
 type Props = {
-  controller: Controller
+  controller: Controller<ControllerContext>
   profile?: Profile
   children?: ReactNode
   styles: PlayerStyles
@@ -60,10 +62,14 @@ export const PlayerView = ({
   const color = playerColor[controller.id]
 
   useEffect(() => {
-    controller.onPosition = ({ position }) =>
-      setState((s) => ({ ...s, position }))
+    controller.addPositionListener('Main', ({ position }) => {
+      return setState((s) => ({ ...s, position }))
+    })
 
-    controller.onButton = (event) => {
+    controller.addButtonListener('Main', (event) => {
+      if (event.sameButtonCount > 0) {
+        return
+      }
       const actionZone = state.actionZones[0]
       if (!actionZone) return
       actionZone.element.dispatchEvent(
@@ -82,10 +88,13 @@ export const PlayerView = ({
       ) {
         actionZone.element.click()
       }
-    }
+    })
 
-    controller.onMove = ({ move }) =>
-      setState((state) => {
+    controller.addMoveListener('Main', ({ move, sameDirectionCount }) => {
+      if (accelerationDebounced(sameDirectionCount)) {
+        return
+      }
+      return setState((state) => {
         if (!state.position) {
           return state
         }
@@ -101,11 +110,13 @@ export const PlayerView = ({
 
         return { ...state, actionZones, position }
       })
+    })
 
     return () => {
-      controller.onButton = undefined
-      controller.onPosition = undefined
-      controller.onMove = undefined
+      const x = () => {}
+      controller.removeButtonListener(x)
+      controller.removePositionListener(x)
+      controller.removeMoveListener(x)
     }
   }, [state.actionZones])
 

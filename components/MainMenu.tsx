@@ -1,14 +1,16 @@
 'use client'
 import clsx from 'clsx'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { HTMLAttributes, useEffect, useRef, useState } from 'react'
 import {
   useControllerButtonEvent,
   useControllerMoveEvent,
   useControllers,
 } from '../hooks/useControllers'
+import useLocalStorage from '../hooks/useLocalStorage'
 import { useProfiles } from '../hooks/useProfiles'
+import { isValue } from '../util/collection'
 import {
   ControllerButtons,
   Styles as ControllerButtonsStyles,
@@ -30,25 +32,34 @@ type Props = {
   styles: Styles
 } & HTMLAttributes<HTMLDivElement>
 
-export const useGameProgress = () => {
-  return {
-    currentLevel: '02-kato-homepage',
-  }
-}
-
 export const MainMenu = ({ styles, ...attributes }: Props) => {
+  const pathname = usePathname()
   const [open, setOpen] = useState(true)
   const [profiles] = useProfiles()
-  const { controllers, setControllerContext } = useControllers()
-  const gameProgress = useGameProgress()
+  const { context, controllers, setControllerContext } = useControllers()
   const [selected, setSelected] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
-  const pathname = usePathname()
+  const router = useRouter()
+  const [currentLevel] = useLocalStorage<string>('currentLevel')
 
   useEffect(() => {
     if (!open) return
-    setControllerContext('MainMenu')
+    if (context[0] !== 'MainMenu') {
+      setControllerContext('MainMenu')
+    }
   }, [open])
+
+  useEffect(() => {
+    if (context[0] === 'MainMenu') {
+      setOpen(true)
+    }
+  }, [context])
+
+  useEffect(() => {
+    if (pathname?.includes('level/')) {
+      setOpen(false)
+    }
+  }, [pathname])
 
   useControllerButtonEvent(
     'MainMenu',
@@ -59,12 +70,23 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
       const selectedPath = currentSelected?.getAttribute('href')
 
       switch (details.soloValue) {
+        case 'special': {
+          router.push(menuItems[0].href)
+          setControllerContext('Main')
+          setOpen(false)
+          break
+        }
         case 'right':
         case 'down':
+          if (selected === 0) {
+            setOpen(false)
+          }
           if (selectedPath !== '/help') {
             setControllerContext('Main')
           }
-          currentSelected?.click()
+          if (selectedPath) {
+            router.push(selectedPath)
+          }
           break
       }
     },
@@ -73,13 +95,13 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
 
   useControllerMoveEvent('MainMenu', (details) => {
     if (details.sameDirectionCount > 0) return
-    // if (accelerationDebounced(details.sameDirectionCount)) return
+    const n = menuItems.length
     switch (details.direction) {
       case 'down':
-        setSelected((s) => (s + 1) % 4)
+        setSelected((s) => (s + 1) % n)
         break
       case 'up':
-        setSelected((s) => (s + 4 - 1) % 4)
+        setSelected((s) => (s + n - 1) % n)
         break
     }
   })
@@ -97,34 +119,30 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
         ref={ref}
         className={clsx(styles.mainMenu.root, open && styles.mainMenu.open)}
       >
-        <Link
-          href={`/level/${gameProgress.currentLevel}`}
-          onClick={() => setOpen(false)}
-          className={clsx(
-            !controllers.length && styles.mainMenu.disabled,
-            selected === 0 && styles.mainMenu.selected,
-          )}
-        >
-          Continue
-        </Link>
-        <Link
-          href={`/player`}
-          className={clsx(selected === 1 && styles.mainMenu.selected)}
-        >
-          Players
-        </Link>
-        <Link
-          href={`/level`}
-          className={clsx(selected === 2 && styles.mainMenu.selected)}
-        >
-          Levels
-        </Link>
-        <Link
-          href={`/help`}
-          className={clsx(selected === 3 && styles.mainMenu.selected)}
-        >
-          Help
-        </Link>
+        {[
+          currentLevel ? { label: 'continue', href: currentLevel } : undefined,
+          ...menuItems,
+        ]
+          .filter(isValue)
+          .map(({ href, label }, i) => (
+            <Link
+              key={i}
+              href={href}
+              className={clsx(
+                !controllers.length && styles.mainMenu.disabled,
+                selected === i && styles.mainMenu.selected,
+              )}
+            >
+              {label}
+              {selected === i ? (
+                context[0] === 'Main' ? (
+                  <kbd data-key="left">left</kbd>
+                ) : (
+                  <kbd data-key="right">right</kbd>
+                )
+              ) : undefined}
+            </Link>
+          ))}
         <hr className={styles.mainMenu.divider} />
         <ControllerButtons styles={styles} />
         <div className={styles.mainMenu.players}>
@@ -140,3 +158,18 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
     </>
   )
 }
+
+const menuItems = [
+  {
+    href: `/player`,
+    label: 'Profiles',
+  },
+  {
+    href: `/level`,
+    label: 'Levels',
+  },
+  {
+    href: `/help`,
+    label: 'Help',
+  },
+]

@@ -23,7 +23,7 @@ export function addLine(state: LevelState) {
 
 export function deploy(
   state: LevelState,
-  level: Level,
+  _level: Level,
   ticket: Ticket,
   dropZone: HTMLElement,
 ) {

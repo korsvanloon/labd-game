@@ -121,22 +121,6 @@
   background-color: hsl(200deg 100% 45%);
 }
 
-.commitButton:not(:disabled)::after {
-  content: '▶';
-  position: absolute;
-  right: 0;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding-left: 0.15rem;
-  border: 1px solid hsl(0deg 0% 0% / 90%);
-  margin: 0 0.75rem;
-  background-color: hsl(0deg 0% 25% / 50%);
-  color: hsl(0deg 0% 0% / 90%);
-  line-height: 1.5rem;
-  text-align: center;
-  border-radius: 1.5rem;
-}
-
 .error :first-child {
   text-decoration: underline wavy red;
 }

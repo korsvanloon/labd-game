@@ -1,5 +1,6 @@
 import { createGlobalState } from 'react-hooks-global-state'
 import { Profile, profiles } from '../data/profiles'
+import { retrieveData, storeData } from '../util/local-storage'
 
 const PROFILES = 'profiles'
 
@@ -7,9 +8,9 @@ export const useProfiles = () => {
   const [state, setState] = useGlobalState(PROFILES)
 
   const setProfile = (id: number, name: string) => {
-    const data = getData<string[]>(PROFILES) ?? []
+    const data = retrieveData<string[]>(PROFILES) ?? []
     data[id] = name
-    setData(
+    storeData(
       PROFILES,
       data.map((d) => d ?? null),
     )
@@ -19,22 +20,12 @@ export const useProfiles = () => {
   return [state, setProfile] as const
 }
 
-const getData = <T>(name: string) => {
-  const data = window.localStorage.getItem(name)
-  if (data) {
-    return JSON.parse(data) as T
-  }
-}
-const setData = (name: string, item: any) => {
-  window.localStorage.setItem(name, JSON.stringify(item))
-}
-
 const { useGlobalState } = createGlobalState<{
   profiles: (Profile | undefined)[]
 }>({
   profiles:
     (typeof window !== 'undefined'
-      ? getData<(string | null)[]>(PROFILES)?.map((name) =>
+      ? retrieveData<(string | null)[]>(PROFILES)?.map((name) =>
           profiles.find((p) => p.name === name),
         )
       : []) ?? [],

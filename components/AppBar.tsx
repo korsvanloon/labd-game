@@ -4,7 +4,6 @@ import {
   ScoreNumber,
   Styles as ScoreNumberStyles,
 } from '../components/ScoreNumber'
-import { Controller } from '../controller/interface'
 import { Level } from '../game/level'
 import { calculateScore, LevelState } from '../game/level-progress'
 import { usePrevious } from '../hooks/usePrevious'
@@ -21,10 +20,6 @@ export type Styles = {
 } & ScoreNumberStyles
 
 type Props = {
-  controllers: Controller[]
-  onAddJoyCon: () => Promise<void> | void
-  onAddMouseKeyboard: () => Promise<void> | void
-  // controllerProfiles: Profile[]
   levelState: LevelState
   level: Level
   time: number
@@ -36,10 +31,6 @@ export const AppBar = ({
   styles,
   levelState,
   time,
-  // controllerProfiles,
-  controllers,
-  onAddJoyCon,
-  onAddMouseKeyboard,
   ...attributes
 }: Props) => {
   const score = calculateScore(level, levelState, time)

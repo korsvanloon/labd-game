@@ -26,10 +26,13 @@ type Props = {
 } & HTMLAttributes<HTMLDivElement>
 
 export const Profiles = ({ styles, ...attributes }: Props) => {
-  const [userProfiles, setProfile] = useProfiles()
-  const [ready, setReady] = useState(userProfiles.map(() => false))
+  const [storedProfiles, setProfile] = useProfiles()
+  const { controllers } = useControllers()
+  const [ready, setReady] = useState(controllers.map(() => false))
   const ref = useRef<HTMLDivElement>(null)
   const { context, setControllerContext } = useControllers()
+
+  const userProfiles = storedProfiles.slice(0, controllers.length)
 
   useControllerButtonEvent(
     'Main',
@@ -38,13 +41,19 @@ export const Profiles = ({ styles, ...attributes }: Props) => {
 
       switch (details.soloValue) {
         case 'left':
-          setReady((rs) =>
-            rs.map((r, i) => (details.controllerId === i ? false : r)),
-          )
+          if (ready.every((r) => !r)) {
+            setReady((rs) => rs.map(() => false))
+            setControllerContext('MainMenu')
+          } else {
+            setReady((rs) =>
+              rs.map((r, i) => (details.controllerId === i ? false : r)),
+            )
+          }
           break
         case 'right':
         case 'down':
           if (ready.every((r) => r)) {
+            setReady((rs) => rs.map(() => false))
             setControllerContext('MainMenu')
           } else {
             setReady((rs) =>
@@ -119,7 +128,7 @@ export const Profiles = ({ styles, ...attributes }: Props) => {
       {context[0] === 'Main' && (
         <div className={clsx(styles.profiles.explanation)}>
           <p>
-            Choose a profile, select <kbd>down</kbd> when ready.
+            Choose a profile, press <kbd data-key="down">down</kbd> when ready.
           </p>
           <ol>
             {ready.map((r, i) => (
@@ -166,9 +175,6 @@ const getOffset = (
       if (index + rowSize < profiles.length) {
         return +rowSize
       }
-      // if (index === profiles.length - 1) {
-      //   return +rowSize - profiles.length
-      // }
       return -index + (index % rowSize)
     case 'up':
       if (index - rowSize > 0) {

@@ -1,5 +1,6 @@
 .toggle {
   position: fixed;
+  z-index: 1;
   top: 2.5rem;
   left: 2.5rem;
   display: block;
@@ -10,27 +11,26 @@
   background: url('/icons/icon-menu.svg') no-repeat center center;
   color: transparent;
   cursor: pointer;
-  z-index: 1;
 }
 
 .root {
   composes: panel from './panel.css';
+  z-index: 1;
   display: flex;
   flex-direction: column;
+  width: 48rem;
   height: 100%;
+  border-left: none;
   font-size: 4rem;
   transform: translateX(-100%);
   transition: all 0.3s ease;
-  z-index: 1;
-  border-left: none;
-  width: 48rem;
 }
 
 .divider {
-  composes: panel from './panel.css';
+  display: block;
   width: 50%;
   height: 1rem;
-  display: block;
+  composes: panel from './panel.css';
 }
 
 .open {
@@ -38,11 +38,15 @@
 }
 
 .root a {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 8rem;
+  padding: 2rem 4rem;
   color: inherit;
   font-weight: bold;
   text-decoration: none;
-  position: relative;
-  padding: 2rem 4rem;
 }
 
 .disabled {
@@ -55,21 +59,19 @@
 .root a:focus {
   color: var(--player-color);
 }
+
 .selected::before,
 .root a:global(.hover)::before {
   content: '';
   position: absolute;
+  z-index: -1;
   top: 0;
   left: 0;
-  z-index: -1;
   width: 100%;
   height: 100%;
-  opacity: 0.1;
-  background-color: var(--player-color, white);
+  background-color: var(--player-color, var(--turqoise,white));
+  opacity: 0.3;
 }
-
-
-
 
 .players {
   padding: 2rem 4rem;

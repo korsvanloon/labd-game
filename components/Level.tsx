@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { handleAction } from '../game/action-handler'
 import { cheats } from '../game/cheats'
 import { Level } from '../game/level'
@@ -10,8 +10,8 @@ import {
   Ticket,
 } from '../game/level-progress'
 import { useControllers } from '../hooks/useControllers'
-import { useTimedCounter } from '../hooks/useCountdown'
-import { usePlayerEvent } from '../hooks/usePlayerEvent'
+import useTimedCounter from '../hooks/useCountdown'
+import usePlayerEvent from '../hooks/usePlayerEvent'
 import { useProfiles } from '../hooks/useProfiles'
 import { shuffle } from '../util/collection'
 import { randomSeed } from '../util/random'
@@ -20,7 +20,7 @@ import { AppBar, Styles as AppBarStyles } from './AppBar'
 import { Browser, Styles as BrowserStyles } from './Browser'
 import { CodeEditor, Styles as CodeEditorStyles } from './CodeEditor'
 import { Styles as DialogSelectStyles } from './DialogSelect'
-import { PlayerStyles, PlayerView } from './Player'
+import { PlayerEvent, PlayerStyles, PlayerView } from './Player'
 import { Styles as ScoreNumberStyles } from './ScoreNumber'
 import { Sprint, Styles as SprintStyles } from './Sprint'
 import { Styles as TicketStyles, TicketCard } from './Ticket'
@@ -54,17 +54,16 @@ const seed = 2
 const random = randomSeed(seed)
 
 export default function LevelView({ level, styles }: Props) {
-  const {
-    controllers,
-    connectJoyCon,
-    connectController: connectMouseKeyboard,
-  } = useControllers()
+  const { context, controllers, setControllerContext } = useControllers()
   const [levelState, setLevelState] = useState<LevelState>(
     initialLevelProgress(level),
   )
   const [profiles] = useProfiles()
 
-  const time = useTimedCounter(level.totalComponents * 60, !levelState.finished)
+  const time = useTimedCounter(
+    level.totalComponents * 60,
+    !levelState.finished && context[0] === 'Main',
+  )
 
   useEffect(() => {
     const totalDeployed = levelState.tickets.filter(
@@ -110,23 +109,29 @@ export default function LevelView({ level, styles }: Props) {
 
   const ref = useRef<HTMLDivElement>(null)
 
-  usePlayerEvent(ref.current, (details, event) => {
-    handleAction(
-      setLevelState,
-      level,
-      controllers[details.controllerId],
-    )(details.event, details.actionZones)
-    event.stopPropagation()
-  })
+  const bla = useCallback(
+    (details: PlayerEvent, event: Event) => {
+      if (details.event.soloValue === 'special') {
+        setControllerContext('MainMenu')
+      } else {
+        handleAction(
+          setLevelState,
+          level,
+          controllers[details.controllerId],
+        )(details.event, details.actionZones)
+      }
+      event.stopPropagation()
+    },
+    [controllers],
+  )
+
+  usePlayerEvent(ref.current, bla)
 
   return (
     <div className={styles.level.root} ref={ref}>
       <AppBar
         level={level}
         levelState={levelState}
-        controllers={controllers}
-        onAddJoyCon={connectJoyCon}
-        onAddMouseKeyboard={connectMouseKeyboard}
         time={time}
         styles={styles}
       />
@@ -147,29 +152,31 @@ export default function LevelView({ level, styles }: Props) {
         </div>
       </div>
 
-      <div className={styles.level.playerContainer}>
-        {controllers.map((controller) => (
-          <PlayerView
-            key={controller.id}
-            controller={controller}
-            profile={profiles[controller.id]}
-            styles={styles}
-          >
-            {levelState.tickets
-              .filter((p) => p.player === controller.id)
-              .map((ticket) => (
-                <TicketCard
-                  key={ticket.component.id}
-                  ticket={ticket}
-                  rotation={-0.4}
-                  className={styles.level.playerTicket}
-                  componentClassName={styles.level.playerTicketComponent}
-                  styles={styles}
-                />
-              ))}
-          </PlayerView>
-        ))}
-      </div>
+      {context[0] === 'Main' && (
+        <div className={styles.level.playerContainer}>
+          {controllers.map((controller) => (
+            <PlayerView
+              key={controller.id}
+              controller={controller}
+              profile={profiles[controller.id]}
+              styles={styles}
+            >
+              {levelState.tickets
+                .filter((p) => p.player === controller.id)
+                .map((ticket) => (
+                  <TicketCard
+                    key={ticket.component.id}
+                    ticket={ticket}
+                    rotation={-0.4}
+                    className={styles.level.playerTicket}
+                    componentClassName={styles.level.playerTicketComponent}
+                    styles={styles}
+                  />
+                ))}
+            </PlayerView>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

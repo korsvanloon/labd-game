@@ -2,12 +2,14 @@
 import { capitalCase } from 'change-case'
 import clsx from 'clsx'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { HTMLAttributes, useRef, useState } from 'react'
 import {
   useControllerButtonEvent,
   useControllerMoveEvent,
   useControllers,
 } from '../hooks/useControllers'
+import useLocalStorage from '../hooks/useLocalStorage'
 
 export type LevelOverviewStyles = {
   levelOverview: {
@@ -25,8 +27,10 @@ type Props = {
 
 export const LevelOverview = ({ levels, styles, ...attributes }: Props) => {
   const [selected, setSelected] = useState(0)
+  const router = useRouter()
   const { setControllerContext } = useControllers()
   const ref = useRef<HTMLDivElement>(null)
+  const [, setCurrentLevel] = useLocalStorage<string>('currentLevel')
 
   useControllerButtonEvent(
     'Main',
@@ -34,6 +38,7 @@ export const LevelOverview = ({ levels, styles, ...attributes }: Props) => {
       if (details.sameButtonCount > 0) return
 
       const currentSelected = ref.current?.querySelectorAll('a').item(selected)
+      const selectedPath = currentSelected?.getAttribute('href')
 
       switch (details.soloValue) {
         case 'left':
@@ -42,7 +47,10 @@ export const LevelOverview = ({ levels, styles, ...attributes }: Props) => {
           break
         case 'right':
         case 'down':
-          currentSelected?.click()
+          if (selectedPath) {
+            setCurrentLevel(selectedPath)
+            router.push(selectedPath)
+          }
           break
       }
     },

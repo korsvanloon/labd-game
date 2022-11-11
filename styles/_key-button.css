@@ -1,0 +1,27 @@
+[data-key] {
+  position: relative;
+  display: inline-flex;
+  justify-content: flex-end ;
+  align-items: center;
+  width: 3rem;
+  height: 3rem;
+  background-color: var(--turqoise);
+  border-radius: 50%;
+  color: transparent;
+  transform-origin: center center;
+  mask: url("data:image/svg+xml;charset=UTF-8,%3csvg viewBox='0 0 21 19' version='1.1' xmlns='http://www.w3.org/2000/svg' fill='%2300ff5ecc'%3e%3ctitle%3eArrow right%3c/title%3e%3cpath d='M15.0649462,13.4350288 L15.0649462,15.9350288 L12.5651962,15.9350288 L12.5651962,18.4350288 L10.0649462,18.4350288 L10.0649462,15.9350288 L12.5649462,15.9350288 L12.5649462,13.4350288 L15.0649462,13.4350288 Z M12.5651962,0.935028843 L12.5651962,3.43502884 L15.0649462,3.43502884 L15.0649712,5.93495384 L17.5649712,5.93495384 L17.5649712,8.43495384 L20.0649712,8.43495384 L20.0649712,10.9349538 L17.5649712,10.9349538 L17.5649712,13.4352038 L15.0649712,13.4352038 L15.0649712,10.9349538 L0.064971157,10.9349538 L0.064971157,8.43495384 L15.0649712,8.43495384 L15.0649462,5.93502884 L12.5649462,5.93502884 L12.5649462,3.43502884 L10.0649462,3.43502884 L10.0649462,0.935028843 L12.5651962,0.935028843 Z'%3e%3c/path%3e%3c/svg%3e");
+  mask-position: center center;
+  mask-repeat: no-repeat;
+}
+
+[data-key="up"] {
+  transform: rotate(-90deg);
+}
+
+[data-key="left"] {
+  transform: rotate(180deg);
+}
+
+[data-key="down"] {
+  transform: rotate(90deg);
+}

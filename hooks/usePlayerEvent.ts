@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 import { PlayerEvent } from '../components/Player'
 
-export const usePlayerEvent = (
+export default function usePlayerEvent(
   element: HTMLElement | null | undefined,
   callback: (details: PlayerEvent, event: Event) => void,
-) =>
+) {
   useEffect(() => {
     const handler = (event: Event) => {
       const details = (event as CustomEvent).detail as PlayerEvent
@@ -16,3 +16,4 @@ export const usePlayerEvent = (
       element?.removeEventListener('player-button', handler, true)
     }
   }, [element])
+}

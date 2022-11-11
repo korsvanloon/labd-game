@@ -6,7 +6,6 @@ import {
   readLevelFile,
   readLevelHtml,
 } from '../../../game/level'
-
 import urlPlugin from 'postcss-url'
 
 type Props = {
