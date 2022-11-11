@@ -119,6 +119,9 @@ export const createLevel = (
   const dom = getDom(pageHtmlString)
 
   dom.querySelectorAll('script,noscript,meta').forEach((e) => e.remove())
+  dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
+  dom.querySelectorAll('a').forEach((d) => d.removeAttribute('href'))
+
   dom
     .querySelectorAll('img')
     .filter((e) => e.getAttribute('src')?.startsWith('/'))
@@ -219,17 +222,21 @@ export const enhanceComponent = (
 
   component.codeLines ??= [...getCodeLines(dom, component, fieldNodes)]
 
-  component.html ??= getSanitizedHtml(dom)
+  component.html ??= dom.outerHTML
 }
 
-export const getSanitizedHtml = (dom: HTMLElement) => {
-  dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
-  return dom?.outerHTML
-    .replace(/<(a|button|select) /g, '<span ')
-    .replace(/<\/(a|button|input|select)>/g, '</span>')
-    .replace(/<noscript>/g, '')
-    .replace(/<\/noscript>/g, '')
-}
+// export const getSanitizedHtml = (dom: HTMLElement) => {
+//   dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
+//   dom.querySelectorAll('a').forEach((d) => d.removeAttribute('href'))
+//   // return dom.outerHTML
+//   return (
+//     dom?.outerHTML
+//       // .replace(/<(a|button|select) /g, '<span ')
+//       // .replace(/<\/(a|button|input|select)>/g, '</span>')
+//       .replace(/<noscript>/g, '')
+//       .replace(/<\/noscript>/g, '')
+//   )
+// }
 
 type FieldNode = {
   nodes?: HTMLElement[]

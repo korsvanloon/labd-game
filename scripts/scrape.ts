@@ -1,43 +1,38 @@
-import { existsSync, writeFileSync } from 'fs'
+import fs, { writeFileSync } from 'fs'
+import path from 'path'
 import postcss, { PluginCreator } from 'postcss'
+import urlPlugin from 'postcss-url'
 import {
   getDom,
   getStyleLinkUrls,
+  LevelFile,
   readLevelFile,
-  readLevelHtml,
-} from '../../../game/level'
-import urlPlugin from 'postcss-url'
+} from '../game/level'
 
-type Props = {
-  params: {
-    level: string
+async function main() {
+  const levelNames = fs
+    .readdirSync('./data/levels')
+    .map((name) => name.replace(path.extname(name), ''))
+
+  for (const levelName of levelNames) {
+    const levelFile = readLevelFile(levelName)
+
+    const htmlString = await fetch(levelFile.url).then((r) => r.text())
+
+    writeFileSync(`data/sites/${levelName}.html`, htmlString)
+
+    await writeStyles(levelName, levelFile, htmlString)
   }
 }
 
-export default async function Head({ params: { level } }: Props) {
-  if (!existsSync(`./public/styles/${level}.css`)) {
-    await writeStyles(level)
-  }
+main()
 
-  return (
-    <>
-      <link
-        //  @ts-ignore
-        precedence="default"
-        rel="stylesheet"
-        href={`/styles/${level}.css`}
-      />
-    </>
-  )
-}
-
-async function writeStyles(levelName: string) {
-  const levelFile = readLevelFile(levelName)
+async function writeStyles(
+  levelName: string,
+  levelFile: LevelFile,
+  htmlString: string,
+) {
   const origin = new URL(levelFile.url).origin
-
-  const htmlString = existsSync(`./data/sites/${levelName}.html`)
-    ? readLevelHtml(levelName)
-    : await fetch(levelFile.url).then((r) => r.text())
 
   const dom = getDom(htmlString)
 
@@ -72,9 +67,11 @@ const prefixSelectorPlugin: PluginCreator<{ selector: string }> = (
   postcssPlugin: 'prepend-selector',
   Rule: (rule) => {
     rule.selectors = rule.selectors.map((selector) =>
-      // This is part of a keyframe
-      /^([0-9]*[.])?[0-9]+\%$|^from$|^to$/.test(selector) ||
-      selector.startsWith(opts.selector.trim())
+      selector === ':root'
+        ? opts.selector
+        : // This is part of a keyframe
+        /^([0-9]*[.])?[0-9]+\%$|^from$|^to$/.test(selector) ||
+          selector.startsWith(opts.selector.trim())
         ? selector
         : opts.selector + selector,
     )

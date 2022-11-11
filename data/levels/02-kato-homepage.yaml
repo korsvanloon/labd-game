@@ -29,7 +29,7 @@ rootComponent:
   selector: body
   children:
     - type: bannerSlider
-      selector: .BannerSliderBlock-box:nth-of-type(1)
+      selector: .BannerSliderBlock-box:nth-of-type(2)
       horizontalScrollSelector: '>div>div'
       children:
         - type: banner
@@ -44,7 +44,7 @@ rootComponent:
             api: commercetools.brand
           selector: a
     - type: bannerSlider
-      selector: .BannerSliderBlock-box:nth-of-type(3)
+      selector: .BannerSliderBlock-box:nth-of-type(5)
       horizontalScrollSelector: '>div>div'
       children:
         - type: banner

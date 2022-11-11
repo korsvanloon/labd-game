@@ -105,6 +105,12 @@ export default function LevelView({ level, styles }: Props) {
         ),
       ],
     }))
+    if (typeof window !== 'undefined') {
+      const style = document.createElement('link')
+      style.rel = 'stylesheet'
+      style.href = `/styles/${window.location.pathname.split('/').pop()}.css`
+      document.head.appendChild(style)
+    }
   }, [])
 
   const ref = useRef<HTMLDivElement>(null)
