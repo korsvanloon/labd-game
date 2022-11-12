@@ -34,13 +34,18 @@ type Props = {
 
 export const MainMenu = ({ styles, ...attributes }: Props) => {
   const pathname = usePathname()
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(!pathname?.includes('level/'))
   const [profiles] = useProfiles()
   const { context, controllers, setControllerContext } = useControllers()
   const [selected, setSelected] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [currentLevel] = useLocalStorage<string>('currentLevel')
+
+  const menuItems = [
+    currentLevel ? { label: 'continue', href: currentLevel } : undefined,
+    ...staticMenuItems,
+  ]
 
   useEffect(() => {
     if (!open) return
@@ -71,7 +76,7 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
 
       switch (details.soloValue) {
         case 'special': {
-          router.push(menuItems[0].href)
+          router.push(staticMenuItems[0].href)
           setControllerContext('Main')
           setOpen(false)
           break
@@ -119,30 +124,25 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
         ref={ref}
         className={clsx(styles.mainMenu.root, open && styles.mainMenu.open)}
       >
-        {[
-          currentLevel ? { label: 'continue', href: currentLevel } : undefined,
-          ...menuItems,
-        ]
-          .filter(isValue)
-          .map(({ href, label }, i) => (
-            <Link
-              key={i}
-              href={href}
-              className={clsx(
-                !controllers.length && styles.mainMenu.disabled,
-                selected === i && styles.mainMenu.selected,
-              )}
-            >
-              {label}
-              {selected === i ? (
-                context[0] === 'Main' ? (
-                  <kbd data-key="left">left</kbd>
-                ) : (
-                  <kbd data-key="right">right</kbd>
-                )
-              ) : undefined}
-            </Link>
-          ))}
+        {menuItems.filter(isValue).map(({ href, label }, i) => (
+          <Link
+            key={i}
+            href={href}
+            className={clsx(
+              !controllers.length && styles.mainMenu.disabled,
+              selected === i && styles.mainMenu.selected,
+            )}
+          >
+            {label}
+            {selected === i ? (
+              context[0] === 'Main' ? (
+                <kbd data-key="left">left</kbd>
+              ) : (
+                <kbd data-key="right">right</kbd>
+              )
+            ) : undefined}
+          </Link>
+        ))}
         <hr className={styles.mainMenu.divider} />
         <ControllerButtons styles={styles} />
         <div className={styles.mainMenu.players}>
@@ -159,7 +159,7 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
   )
 }
 
-const menuItems = [
+const staticMenuItems = [
   {
     href: `/player`,
     label: 'Profiles',

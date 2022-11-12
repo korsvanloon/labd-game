@@ -1,13 +1,14 @@
 .root {
   position: fixed;
-  right: 2vh;
+  top: 12rem;
+  right: 2rem;
   display: flex;
   flex-direction: column;
-  width: min(100vw);
-  height: calc(120vh);
+  width: 1200px;
+  height: calc(200vh - 30rem);
   border: 2.5px solid hsla(0deg 0% 90%);
   background-color: hsl(0deg 0% 100% / 80%);
-  transform: scale(0.5);
+  transform: scale(var(--browser-scale));
   transform-box: fill-box;
   transform-origin: top right;
   border-top-left-radius: 2rem;

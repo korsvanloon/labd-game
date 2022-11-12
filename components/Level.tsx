@@ -1,19 +1,17 @@
 'use client'
+import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { handleAction } from '../game/action-handler'
 import { cheats } from '../game/cheats'
 import { Level } from '../game/level'
-import {
-  getNextComponents,
-  initialLevelProgress,
-  LevelState,
-  Ticket,
-} from '../game/level-progress'
+import { initialLevelProgress, LevelState } from '../game/level-progress'
 import { useControllers } from '../hooks/useControllers'
 import useTimedCounter from '../hooks/useCountdown'
 import usePlayerEvent from '../hooks/usePlayerEvent'
 import { useProfiles } from '../hooks/useProfiles'
-import { shuffle } from '../util/collection'
+import IconApi from '../public/icons/icon-api.svg'
+import IconCodeEditor from '../public/icons/icon-code-editor.svg'
+import IconEspressoMachine from '../public/icons/icon-espresso-machine.svg'
 import { randomSeed } from '../util/random'
 import { Apis, Styles as ApisStyles } from './Apis'
 import { AppBar, Styles as AppBarStyles } from './AppBar'
@@ -21,7 +19,7 @@ import { Browser, Styles as BrowserStyles } from './Browser'
 import { CodeEditor, Styles as CodeEditorStyles } from './CodeEditor'
 import { Styles as DialogSelectStyles } from './DialogSelect'
 import { PlayerEvent, PlayerStyles, PlayerView } from './Player'
-import { Styles as ScoreNumberStyles } from './ScoreNumber'
+import { ScoreNumber, Styles as ScoreNumberStyles } from './ScoreNumber'
 import { Sprint, Styles as SprintStyles } from './Sprint'
 import { Styles as TicketStyles, TicketCard } from './Ticket'
 
@@ -34,6 +32,8 @@ export type Styles = {
     playerTicket?: string
     playerTicketComponent?: string
     bottomPanels?: string
+    computer?: string
+    workspaces?: string
   }
 } & AppBarStyles &
   ApisStyles &
@@ -85,37 +85,25 @@ export default function LevelView({ level, styles }: Props) {
     // For debugging
     Object.assign(window, cheats(setLevelState, level))
 
-    // set initial progress
-    setLevelState((state) => ({
-      ...state,
-      tickets: [
-        ...state.tickets.slice(0, 5),
-        ...shuffle(
-          [
-            ...state.tickets.slice(5),
-            ...getNextComponents(
-              level.rootComponent,
-              state.tickets,
-            ).map<Ticket>((component, i) => ({
-              component,
-              progress: i === 0 ? 'coding' : 'specified',
-            })),
-          ],
-          random,
-        ),
-      ],
-    }))
     if (typeof window !== 'undefined') {
-      const style = document.createElement('link')
-      style.rel = 'stylesheet'
-      style.href = `/styles/${window.location.pathname.split('/').pop()}.css`
-      document.head.appendChild(style)
+      const siteSlug = level.url
+        .replace(/https:\/\/(www\.)?/, '')
+        .replace(/[\.\/]/g, '-')
+
+      addStyleSheet(`/styles/${level.slug}.css`)
     }
   }, [])
 
   const ref = useRef<HTMLDivElement>(null)
 
-  const bla = useCallback(
+  useEffect(() => {
+    ref.current?.style.setProperty(
+      '--browser-scale',
+      ((window.innerWidth * 0.3) / 1200).toFixed(1),
+    )
+  }, [ref.current])
+
+  const handlePlayerEvent = useCallback(
     (details: PlayerEvent, event: Event) => {
       if (details.event.soloValue === 'special') {
         setControllerContext('MainMenu')
@@ -131,7 +119,7 @@ export default function LevelView({ level, styles }: Props) {
     [controllers],
   )
 
-  usePlayerEvent(ref.current, bla)
+  usePlayerEvent(ref.current, handlePlayerEvent)
 
   return (
     <div className={styles.level.root} ref={ref}>
@@ -142,19 +130,49 @@ export default function LevelView({ level, styles }: Props) {
         styles={styles}
       />
 
+      <Browser
+        level={level}
+        progress={levelState}
+        className={styles.level.level}
+        styles={styles}
+      />
       <div className={styles.level.container}>
-        <Browser
-          level={level}
-          progress={levelState}
-          className={styles.level.level}
-          styles={styles}
-        />
-        <Apis level={level} styles={styles} />
-
-        <div className={styles.level.bottomPanels}>
-          <CodeEditor levelProgress={levelState} styles={styles} />
-
+        <div>
           <Sprint tickets={levelState.tickets} styles={styles} />
+
+          <IconEspressoMachine width={40} height={40} />
+        </div>
+        <div className={styles.level.workspaces}>
+          {levelState.activeWorkspaces.map((active, id) => (
+            <div key={id}>
+              <div className={styles.level.computer}>
+                {/* <IconComputer /> */}
+                <IconCodeEditor
+                  data-action-zone="set-workspace"
+                  data-work="code-editor"
+                  data-id={id}
+                  className={clsx(active === 'code-editor' && 'active')}
+                />
+                <IconApi
+                  data-action-zone="set-workspace"
+                  data-work="api"
+                  data-id={id}
+                  className={clsx(active === 'api' && 'active')}
+                />
+              </div>
+              {active === 'code-editor' ? (
+                <CodeEditor
+                  workspaceId={id}
+                  ticket={levelState.tickets.find(
+                    (t) => t.workspace === id && t.progress === 'coding',
+                  )}
+                  styles={styles}
+                />
+              ) : (
+                <Apis level={level} styles={styles} />
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -168,7 +186,9 @@ export default function LevelView({ level, styles }: Props) {
               styles={styles}
             >
               {levelState.tickets
-                .filter((p) => p.player === controller.id)
+                .filter(
+                  (t) => t.player === controller.id && t.progress !== 'coding',
+                )
                 .map((ticket) => (
                   <TicketCard
                     key={ticket.component.id}
@@ -183,6 +203,32 @@ export default function LevelView({ level, styles }: Props) {
           ))}
         </div>
       )}
+
+      {levelState.finished === 'won' && (
+        <ScoreNumber
+          changed
+          className={styles.appBar.winMessage}
+          styles={styles}
+        >
+          Completed
+        </ScoreNumber>
+      )}
+      {levelState.finished === 'lost' && (
+        <ScoreNumber
+          changed
+          className={styles.appBar.loseMessage}
+          styles={styles}
+        >
+          Deadline failed!
+        </ScoreNumber>
+      )}
     </div>
   )
+}
+
+const addStyleSheet = (href: string) => {
+  const style = document.createElement('link')
+  style.rel = 'stylesheet'
+  style.href = href
+  document.head.appendChild(style)
 }

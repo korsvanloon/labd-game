@@ -16,7 +16,7 @@ export const cheats = (
 
       tickets.forEach((ticket) => {
         ticket.progress = 'coding'
-        state.codingProgress.indents = ticket.component.codeLines.map(
+        ticket.codingProgress.indents = ticket.component.codeLines.map(
           (c) => c.indent,
         )
       })

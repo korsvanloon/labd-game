@@ -1,7 +1,7 @@
 .root {
   position: relative;
-  width: min(40vw);
-  height: min(48vw, 48vh);
+  width: 100%;
+  height: 100%;
   background-color: hsl(0deg 0% 0% / 90%);
   color: white;
   border-top-left-radius: 1rem;
@@ -11,6 +11,7 @@
 .header {
   display: block;
   width: 100%;
+  height: 3rem;
   padding: 0.5rem;
   background-color: hsl(0deg 0% 10%);
   text-align: center;
@@ -22,8 +23,9 @@
   position: relative;
   overflow-x: hidden;
   overflow-y: scroll;
-  height: calc(min(48vw, 48vh) - 3.5rem);
+  height: calc(100% - 4rem);
   padding: 1rem;
+  margin: 0;
 }
 
 .root pre > code {

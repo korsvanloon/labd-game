@@ -1,4 +1,5 @@
-url: https://www.knivesandtools.nl/
+url: https://www.knivesandtools.nl
+slug: kato-homepage
 apis:
   - name: commercetools
     type: commerce

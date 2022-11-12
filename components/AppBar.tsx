@@ -56,16 +56,6 @@ export const AppBar = ({
     >
       <div className={styles.appBar.stats}>
         <div>
-          <span>Time left</span>
-
-          <strong>{formatTime(level.totalTime - time)}</strong>
-        </div>
-        <div>
-          <span>Features</span>
-
-          <strong>{`${totalDeployed} / ${level.totalComponents}`}</strong>
-        </div>
-        <div>
           <span>Score</span>
           <ScoreNumber
             changed={scoreChange}
@@ -82,26 +72,19 @@ export const AppBar = ({
             {score}
           </ScoreNumber>
         </div>
-      </div>
+        <div>
+          <span>Features</span>
 
-      {levelState.finished === 'won' && (
-        <ScoreNumber
-          changed
-          className={styles.appBar.winMessage}
-          styles={styles}
-        >
-          Completed
-        </ScoreNumber>
-      )}
-      {levelState.finished === 'lost' && (
-        <ScoreNumber
-          changed
-          className={styles.appBar.loseMessage}
-          styles={styles}
-        >
-          Deadline failed!
-        </ScoreNumber>
-      )}
+          <strong>{`${totalDeployed - 1} / ${
+            level.totalComponents - 1
+          }`}</strong>
+        </div>
+        <div>
+          <span>Time left</span>
+
+          <strong>{formatTime(level.totalTime - time)}</strong>
+        </div>
+      </div>
     </header>
   )
 }

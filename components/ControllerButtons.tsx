@@ -4,8 +4,8 @@ import { HTMLAttributes } from 'react'
 import { JoyCon } from '../controller/joy-con/joycon'
 import { MouseKeyboard } from '../controller/mouse-keyboard'
 import { useControllers } from '../hooks/useControllers'
-import IconJoyCon from '../public/icon-joycon.svg'
-import IconKeyboard from '../public/icon-keyboard.svg'
+import IconJoyCon from '../public/icons/icon-joycon.svg'
+import IconKeyboard from '../public/icons/icon-keyboard.svg'
 
 export type Styles = {
   button: { primary?: string }

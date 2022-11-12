@@ -1,4 +1,5 @@
-url: https://labdigital.nl/
+url: https://labdigital.nl
+slug: labdigital-homepage
 apis: []
 rootComponent:
   type: page

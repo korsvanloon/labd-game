@@ -9,7 +9,7 @@ import {
   ticketValidation,
 } from './actions'
 import { Level } from './level'
-import { LevelState } from './level-progress'
+import { ActiveWorkspace, LevelState } from './level-progress'
 
 const scrollStep = 200
 
@@ -32,25 +32,44 @@ export const handleAction = (
             if (ticket) {
               ticket.player = undefined
             }
-            return { ...state }
+            return state
           })
         }
       }
     }
     for (const zone of actionZones) {
       switch (zone.type) {
+        case 'set-workspace': {
+          const workspace = Number(zone.element.dataset.id)
+          const work = zone.element.dataset.work as ActiveWorkspace
+
+          updateLevelState((s) => {
+            const state = structuredClone(s)
+            state.activeWorkspaces[workspace] = work
+            return state
+          })
+          break
+        }
         case 'api': {
           handleApiAction(event, zone, updateLevelState, controller)
           break
         }
         case 'code-editor': {
+          const workspace = Number(zone.element.dataset.id)
+
           switch (event.soloValue) {
             case 'up': {
               updateLevelState((s) => {
                 const state = structuredClone(s)
-                const { current } = state.codingProgress
-                state.codingProgress.current = Math.max(0, current - 1)
-                return { ...state }
+                const ticket = state.tickets.find(
+                  (c) => c.progress === 'coding' && c.workspace === workspace,
+                )
+                if (!ticket) return state
+                ticket.codingProgress.current = Math.max(
+                  0,
+                  ticket.codingProgress.current - 1,
+                )
+                return state
               })
               break
             }
@@ -58,11 +77,11 @@ export const handleAction = (
               updateLevelState((s) => {
                 const state = structuredClone(s)
                 const ticket = state.tickets.find(
-                  (c) => c.progress === 'coding',
+                  (c) => c.progress === 'coding' && c.workspace === workspace,
                 )
                 if (!ticket) return state
 
-                const { current, indents } = state.codingProgress
+                const { current, indents } = ticket.codingProgress
 
                 if (
                   // current is at last coded line
@@ -70,48 +89,56 @@ export const handleAction = (
                   // but there is more to code
                   indents.length < ticket.component.codeLines.length
                 ) {
-                  addLine(state)
+                  addLine(ticket)
                 }
-                state.codingProgress.current = Math.min(
+                ticket.codingProgress.current = Math.min(
                   current + 1,
                   ticket.component.codeLines.length - 1,
                 )
-                return { ...state }
+                return state
               })
               break
             }
             case 'left': {
               updateLevelState((s) => {
                 const state = structuredClone(s)
-                changeIndent(state, -1)
-                return { ...state }
+                const ticket = state.tickets.find(
+                  (c) => c.progress === 'coding' && c.workspace === workspace,
+                )
+                if (!ticket) {
+                  return state
+                }
+                changeIndent(ticket, -1)
+                return state
               })
               break
             }
             case 'right': {
               updateLevelState((s) => {
                 const state = structuredClone(s)
-                const ticket = getPlayerTicket(state, controller.id)
-                if (ticket?.progress === 'specified') {
-                  const existing = state.tickets.find(
-                    (t) => t.progress === 'coding',
-                  )
-                  if (existing) {
-                    existing.progress = 'specified'
+                const ticket = state.tickets.find(
+                  (c) => c.progress === 'coding' && c.workspace === workspace,
+                )
+                const playerTicket = getPlayerTicket(state, controller.id)
+                if (playerTicket?.progress === 'specified') {
+                  if (ticket) {
+                    ticket.progress = 'specified'
+                    ticket.workspace = undefined
                   }
-                  ticket.progress = 'coding'
-                  ticket.player = undefined
-                  state.codingProgress = {
+                  playerTicket.progress = 'coding'
+                  playerTicket.player = undefined
+                  playerTicket.workspace = workspace
+                  playerTicket.codingProgress = {
                     current: 0,
                     errors: [],
                     indents: [0],
                   }
-                  return { ...state }
-                } else {
-                  const { current, indents } = state.codingProgress
+                  return state
+                } else if (ticket) {
+                  const { current, indents } = ticket.codingProgress
                   if (current > 0 && indents[current] <= indents[current - 1]) {
-                    changeIndent(state, +1)
-                    return { ...state }
+                    changeIndent(ticket, +1)
+                    return state
                   }
                 }
 
@@ -123,32 +150,33 @@ export const handleAction = (
           break
         }
         case 'commit-button': {
+          const workspace = Number(zone.element.dataset.id)
+
           switch (event.soloValue) {
             case 'right': {
               updateLevelState((s) => {
                 const state = structuredClone(s)
                 const ticket = state.tickets.find(
-                  (c) => c.progress === 'coding',
+                  (c) => c.progress === 'coding' && c.workspace === workspace,
                 )
                 if (
                   !ticket ||
-                  state.codingProgress.indents.length !==
+                  ticket.codingProgress.indents.length !==
                     ticket.component.codeLines.length
                 )
                   return state
 
-                const { isValid, errors } = ticketValidation(state, ticket)
+                const { isValid, errors } = ticketValidation(ticket)
 
                 if (isValid) {
                   commit(state, ticket)
-                } else if (!arrayEquals(state.codingProgress.errors, errors)) {
+                } else if (!arrayEquals(ticket.codingProgress.errors, errors)) {
                   controller.buzz()
-                  state.codingProgress.errors = errors
+                  ticket.codingProgress.errors = errors
                   state.bugs += errors.filter(Boolean).length
                 }
-                return { ...state }
+                return state
               })
-              // return is event.preventDefault()
               return
             }
           }
@@ -181,7 +209,7 @@ export const handleAction = (
                   ticket.player = undefined
                   controller.buzz()
                 }
-                return { ...state }
+                return state
               })
               break
             }
@@ -232,7 +260,7 @@ export const handleAction = (
                 if (ticket) {
                   ticket.player = controller.id
                 }
-                return { ...state }
+                return state
               })
               break
             }
@@ -263,7 +291,7 @@ export const handleAction = (
                 if (ticket) {
                   ticket.player = undefined
                 }
-                return { ...state }
+                return state
               })
               break
             }
@@ -303,7 +331,7 @@ export function handleApiAction(
           addBugs(state, 1, controller)
           ticket.player = undefined
         }
-        return { ...state }
+        return state
       })
       break
     }

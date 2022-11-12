@@ -6,12 +6,14 @@ import { findNodes } from '../util/tree'
 
 export type LevelFile = {
   url: string
+  slug: string
   rootComponent: Component
   apis: Api[]
 }
 
 export interface Level {
   url: string
+  slug: string
   rootComponent: Component
   totalComponents: number
   apis: Api[]
@@ -140,6 +142,7 @@ export const createLevel = (
 
   return {
     url: levelFile.url,
+    slug: levelFile.slug,
     apis: levelFile.apis,
     rootComponent: levelFile.rootComponent,
     totalComponents,
@@ -224,19 +227,6 @@ export const enhanceComponent = (
 
   component.html ??= dom.outerHTML
 }
-
-// export const getSanitizedHtml = (dom: HTMLElement) => {
-//   dom.querySelectorAll('input').forEach((d) => d.setAttribute('readonly', ''))
-//   dom.querySelectorAll('a').forEach((d) => d.removeAttribute('href'))
-//   // return dom.outerHTML
-//   return (
-//     dom?.outerHTML
-//       // .replace(/<(a|button|select) /g, '<span ')
-//       // .replace(/<\/(a|button|input|select)>/g, '</span>')
-//       .replace(/<noscript>/g, '')
-//       .replace(/<\/noscript>/g, '')
-//   )
-// }
 
 type FieldNode = {
   nodes?: HTMLElement[]
@@ -325,10 +315,12 @@ export function* getCodeLines(
 export const sanitizeClasses = (value: string) =>
   /__[0-9A-Za-z]{5}$/.test(value) && !/__[a-z]{5}$/.test(value)
     ? value.replace(/__[0-9A-Za-z]{5}$/, '')
-    : value.replace(/[\w-]+(--|__)/g, '')
+    : value.replace(/([\w-]+(--|__)|Mui|-root|jss\d+)/g, '')
 
 export const codeLinesToString = (codeLines: CodeLine[]) =>
-  codeLines.map((c) => '  '.repeat(c.indent) + codeLineToString(c)).join('\n')
+  codeLines
+    .map((c) => '  '.repeat(c.indent) + codeLineToString(c).trim())
+    .join('\n')
 
 export const codeLineToString = (codeLine: CodeLine) => {
   switch (codeLine.type) {

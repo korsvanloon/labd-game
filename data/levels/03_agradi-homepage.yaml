@@ -1,4 +1,5 @@
-url: https://www.agradi.nl/
+url: https://www.agradi.nl
+slug: agradi-homepage
 apis:
   - name: wagtail
     type: cms

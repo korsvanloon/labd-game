@@ -19,16 +19,20 @@ async function main() {
 
     const htmlString = await fetch(levelFile.url).then((r) => r.text())
 
-    writeFileSync(`data/sites/${levelName}.html`, htmlString)
+    const siteSlug = levelFile.url
+      .replace(/https:\/\/(www\.)?/, '')
+      .replace(/[\.\/]/g, '-')
 
-    await writeStyles(levelName, levelFile, htmlString)
+    writeFileSync(`data/sites/${siteSlug}.html`, htmlString)
+
+    await writeStyles(siteSlug, levelFile, htmlString)
   }
 }
 
 main()
 
 async function writeStyles(
-  levelName: string,
+  siteSlug: string,
   levelFile: LevelFile,
   htmlString: string,
 ) {
@@ -58,7 +62,7 @@ async function writeStyles(
     ).process(styles.join('\n'))
   ).toString()
 
-  writeFileSync(`./public/styles/${levelName}.css`, style)
+  writeFileSync(`./public/styles/${siteSlug}.css`, style)
 }
 
 const prefixSelectorPlugin: PluginCreator<{ selector: string }> = (

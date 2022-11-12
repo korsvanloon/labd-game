@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "scrape": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register scripts/scrape.ts",
-    "scrape2": "node --experimental-specifier-resolution=node --loader ts-node/esm -r ts-node/register -r tsconfig-paths/register scripts/scrape.ts"
+    "generate-code-lines": "ts-node -O '{\"module\": \"commonjs\"}' -r tsconfig-paths/register scripts/generate-code-lines.ts"
   },
   "dependencies": {
     "@types/dom-parser": "^0.1.1",

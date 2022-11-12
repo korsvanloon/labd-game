@@ -4,5 +4,5 @@
   color: white;
   font-size: 2rem;
   box-shadow: 0 0 1rem var(--turqoise), inset 0 0 1rem var(--turqoise);
-  backdrop-filter: blur(8px) hue-rotate(220deg);
+  backdrop-filter: blur(8px) hue-rotate(220deg) brightness(0.5);
 }

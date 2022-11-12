@@ -36,6 +36,7 @@ type ActionZoneType =
   | 'component-slot'
   | 'vertical-scroll'
   | 'horizontal-scroll'
+  | 'set-workspace'
 
 type PlayerState = {
   position?: Point2
@@ -177,12 +178,6 @@ const addHover = (actionZone: ActionZone, color: string) => {
     actionZone.element.style.setProperty('--player-color', color)
   }
   switch (actionZone.type) {
-    case 'api':
-    case 'component-slot': {
-      actionZone.element.classList.add('hover', color)
-      actionZone.element.style.setProperty('--player-color', color)
-      break
-    }
     case 'ticket': {
       actionZone.element.classList.add('hover', color)
       actionZone.element.style.setProperty('--player-color', color)
@@ -191,6 +186,11 @@ const addHover = (actionZone: ActionZone, color: string) => {
     }
     case 'commit-button': {
       actionZone.element.classList.add('hover', color)
+      break
+    }
+    default: {
+      actionZone.element.classList.add('hover', color)
+      actionZone.element.style.setProperty('--player-color', color)
       break
     }
   }

@@ -1,4 +1,3 @@
-import { existsSync } from 'fs'
 import apis from 'styles/Apis.module.css'
 import appBar from 'styles/AppBar.module.css'
 import browser from 'styles/Browser.module.css'
@@ -34,9 +33,7 @@ type Props = {
 export default async function Page({ params: { level: levelName } }: Props) {
   const levelFile = readLevelFile(levelName)
 
-  const htmlString = existsSync(`./data/sites/${levelName}.html`)
-    ? readLevelHtml(levelName)
-    : await fetch(levelFile.url).then((r) => r.text())
+  const htmlString = readLevelHtml(levelFile.slug)
 
   const level = createLevel(htmlString, levelFile)
 

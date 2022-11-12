@@ -97,7 +97,7 @@ export const useControllers = () => {
         return
       }
       window.localStorage.setItem(CONTROLLER, 'true')
-      document.body.classList.add('mouse-keyboard-controller')
+      // document.body.classList.add('mouse-keyboard-controller')
     }
     window.dispatchEvent(
       new CustomEvent(CONTROLLER + '-add', { detail: controller }),

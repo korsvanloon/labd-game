@@ -21,11 +21,15 @@ export type LevelOverviewStyles = {
 }
 
 type Props = {
-  levels: string[]
+  links: string[]
   styles: LevelOverviewStyles
 } & HTMLAttributes<HTMLDivElement>
 
-export const LevelOverview = ({ levels, styles, ...attributes }: Props) => {
+export const LevelOverview = ({
+  links: levels,
+  styles,
+  ...attributes
+}: Props) => {
   const [selected, setSelected] = useState(0)
   const router = useRouter()
   const { setControllerContext } = useControllers()
@@ -89,7 +93,7 @@ export const LevelOverview = ({ levels, styles, ...attributes }: Props) => {
                 selected === i && styles.levelOverview.selected,
               )}
             >
-              {capitalCase(level.replace(/^\d{2}-/, ''))}
+              {capitalCase(level.split('_').pop()!)}
             </Link>
           </li>
         ))}

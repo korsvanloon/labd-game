@@ -1,0 +1,64 @@
+url: https://www.knivesandtools.nl/nl/ct/keukengerei-kopen.htm
+slug: kato-pop
+apis:
+  - name: commercetools
+    type: commerce
+    contentTypes:
+      - name: product
+        # fields:
+        #   - name: usp
+        #     type: text
+  - name: amplience
+    type: cms
+    contentTypes:
+      - name: link
+      - name: facetConfig
+        fields:
+          - name: title
+            type: text
+            selector: h3
+          - name: subTitle
+            type: text
+            selector: p
+          - name: tag
+            type: text
+            selector: .MuiTag-text
+          - name: linkText
+            type: text
+            selector: span
+rootComponent:
+  type: page
+  selector: body
+  children:
+    - type: productListing
+      selector: .MuiProductListing-root > div
+      children:
+        - type: productFacets
+          selector: '> *:nth-of-type(1)'
+          children:
+            - type: facetConfig
+              selector: .MuiAccordion-root
+              forEach:
+                api: amplience.facetConfig
+            # - type: facetNavigation
+            #   selector: nav
+            # children:
+            #   - type: link
+            #     selector: nav > a
+            #     forEach:
+            #       api: amplience.link
+            # - type: link
+            #   selector: 'nav > a'
+            #   forEach:
+            #     api: amplience.link
+        - type: productResults
+          selector: '> *:nth-of-type(2)'
+          children:
+            - type: product
+              selector: article
+              forEach:
+                api: commercetools.product
+            - type: usp
+              selector: .MuiProductListing-usp
+              forEach:
+                api: commercetools.usp

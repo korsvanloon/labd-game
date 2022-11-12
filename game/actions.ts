@@ -1,28 +1,26 @@
-import { shuffle } from '../util/collection'
 import { clamp } from '../util/math'
 import { randomSeed } from '../util/random'
 import { Level } from './level'
-import { getNextComponents, LevelState, Ticket } from './level-progress'
+import { LevelState, Ticket } from './level-progress'
 
 const seed = 2
 const random = randomSeed(seed)
 
-export function changeIndent(state: LevelState, change: number) {
-  const { indents, errors, current } = state.codingProgress
-  const ticket = state.tickets.find((t) => t.progress === 'coding')
+export function changeIndent(ticket: Ticket, change: number) {
+  const { indents, errors, current } = ticket.codingProgress
   if (ticket && current < ticket?.component.codeLines.length) {
     indents[current] = clamp(indents[current] + change, 0, 10)
     errors[current] = false
   }
 }
 
-export function addLine(state: LevelState) {
-  const { indents } = state.codingProgress
+export function addLine(ticket: Ticket) {
+  const { indents } = ticket.codingProgress
   indents.push(indents[indents.length - 1])
 }
 
 export function deploy(
-  state: LevelState,
+  _state: LevelState,
   _level: Level,
   ticket: Ticket,
   dropZone: HTMLElement,
@@ -39,60 +37,30 @@ export function deploy(
     ticket.player = undefined
   } else {
   }
-
-  const queueSize = 4
-
-  const existingSpecified = state.tickets
-    .filter((t) => t.progress === 'specified')
-    .slice(queueSize)
-
-  state.tickets = [
-    ...state.tickets.filter((t) => !existingSpecified.includes(t)),
-    // All new items after the queue size get shuffled to create some randomness and replayability.
-    ...shuffle(
-      [
-        ...existingSpecified,
-        ...getNextComponents(ticket.component, state.tickets).map<Ticket>(
-          (component) => ({
-            component,
-            progress: 'specified',
-          }),
-        ),
-      ],
-      random,
-    ),
-  ]
 }
 
-export const ticketValidation = (state: LevelState, ticket: Ticket) => {
+export const ticketValidation = (ticket: Ticket) => {
   const errors = ticket.component.codeLines.map(
-    ({ indent }, i) => indent !== state.codingProgress.indents[i],
+    ({ indent }, i) => indent !== ticket.codingProgress.indents[i],
   )
   const isValid = errors.every((error) => !error)
   return { isValid, errors }
 }
 
 export function commit(state: LevelState, ticket: Ticket) {
-  state.codingProgress.indents = [0]
-  state.codingProgress.current = 0
-  state.codingProgress.errors = []
-
   const progress: Ticket['progress'] = ticket.component.forEach?.api
     ? 'coded'
     : 'ready'
 
   ticket.progress = progress
+  ticket.workspace = undefined
+  ticket.player = undefined
+
   state.tickets
     .filter(
       (p) =>
         p.component.type === ticket.component.type &&
         p.progress === 'specified',
     )
-
     .forEach((p) => (p.progress = progress))
-
-  const newTicket = state.tickets.find((c) => c.progress === 'specified')
-  if (newTicket) {
-    newTicket.progress = 'coding'
-  }
 }

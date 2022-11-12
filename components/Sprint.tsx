@@ -30,7 +30,8 @@ export const Sprint = ({ tickets, styles, ...attributes }: Props) => {
             <TicketCard
               ticket={ticket}
               key={ticket.component.id}
-              rotation={-0.5 * Math.PI}
+              rotation={0}
+              // rotation={-0.5 * Math.PI}
               className={styles.sprint.openTicket}
               componentClassName={clsx(styles.sprint.openTicketComponent)}
               styles={styles}

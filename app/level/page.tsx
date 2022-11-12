@@ -10,7 +10,7 @@ export default async function Page() {
 
   return (
     <LevelOverview
-      levels={levels}
+      links={levels}
       styles={{ levelOverview: levelOverviewStyles }}
     />
   )

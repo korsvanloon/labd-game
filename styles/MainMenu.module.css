@@ -9,6 +9,7 @@
   padding: 0;
   border: none;
   background: url('/icons/icon-menu.svg') no-repeat center center;
+  background-size: 80%;
   color: transparent;
   cursor: pointer;
 }
