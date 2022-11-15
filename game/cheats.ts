@@ -1,3 +1,4 @@
+import { isValue } from '../util/collection'
 import { commit, deploy } from './actions'
 import { Component, Level } from './level'
 import { LevelState } from './level-progress'
@@ -43,8 +44,9 @@ export const cheats = (
         .slice(0, amount)
 
       tickets.forEach((ticket) => {
-        const dropZone = findDropZone(ticket.component)
-        deploy(state, level, ticket, dropZone)
+        findDropZones(ticket.component).forEach((dropZone) =>
+          deploy(state, level, ticket, dropZone),
+        )
       })
       console.info(tickets.slice(-1)[0])
       return { ...state }
@@ -62,13 +64,18 @@ export const cheats = (
         .slice(0, amount)
 
       tickets.forEach((ticket) => {
-        const dropZone = findDropZone(ticket.component)
-        deploy(state, level, ticket, dropZone)
+        findDropZones(ticket.component).forEach((dropZone) =>
+          deploy(state, level, ticket, dropZone),
+        )
       })
       console.info(tickets.slice(-1)[0])
       return { ...state }
     }),
 })
 
-const findDropZone = (component: Component) =>
-  document.querySelector<HTMLElement>(`[data-component-id='${component.id}']`)!
+const findDropZones = (component: Component) =>
+  [component.id, ...(component.forEach?.ids ?? [])]
+    .map((id) =>
+      document.querySelector<HTMLElement>(`[data-component-id='${id}']`),
+    )
+    .filter(isValue)

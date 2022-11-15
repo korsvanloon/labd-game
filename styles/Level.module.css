@@ -62,7 +62,7 @@
 .computer {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: flex-start;
   padding: 2rem;
   background-color: hsla(0deg 0% 100% / 75%);
   gap: 2rem;
@@ -76,4 +76,21 @@
 
 .computer svg:global(.active) {
   fill: var(--player-color, black);
+}
+
+.winMessage {
+  --color: var(--green);
+}
+
+.winMessage em,
+.loseMessage em {
+  width: min-content;
+  font-size: 3rem;
+  font-weight: 800;
+  text-shadow: 0 0 10px black;
+  transform-origin: top left;
+}
+
+.loseMessage {
+  --color: var(--red);
 }

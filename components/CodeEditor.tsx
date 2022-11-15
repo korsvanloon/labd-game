@@ -59,7 +59,31 @@ export const CodeEditor = ({ ticket, styles, ...attributes }: Props) => {
                     styles.codeEditor.selected,
                   ticket.codingProgress.errors[i] && styles.codeEditor.error,
                 )}
+                style={
+                  {
+                    '--indents': ticket.codingProgress.indents[i],
+                  } as any
+                }
               >
+                {ticket.codingProgress.current === i && (
+                  <>
+                    {ticket.codingProgress.indents[i] ? (
+                      <kbd data-key="left">left</kbd>
+                    ) : undefined}
+                    {i > 0 &&
+                    ticket.codingProgress.indents[i - 1] + 1 >
+                      ticket.codingProgress.indents[i] ? (
+                      <kbd data-key="right">right</kbd>
+                    ) : undefined}
+                    {ticket.codingProgress.indents[i] ? (
+                      <kbd data-key="up">up</kbd>
+                    ) : undefined}
+                    {ticket.codingProgress.current <
+                    ticket.codingProgress.indents.length - 1 ? (
+                      <kbd data-key="down">down</kbd>
+                    ) : undefined}
+                  </>
+                )}
                 {'  '.repeat(ticket.codingProgress.indents[i])}
                 {line.type === 'element' ? (
                   <>

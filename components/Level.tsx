@@ -1,10 +1,15 @@
 'use client'
+import { capitalCase } from 'change-case'
 import clsx from 'clsx'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { handleAction } from '../game/action-handler'
 import { cheats } from '../game/cheats'
 import { Level } from '../game/level'
-import { initialLevelProgress, LevelState } from '../game/level-progress'
+import {
+  calculateScore,
+  initialLevelProgress,
+  LevelState,
+} from '../game/level-progress'
 import { useControllers } from '../hooks/useControllers'
 import useTimedCounter from '../hooks/useCountdown'
 import useGameEvent from '../hooks/useGameEvent'
@@ -26,6 +31,8 @@ import { Styles as TicketStyles, TicketCard } from './Ticket'
 
 export type Styles = {
   level: {
+    winMessage: string | undefined
+    loseMessage: string | undefined
     root?: string
     container?: string
     level?: string
@@ -238,22 +245,28 @@ export default function LevelView({ level, styles }: Props) {
       )}
 
       {levelState.finished === 'won' && (
-        <ScoreNumber
-          changed
-          className={styles.appBar.winMessage}
-          styles={styles}
+        <div
+          className={clsx(styles.scoreNumber.panel, styles.level.winMessage)}
         >
-          Completed
-        </ScoreNumber>
+          <ScoreNumber changed styles={styles}>
+            Completed
+          </ScoreNumber>
+          <p>
+            Congratulations! You've completed
+            <br />
+            {capitalCase(level.slug.split('_').pop()!)} with a score of{' '}
+            <strong>{calculateScore(level, levelState, time)}</strong>.
+          </p>
+        </div>
       )}
       {levelState.finished === 'lost' && (
-        <ScoreNumber
-          changed
-          className={styles.appBar.loseMessage}
-          styles={styles}
+        <div
+          className={clsx(styles.scoreNumber.panel, styles.level.loseMessage)}
         >
-          Deadline failed!
-        </ScoreNumber>
+          <ScoreNumber changed styles={styles}>
+            Deadline failed!
+          </ScoreNumber>
+        </div>
       )}
     </div>
   )

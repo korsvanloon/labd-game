@@ -24,20 +24,6 @@ export const handleAction = (
   controller: Controller,
 ) =>
   function (event: ButtonEvent, actionZones: ActionZone[]) {
-    if (!actionZones.length) {
-      switch (event.soloValue) {
-        case 'left': {
-          if (!event.changed) return
-          updateLevelState((state) => {
-            const ticket = getPlayerTicket(state, controller.id)
-            if (ticket) {
-              ticket.player = undefined
-            }
-            return state
-          })
-        }
-      }
-    }
     for (const zone of actionZones) {
       switch (zone.type) {
         case 'set-workspace': {
@@ -213,9 +199,6 @@ export const handleAction = (
                 }
                 return state
               })
-              // if (!zone.element.dataset.componentId) {
-              //   zone.element.removeAttribute('data-action-zone')
-              // }
               break
             }
           }
@@ -232,7 +215,8 @@ export const handleAction = (
                   parseInt(zone.element.style.marginLeft || '0') + scrollStep,
                 )}px`
               }
-              break
+              return
+              // break
             }
             case 'right': {
               if (getComputedStyle(zone.element).overflowX !== 'visible') {
@@ -243,7 +227,8 @@ export const handleAction = (
                   parseInt(zone.element.style.marginLeft || '0') - scrollStep,
                 )}px`
               }
-              break
+              return
+              // break
             }
           }
           break

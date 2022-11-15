@@ -54,28 +54,3 @@
   width: 2.5rem;
   height: 2.5rem;
 }
-
-
-.winMessage {
-  --color: var(--green);
-
-  position: fixed;
-  z-index: 1000;
-  top: 40%;
-  left: 45%;
-  font-size: 3rem;
-  font-weight: 800;
-  text-shadow: 0 0 10px black;
-}
-
-.loseMessage {
-  --color: var(--red);
-
-  position: fixed;
-  z-index: 1000;
-  top: 40%;
-  left: 45%;
-  font-size: 3rem;
-  font-weight: 800;
-  text-shadow: 0 0 10px black;
-}

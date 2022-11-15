@@ -3,6 +3,7 @@ import { HTMLAttributes } from 'react'
 
 export type Styles = {
   scoreNumber: {
+    panel: string | undefined
     root?: string
     change?: string
   }
@@ -21,7 +22,7 @@ export const ScoreNumber = ({
   ...attributes
 }: Props) => {
   return (
-    <div
+    <em
       {...attributes}
       className={clsx(
         styles.scoreNumber.root,
@@ -30,6 +31,6 @@ export const ScoreNumber = ({
       )}
     >
       {children}
-    </div>
+    </em>
   )
 }

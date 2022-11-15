@@ -29,8 +29,35 @@
 }
 
 .root pre > code {
+  position: relative;
   display: block;
+  padding-left: 2rem;
   font-size: 1vw;
+}
+
+.root pre kbd {
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+
+}
+
+.root pre kbd[data-key=left] {
+  left: 0;
+}
+
+.root pre kbd[data-key=right] {
+  left: calc(var(--indents) * 2rem);
+}
+
+.root pre kbd[data-key=up] {
+  top: -2rem;
+  left: 0;
+}
+
+.root pre kbd[data-key=down] {
+  bottom: -2rem;
+  left: 0;
 }
 
 .selected {
@@ -107,12 +134,13 @@
   position: absolute;
   top: 3rem;
   right: 1rem;
-  min-width: 12.5rem;
-  padding: 0.5rem;
+  min-width: 20.5rem;
+  padding: 1rem;
   border: none;
   background-color: hsl(200deg 100% 35%);
   color: white;
-  border-radius: 0.25rem;
+  font-size: 2rem;
+  border-radius: 0.5rem;
 }
 
 .commitButton:disabled {

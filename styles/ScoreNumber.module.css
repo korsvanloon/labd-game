@@ -13,6 +13,26 @@
   transform: scale(4);
 }
 
+.panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100rem;
+  height: 50rem;
+  padding: 8rem;
+  composes: panel from './panel.css';
+  transform: translate(-50%, -50%);
+  background-color: hsl(0deg 0% 10% / 20%);
+
+}
+
+.panel p {
+  margin: 0;
+  font-size: 4rem;
+}
 
 @keyframes anim-wishlist {
   0% {

@@ -93,7 +93,7 @@ export const PlayerView = ({
     })
 
     controller.addMoveListener('Main', ({ move, sameDirectionCount }) => {
-      if (accelerationDebounced(sameDirectionCount, 0.5, 16)) {
+      if (accelerationDebounced(sameDirectionCount, 0.4, 32)) {
         return
       }
       return setState((state) => {
