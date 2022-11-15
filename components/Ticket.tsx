@@ -24,7 +24,7 @@ export type Styles = {
 type Props = {
   ticket: Ticket
   /** In radians */
-  rotation: number
+  rotation?: number
   componentClassName?: string
   styles: Styles
 } & HTMLAttributes<HTMLDivElement>

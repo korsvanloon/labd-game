@@ -15,5 +15,5 @@ export default function usePlayerEvent(
     return () => {
       element?.removeEventListener('player-button', handler, true)
     }
-  }, [element])
+  }, [element, callback])
 }

@@ -35,7 +35,6 @@ export function deploy(
   if (!ticket.component.forEach?.ids.length) {
     ticket.progress = 'deployed'
     ticket.player = undefined
-  } else {
   }
 }
 

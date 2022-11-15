@@ -29,6 +29,7 @@ export type ActionZone = {
 }
 
 type ActionZoneType =
+  | 'level'
   | 'code-editor'
   | 'ticket'
   | 'api'
@@ -92,14 +93,14 @@ export const PlayerView = ({
     })
 
     controller.addMoveListener('Main', ({ move, sameDirectionCount }) => {
-      if (accelerationDebounced(sameDirectionCount)) {
+      if (accelerationDebounced(sameDirectionCount, 0.5, 16)) {
         return
       }
       return setState((state) => {
         if (!state.position) {
           return state
         }
-        const speed = controller instanceof JoyCon ? 8 : 1
+        const speed = controller instanceof JoyCon ? 2 : 1
 
         const position = getNewPosition(state.position, move, speed)
 
@@ -170,6 +171,7 @@ const removeExistingHover = (color: string) => {
 }
 
 const addHover = (actionZone: ActionZone, color: string) => {
+  if (actionZone.type === 'level') return
   if (
     actionZone.element instanceof HTMLButtonElement ||
     actionZone.element instanceof HTMLAnchorElement

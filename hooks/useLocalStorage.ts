@@ -1,8 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { retrieveData, storeData } from '../util/local-storage'
 
 export default function useLocalStorage<T>(name: string) {
-  const [state, setState] = useState(retrieveData<T>(name))
+  const [state, setState] = useState<T | undefined>()
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setState(retrieveData<T>(name))
+    }
+  }, [])
 
   return [
     state,

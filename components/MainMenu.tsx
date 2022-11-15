@@ -43,7 +43,7 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
   const [currentLevel] = useLocalStorage<string>('currentLevel')
 
   const menuItems = [
-    currentLevel ? { label: 'continue', href: currentLevel } : undefined,
+    { label: 'Continue', href: currentLevel },
     ...staticMenuItems,
   ]
 
@@ -83,14 +83,17 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
         }
         case 'right':
         case 'down':
-          if (selected === 0) {
-            setOpen(false)
-          }
-          if (selectedPath !== '/help') {
-            setControllerContext('Main')
-          }
+          console.log(currentSelected)
           if (selectedPath) {
+            if (selectedPath !== '/help') {
+              setControllerContext('Main')
+            }
+
             router.push(selectedPath)
+
+            if (selected === 0) {
+              setOpen(false)
+            }
           }
           break
       }
@@ -127,14 +130,20 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
         {menuItems.filter(isValue).map(({ href, label }, i) => (
           <Link
             key={i}
-            href={href}
-            className={clsx(
-              !controllers.length && styles.mainMenu.disabled,
-              selected === i && styles.mainMenu.selected,
-            )}
+            href={href ?? ''}
+            className={clsx({
+              [styles.mainMenu.selected!]: i === selected,
+              [styles.mainMenu.disabled!]:
+                !(
+                  controllers.length
+                  //  &&
+                  // currentLevel &&
+                  // i === 0
+                ),
+            })}
           >
             {label}
-            {selected === i ? (
+            {i === selected ? (
               context[0] === 'Main' ? (
                 <kbd data-key="left">left</kbd>
               ) : (
@@ -161,7 +170,7 @@ export const MainMenu = ({ styles, ...attributes }: Props) => {
 
 const staticMenuItems = [
   {
-    href: `/player`,
+    href: `/profile`,
     label: 'Profiles',
   },
   {

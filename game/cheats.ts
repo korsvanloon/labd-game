@@ -56,6 +56,7 @@ export const cheats = (
           (p) =>
             p.progress === 'specified' ||
             p.progress === 'coded' ||
+            p.progress === 'api-progress' ||
             p.progress === 'coding',
         )
         .slice(0, amount)

@@ -11,30 +11,30 @@
   text-align: center;
 }
 
+.apis {
+  display: flex;
+  gap: 1vw;
+}
+
 .api {
   padding: 1vw;
   background-color: hsl(0deg 0% 100% / 90%);
-}
-
-.root > div {
-  display: flex;
-  gap: 1vw;
 }
 
 .api > div {
   padding-left: 0.5vw;
 }
 
-.api > div > div {
+.endpoint {
   position: relative;
   padding-left: 1.5vw;
 }
 
-.api > div > div::before {
+.endpoint::before {
   content: '/';
 }
 
-.api > div > div::after {
+.endpoint::after {
   content: 'get';
   position: absolute;
   left: 0;
@@ -46,4 +46,45 @@
 .api :global(.hover) {
   color: var(--player-color);
   text-shadow: 0 0 0.5rem var(--player-color);
+}
+
+.progresses {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0;
+  gap: 2rem;
+}
+
+.progress {
+  position: relative;
+  background-color: white;
+}
+
+
+@keyframes progress {
+  0% {
+    stroke-dashoffset: 565.2;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.circle {
+  width: 2rem;
+  height: 2rem;
+  transform: rotate(-90deg);
+  transform-origin: center center;
+}
+
+.circle circle {
+  stroke: hsl(0deg 0% 95% / 90%);
+  stroke-width: 10rem;
+}
+
+.circle :last-child {
+  stroke-dashoffset: calc(2 * 3.14 * 90);
+  animation: progress var(--duration) normal forwards linear;
+  stroke: var(--green);
 }

@@ -22,7 +22,6 @@ export type Styles = {
 }
 
 type Props = {
-  workspaceId: number
   ticket?: Ticket
   styles: Styles
 } & HTMLAttributes<HTMLDivElement>
@@ -34,14 +33,8 @@ export type CodeAction =
   | 'indent-right'
   | 'commit'
 
-export const CodeEditor = ({
-  workspaceId,
-  ticket,
-  styles,
-  ...attributes
-}: Props) => {
+export const CodeEditor = ({ ticket, styles, ...attributes }: Props) => {
   const ref = useRef<HTMLPreElement>(null)
-  // const ticket = tickets.find((p) => p.progress === 'coding')
   const lines = ticket?.component.codeLines ?? []
 
   useEffect(() => {
@@ -54,7 +47,7 @@ export const CodeEditor = ({
   return (
     <div {...attributes} className={clsx(styles.codeEditor.root)}>
       <div className={styles.codeEditor.header}>{ticket?.component.type}</div>
-      <pre ref={ref} data-action-zone="code-editor" data-id={workspaceId}>
+      <pre ref={ref} data-action-zone="code-editor">
         {ticket &&
           lines
             .slice(0, ticket.codingProgress.indents.length)
@@ -109,7 +102,6 @@ export const CodeEditor = ({
           ticket?.component.codeLines.length
         }
         data-action-zone="commit-button"
-        data-id={workspaceId}
       >
         Commit
       </button>

@@ -7,6 +7,7 @@ import { Level } from '../game/level'
 import { initialLevelProgress, LevelState } from '../game/level-progress'
 import { useControllers } from '../hooks/useControllers'
 import useTimedCounter from '../hooks/useCountdown'
+import useGameEvent from '../hooks/useGameEvent'
 import usePlayerEvent from '../hooks/usePlayerEvent'
 import { useProfiles } from '../hooks/useProfiles'
 import IconApi from '../public/icons/icon-api.svg'
@@ -65,6 +66,8 @@ export default function LevelView({ level, styles }: Props) {
     !levelState.finished && context[0] === 'Main',
   )
 
+  Object.assign(window, { levelState, context, controllers })
+
   useEffect(() => {
     const totalDeployed = levelState.tickets.filter(
       (c) => c.progress === 'deployed',
@@ -92,6 +95,7 @@ export default function LevelView({ level, styles }: Props) {
 
       addStyleSheet(`/styles/${level.slug}.css`)
     }
+    setControllerContext('Main')
   }, [])
 
   const ref = useRef<HTMLDivElement>(null)
@@ -121,8 +125,30 @@ export default function LevelView({ level, styles }: Props) {
 
   usePlayerEvent(ref.current, handlePlayerEvent)
 
+  useGameEvent((event) => {
+    switch (event.type) {
+      case 'api': {
+        window.setTimeout(() => {
+          setLevelState((s) => {
+            const state = structuredClone(s)
+
+            s.tickets
+              .filter((t) => t.component.id === event.componentId)
+              .forEach((ticket) => {
+                ticket.progress = 'ready'
+                ticket.workspace = undefined
+              })
+
+            return state
+          })
+        }, event.duration)
+        break
+      }
+    }
+  })
+
   return (
-    <div className={styles.level.root} ref={ref}>
+    <div className={styles.level.root} ref={ref} data-action-zone="level">
       <AppBar
         level={level}
         levelState={levelState}
@@ -144,13 +170,12 @@ export default function LevelView({ level, styles }: Props) {
         </div>
         <div className={styles.level.workspaces}>
           {levelState.activeWorkspaces.map((active, id) => (
-            <div key={id}>
+            <div key={id} data-workspace={id}>
               <div className={styles.level.computer}>
                 {/* <IconComputer /> */}
                 <IconCodeEditor
                   data-action-zone="set-workspace"
                   data-work="code-editor"
-                  data-id={id}
                   className={clsx(active === 'code-editor' && 'active')}
                 />
                 <IconApi
@@ -162,14 +187,22 @@ export default function LevelView({ level, styles }: Props) {
               </div>
               {active === 'code-editor' ? (
                 <CodeEditor
-                  workspaceId={id}
                   ticket={levelState.tickets.find(
                     (t) => t.workspace === id && t.progress === 'coding',
                   )}
                   styles={styles}
                 />
               ) : (
-                <Apis level={level} styles={styles} />
+                <Apis
+                  level={level}
+                  styles={styles}
+                  tickets={levelState.tickets.filter(
+                    (t) =>
+                      t.workspace === id &&
+                      t.progress === 'api-progress' &&
+                      t.player === undefined,
+                  )}
+                />
               )}
             </div>
           ))}

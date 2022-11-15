@@ -13,7 +13,13 @@ export type LevelState = {
 
 export type Ticket = {
   component: Component
-  progress: 'specified' | 'coding' | 'coded' | 'ready' | 'deployed'
+  progress:
+    | 'specified'
+    | 'coding'
+    | 'coded'
+    | 'api-progress'
+    | 'ready'
+    | 'deployed'
   codingProgress: CodingProgress
   player?: number // controllerId
   workspace?: number

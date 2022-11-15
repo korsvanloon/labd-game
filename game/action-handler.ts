@@ -1,5 +1,6 @@
 import { ActionZone } from '../components/Player'
 import { ButtonEvent, Controller } from '../controller/interface'
+import { fireGameEvent } from '../hooks/useGameEvent'
 import { arrayEquals, isValue } from '../util/collection'
 import {
   addLine,
@@ -40,7 +41,7 @@ export const handleAction = (
     for (const zone of actionZones) {
       switch (zone.type) {
         case 'set-workspace': {
-          const workspace = Number(zone.element.dataset.id)
+          const workspace = getWorkspaceId(zone.element)
           const work = zone.element.dataset.work as ActiveWorkspace
 
           updateLevelState((s) => {
@@ -55,7 +56,7 @@ export const handleAction = (
           break
         }
         case 'code-editor': {
-          const workspace = Number(zone.element.dataset.id)
+          const workspace = getWorkspaceId(zone.element)
 
           switch (event.soloValue) {
             case 'up': {
@@ -150,7 +151,7 @@ export const handleAction = (
           break
         }
         case 'commit-button': {
-          const workspace = Number(zone.element.dataset.id)
+          const workspace = getWorkspaceId(zone.element)
 
           switch (event.soloValue) {
             case 'right': {
@@ -186,7 +187,6 @@ export const handleAction = (
           switch (event.soloValue) {
             case 'right': {
               if (!event.changed) return
-
               updateLevelState((s) => {
                 const state = structuredClone(s)
                 const slotComponentId = zone.element.dataset.componentId
@@ -200,6 +200,8 @@ export const handleAction = (
                   (ticket.component.forEach?.ids.includes(slotComponentId) ||
                     slotComponentId === ticket.component.id)
 
+                console.log(ticket.component.forEach?.ids)
+
                 if (isValid) {
                   deploy(state, level, ticket, zone.element)
                 } else {
@@ -211,6 +213,9 @@ export const handleAction = (
                 }
                 return state
               })
+              // if (!zone.element.dataset.componentId) {
+              //   zone.element.removeAttribute('data-action-zone')
+              // }
               break
             }
           }
@@ -310,6 +315,8 @@ export function handleApiAction(
   updateLevelState: UpdateLevelState,
   controller: Controller,
 ) {
+  const workspace = getWorkspaceId(zone.element)
+
   switch (event.soloValue) {
     case 'right': {
       updateLevelState((s) => {
@@ -326,7 +333,16 @@ export function handleApiAction(
           api &&
           ticket.component.forEach?.api === api
         ) {
-          ticket.progress = 'ready'
+          ticket.progress = 'api-progress'
+          ticket.workspace = workspace
+          ticket.player = undefined
+
+          fireGameEvent({
+            type: 'api',
+            componentId: ticket.component.id,
+            workspace,
+            duration: ticket.component.forEach.length * 1000,
+          })
         } else {
           addBugs(state, 1, controller)
           ticket.player = undefined
@@ -345,4 +361,10 @@ export function addBugs(
 ) {
   state.bugs += bugs
   controller.buzz()
+}
+
+export const getWorkspaceId = (element: HTMLElement): number => {
+  return element.dataset.workspace
+    ? Number(element.dataset.workspace)
+    : getWorkspaceId(element.parentElement!)
 }
