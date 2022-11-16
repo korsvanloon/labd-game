@@ -6,7 +6,7 @@ export type ActiveWorkspace = 'code-editor' | 'api'
 
 export type LevelState = {
   tickets: Ticket[]
-  bugs: number
+  bugs: number[]
   finished?: 'won' | 'lost'
   activeWorkspaces: ActiveWorkspace[]
 }
@@ -22,6 +22,8 @@ export type Ticket = {
     | 'deployed'
   codingProgress: CodingProgress
   player?: number // controllerId
+  commitPlayer?: number
+  deployPlayer?: number
   workspace?: number
 }
 
@@ -32,17 +34,26 @@ export type CodingProgress = {
 }
 
 export const calculateScore = (
+  playerId: number,
   level: Level,
   levelProgress: LevelState,
   time: number,
 ) =>
   sum(
     levelProgress.tickets.filter(
-      (ticket) => ticket.progress === 'deployed' && ticket.component.id !== '0',
+      (ticket) =>
+        ticket.component.id !== '0' && ticket.deployPlayer === playerId,
     ),
-    (p) => p.component.codeLines.length * (p.component.forEach?.length ?? 1),
+    (p) => 2 * (p.component.forEach?.length ?? 1),
+  ) +
+  sum(
+    levelProgress.tickets.filter(
+      (ticket) =>
+        ticket.component.id !== '0' && ticket.commitPlayer === playerId,
+    ),
+    (p) => p.component.codeLines.length,
   ) -
-  levelProgress.bugs +
+  levelProgress.bugs[playerId] +
   (levelProgress.finished === 'won' ? level.totalTime - time : 0)
 
 export const initialLevelProgress = (level: Level): LevelState => ({
@@ -54,7 +65,7 @@ export const initialLevelProgress = (level: Level): LevelState => ({
     })),
   ],
   activeWorkspaces: ['code-editor', 'api'],
-  bugs: 0,
+  bugs: [0, 0, 0, 0],
 })
 
 export const getNextComponents = (component: Component, _tickets: Ticket[]) => [

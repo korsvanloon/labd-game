@@ -32,7 +32,7 @@ export const cheats = (
         .sort((a, b) => a.progress.localeCompare(b.progress))
 
       tickets.forEach((ticket) => {
-        commit(state, ticket)
+        commit(state, ticket, 0)
       })
       console.info(tickets.slice(-1)[0])
       return { ...state }
@@ -45,7 +45,7 @@ export const cheats = (
 
       tickets.forEach((ticket) => {
         findDropZones(ticket.component).forEach((dropZone) =>
-          deploy(state, level, ticket, dropZone),
+          deploy(ticket, dropZone, 0),
         )
       })
       console.info(tickets.slice(-1)[0])
@@ -65,7 +65,7 @@ export const cheats = (
 
       tickets.forEach((ticket) => {
         findDropZones(ticket.component).forEach((dropZone) =>
-          deploy(state, level, ticket, dropZone),
+          deploy(ticket, dropZone, 0),
         )
       })
       console.info(tickets.slice(-1)[0])

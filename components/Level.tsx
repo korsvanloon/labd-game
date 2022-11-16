@@ -121,9 +121,10 @@ export default function LevelView({ level, styles }: Props) {
       } else {
         handleAction(
           setLevelState,
-          level,
           controllers[details.controllerId],
-        )(details.event, details.actionZones)
+          details.event,
+          details.actionZones,
+        )
       }
       event.stopPropagation()
     },
@@ -139,7 +140,7 @@ export default function LevelView({ level, styles }: Props) {
           setLevelState((s) => {
             const state = structuredClone(s)
 
-            s.tickets
+            state.tickets
               .filter((t) => t.component.id === event.componentId)
               .forEach((ticket) => {
                 ticket.progress = 'ready'
@@ -227,7 +228,10 @@ export default function LevelView({ level, styles }: Props) {
             >
               {levelState.tickets
                 .filter(
-                  (t) => t.player === controller.id && t.progress !== 'coding',
+                  (t) =>
+                    t.player === controller.id &&
+                    t.workspace === undefined &&
+                    t.progress !== 'deployed',
                 )
                 .map((ticket) => (
                   <TicketCard
@@ -254,8 +258,15 @@ export default function LevelView({ level, styles }: Props) {
           <p>
             Congratulations! You've completed
             <br />
-            {capitalCase(level.slug.split('_').pop()!)} with a score of{' '}
-            <strong>{calculateScore(level, levelState, time)}</strong>.
+            {capitalCase(level.slug.split('_').pop()!)} with a scores of{' '}
+            <div>
+              {controllers.map((_, i) => (
+                <div>
+                  <span>{profiles[i]?.name} </span>
+                  <strong>{calculateScore(i, level, levelState, time)}</strong>
+                </div>
+              ))}
+            </div>
           </p>
         </div>
       )}

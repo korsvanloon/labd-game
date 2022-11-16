@@ -1,6 +1,5 @@
 import { clamp } from '../util/math'
 import { randomSeed } from '../util/random'
-import { Level } from './level'
 import { LevelState, Ticket } from './level-progress'
 
 const seed = 2
@@ -20,10 +19,9 @@ export function addLine(ticket: Ticket) {
 }
 
 export function deploy(
-  _state: LevelState,
-  _level: Level,
   ticket: Ticket,
   dropZone: HTMLElement,
+  playerId: number,
 ) {
   dropZone.removeAttribute('data-action-zone')
 
@@ -34,7 +32,7 @@ export function deploy(
   }
   if (!ticket.component.forEach?.ids.length) {
     ticket.progress = 'deployed'
-    ticket.player = undefined
+    ticket.deployPlayer = playerId
   }
 }
 
@@ -46,20 +44,17 @@ export const ticketValidation = (ticket: Ticket) => {
   return { isValid, errors }
 }
 
-export function commit(state: LevelState, ticket: Ticket) {
+export function commit(state: LevelState, ticket: Ticket, playerId: number) {
   const progress: Ticket['progress'] = ticket.component.forEach?.api
     ? 'coded'
     : 'ready'
 
-  ticket.progress = progress
-  ticket.workspace = undefined
-  ticket.player = undefined
-
   state.tickets
-    .filter(
-      (p) =>
-        p.component.type === ticket.component.type &&
-        p.progress === 'specified',
-    )
-    .forEach((p) => (p.progress = progress))
+    .filter((p) => p.component.type === ticket.component.type)
+    .forEach((ticket) => {
+      ticket.commitPlayer = playerId
+      ticket.progress = progress
+      ticket.player = undefined
+      ticket.workspace = undefined
+    })
 }

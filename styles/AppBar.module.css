@@ -54,3 +54,9 @@
   width: 2.5rem;
   height: 2.5rem;
 }
+
+.userScore {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
